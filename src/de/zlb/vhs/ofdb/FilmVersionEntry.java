@@ -36,7 +36,7 @@ public class FilmVersionEntry {
 	}
 	
 	private final String extractCountry (String title) {
-		int index1 = title.indexOf('(');
+		int index1 = title.lastIndexOf('(');
 		int index2 = title.lastIndexOf(')');
 		return title.substring(index1 + 1, index2);
 	}
