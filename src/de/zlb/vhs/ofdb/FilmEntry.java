@@ -2,6 +2,7 @@ package de.zlb.vhs.ofdb;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class FilmEntry {
 	public final String title;
@@ -29,6 +30,10 @@ public class FilmEntry {
 	
 	public void addVersion(FilmVersionEntry version) {
 		versions.add(version);
+	}
+	
+	public Stream<FilmVersionEntry> getVersions() {
+		return versions.stream();
 	}
 
 	@Override

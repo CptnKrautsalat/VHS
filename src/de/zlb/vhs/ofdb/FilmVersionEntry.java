@@ -1,6 +1,7 @@
 package de.zlb.vhs.ofdb;
 
 public class FilmVersionEntry {
+	public final FilmEntry film;
 	public final String title;
 	public final String medium;
 	public final String publisher;
@@ -8,14 +9,19 @@ public class FilmVersionEntry {
 	public final String rating;
 	public final String link;
 	
-	public FilmVersionEntry(String title, String link) {
+	public FilmVersionEntry(FilmEntry film, String title, String link) {
 		super();
+		this.film = film;
 		this.title = title;
 		this.medium = extractMedium(title);
 		this.publisher = extractPublisher(title);
 		this.country = extractCountry(title);
 		this.rating = extractRating(title);
 		this.link = link;
+	}
+	
+	public FilmVersionEntryBean toBean() {
+		return new FilmVersionEntryBean(film.title, String.valueOf(film.year), film.link, medium, publisher, country, rating, link);
 	}
 	
 	private final String extractMedium (String title) {
