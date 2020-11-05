@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class FilmEntry {
 	public final String title;
-	public final int year;
+	public final String year;
 	public final String link;
 	
 	private final List<FilmVersionEntry> versions = new LinkedList<FilmVersionEntry>();
@@ -23,7 +23,7 @@ public class FilmEntry {
 	public FilmEntry(FilmVersionEntryBean filmVersionEntryBean) {
 		super();
 		this.title = filmVersionEntryBean.title;
-		this.year = Integer.parseInt(filmVersionEntryBean.year);
+		this.year = filmVersionEntryBean.year;
 		this.link = filmVersionEntryBean.filmLink;
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
 	}
@@ -34,12 +34,13 @@ public class FilmEntry {
 	
 	private String extractTitle(String title) {
 		int index = title.lastIndexOf('(');
-		return title.substring(0, index-1);
+		return index == -1 ? title : title.substring(0, index-1);
 	}
 	
-	private int extractYear(String title) {
-		int index = title.lastIndexOf('(');
-		return Integer.parseInt(title.substring(index + 1, index + 5));
+	private String extractYear(String title) {
+		int index1 = title.lastIndexOf('(');
+		int index2 = title.lastIndexOf(')');
+		return (index1 == -1 || index2 == -1) ? "" : title.substring(index1 + 1, index2);
 	}
 	
 	public void addVersion(FilmVersionEntry version) {

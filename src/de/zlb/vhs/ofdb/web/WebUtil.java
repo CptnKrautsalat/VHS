@@ -47,8 +47,6 @@ public class WebUtil {
     }
 
     public static Set<FilmEntry> generateOFDBList(String url) throws IOException {
-        log.info("Generating OFDB list from web...");
-
         Set<FilmEntry> films = new HashSet<>();
         Document doc = Jsoup.connect(url).get();
         log.trace(doc.title());
@@ -65,8 +63,6 @@ public class WebUtil {
         for (FilmEntry film : films) {
             log.trace(film);
         }
-
-        log.info("Created " + films.size() + " films!");
 
         return films;
     }

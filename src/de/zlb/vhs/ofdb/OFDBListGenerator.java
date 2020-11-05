@@ -21,7 +21,8 @@ public class OFDBListGenerator {
 	public static final String[] INDEXED = {"N", "J"};
 
 	public static final Logger log = LogManager.getLogger(OFDBListGenerator.class);
-	
+	public static final int OFDB_PAGE_SIZE = 50;
+
 	private final Set<FilmEntry> films = new HashSet<>();
 
 	private void addFilm(FilmEntry film) {
@@ -53,14 +54,20 @@ public class OFDBListGenerator {
 	}
 
 	private void collectOFDBData() throws IOException, InterruptedException {
+		log.info("Generating OFDB list from web...");
+
 		for (String medium : MEDIUMS) {
 			for (String indexed : INDEXED) {
-				String url = WebUtil.generateOfdbUrl(medium, indexed, 0);
-				Set <FilmEntry> films = WebUtil.generateOFDBList(url);
-				int count = films.size();
-				log.info("Collected " + count + " films from ofdb.");
-				films.forEach(this::addFilm);
-				Thread.sleep(100);
+				boolean finished = false;
+				for (int position = 0; !finished; position += OFDB_PAGE_SIZE) {
+					String url = WebUtil.generateOfdbUrl(medium, indexed, position);
+					Set <FilmEntry> films = WebUtil.generateOFDBList(url);
+					int count = films.size();
+					finished = count == 0;
+					log.info("Collected " + count + " films from ofdb.");
+					films.forEach(this::addFilm);
+					Thread.sleep(100);
+				}
 			}
 		}
 

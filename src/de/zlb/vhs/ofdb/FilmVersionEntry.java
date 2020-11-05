@@ -53,7 +53,7 @@ public class FilmVersionEntry {
 	
 	private String extractRating (String title) {
 		int index1 = title.lastIndexOf(',');
-		return index1 == -1 ? "" : title.substring(index1 + 2, title.length());
+		return (index1 == -1 || index1 == title.length() - 1) ? "" : title.substring(index1 + 2);
 	}
 
 	@Override
