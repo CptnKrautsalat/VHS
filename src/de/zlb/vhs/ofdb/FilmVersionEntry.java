@@ -24,26 +24,26 @@ public class FilmVersionEntry {
 		return new FilmVersionEntryBean(film.title, String.valueOf(film.year), film.link, medium, publisher, country, rating, link);
 	}
 	
-	private final String extractMedium (String title) {
+	private String extractMedium (String title) {
 		int index = title.indexOf(":");
 		return title.substring(0, index);
 	}
 	
-	private final String extractPublisher (String title) {
+	private String extractPublisher (String title) {
 		int index1 = title.indexOf(':');
 		int index2 = title.lastIndexOf('(');
 		return title.substring(index1 + 2, index2 - 1);
 	}
 	
-	private final String extractCountry (String title) {
+	private String extractCountry (String title) {
 		int index1 = title.lastIndexOf('(');
 		int index2 = title.lastIndexOf(')');
-		return title.substring(index1 + 1, index2);
+		return (index1 == -1 || index2 == -1) ? "" : title.substring(index1 + 1, index2);
 	}
 	
-	private final String extractRating (String title) {
+	private String extractRating (String title) {
 		int index1 = title.lastIndexOf(',');
-		return title.substring(index1 + 2, title.length());
+		return index1 == -1 ? "" : title.substring(index1 + 2, title.length());
 	}
 
 	@Override
