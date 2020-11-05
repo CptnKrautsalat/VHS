@@ -37,24 +37,33 @@ public class WebUtil {
         return lastFilm;
     }
 
+    public static String generateOfdbUrl(String medium, String indexed, int position) {
+        return "https://ssl.ofdb.de/view.php?page=fsuche&AB=-&Genre=-&Note=&HLand=-&Jahr=&Wo="
+                + medium
+                + "&Wer=&Regie=&Darsteller=&Titel=&Land=-&Freigabe=-&Cut=A&Indiziert="
+                + indexed
+                + "&Info=&Typ=N&Pos="
+                + position;
+    }
+
     public static Set<FilmEntry> generateOFDBList(String url) throws IOException {
         log.info("Generating OFDB list from web...");
 
         Set<FilmEntry> films = new HashSet<>();
         Document doc = Jsoup.connect(url).get();
-        log.debug(doc.title());
+        log.trace(doc.title());
         Elements tds = doc.select("td:contains(Liste der gefundenen Fassungen)");
         FilmEntry lastFilm = null;
         for (Element td: tds) {
             Elements links = td.select("p a");
             for (Element link : links) {
-                OFDBListGenerator.log.debug(link.text());
+                log.trace(link.text());
                 lastFilm = parseListElement(link, lastFilm);
                 films.add(lastFilm);
             }
         }
         for (FilmEntry film : films) {
-            log.debug(film);
+            log.trace(film);
         }
 
         log.info("Created " + films.size() + " films!");

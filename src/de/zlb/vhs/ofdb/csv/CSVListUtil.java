@@ -62,7 +62,11 @@ public class CSVListUtil {
                 .map(FilmVersionEntry::toBean)
                 .collect(Collectors.toList());
 
+        log.info("Writing " + beans.size() + " releases of " + films.size() + " films.");
+
         beanWriter.write(beans);
         writer.close();
+
+        log.info("Done writing!");
     }
 }

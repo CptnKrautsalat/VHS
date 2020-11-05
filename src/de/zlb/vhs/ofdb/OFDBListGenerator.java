@@ -17,6 +17,8 @@ import java.util.Set;
 public class OFDBListGenerator {
 
 	public static final String OFDB_LINK_PREFIX = "https://ssl.ofdb.de/";
+	public static final String[] MEDIUMS = {"V", "D", "B"};
+	public static final String[] INDEXED = {"N", "J"};
 
 	public static final Logger log = LogManager.getLogger(OFDBListGenerator.class);
 	
@@ -37,25 +39,38 @@ public class OFDBListGenerator {
 				.forEach(this::addFilm);
 	}
 
-	public void generateListAndWriteToCSV() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+	public void generateListAndWriteToCSV() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, InterruptedException {
 		File csvFile = new File("films.csv");
 
 		if (csvFile.exists() && csvFile.isFile()) {
 			convertBeansToFilmList(CSVListUtil.readOFDBListFromCSV(csvFile));
 		} else {
-			Set <FilmEntry> films = WebUtil.generateOFDBList("https://ssl.ofdb.de/view.php?page=fsuche&Typ=N&AB=-&Titel=&Genre=-&Note=&HLand=-&Jahr=&Regie=&Darsteller=&Wo=V&Wer=&Land=-&Freigabe=-&Cut=A&Indiziert=N&Info=&Submit2=Suche+ausf%C3%BChren");
-			films.forEach(this::addFilm);
+			collectOFDBData();
 		}
 
 		CSVListUtil.writeOFBDListToCSV(films, "films3.csv");
 		log.info("Done!");
 	}
-	
+
+	private void collectOFDBData() throws IOException, InterruptedException {
+		for (String medium : MEDIUMS) {
+			for (String indexed : INDEXED) {
+				String url = WebUtil.generateOfdbUrl(medium, indexed, 0);
+				Set <FilmEntry> films = WebUtil.generateOFDBList(url);
+				int count = films.size();
+				log.info("Collected " + count + " films from ofdb.");
+				films.forEach(this::addFilm);
+				Thread.sleep(100);
+			}
+		}
+
+	}
+
 	public static void main(String [] args) {
 		try {
 			OFDBListGenerator generator = new OFDBListGenerator();
 			generator.generateListAndWriteToCSV();
-		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | InterruptedException e) {
 			log.error(e.getMessage());
 		}
 	}
