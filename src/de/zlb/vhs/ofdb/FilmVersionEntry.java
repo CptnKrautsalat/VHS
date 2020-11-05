@@ -2,7 +2,6 @@ package de.zlb.vhs.ofdb;
 
 public class FilmVersionEntry {
 	public final FilmEntry film;
-	public final String title;
 	public final String medium;
 	public final String publisher;
 	public final String country;
@@ -12,12 +11,21 @@ public class FilmVersionEntry {
 	public FilmVersionEntry(FilmEntry film, String title, String link) {
 		super();
 		this.film = film;
-		this.title = title;
 		this.medium = extractMedium(title);
 		this.publisher = extractPublisher(title);
 		this.country = extractCountry(title);
 		this.rating = extractRating(title);
-		this.link = link;
+		this.link = OFDBListGenerator.OFDB_LINK_PREFIX + link;
+	}
+
+	public FilmVersionEntry(FilmEntry film, FilmVersionEntryBean bean) {
+		super();
+		this.film = film;
+		this.medium = bean.medium;
+		this.publisher = bean.publisher;
+		this.country = bean.country;
+		this.rating = bean.rating;
+		this.link = bean.versionLink;
 	}
 	
 	public FilmVersionEntryBean toBean() {
@@ -51,7 +59,6 @@ public class FilmVersionEntry {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
 
@@ -65,16 +72,8 @@ public class FilmVersionEntry {
 			return false;
 		FilmVersionEntry other = (FilmVersionEntry) obj;
 		if (link == null) {
-			if (other.link != null)
-				return false;
-		} else if (!link.equals(other.link))
-			return false;
-		if (title == null) {
-			if (other.title != null)
-				return false;
-		} else if (!title.equals(other.title))
-			return false;
-		return true;
+			return other.link == null;
+		} else return link.equals(other.link);
 	}
 
 	@Override

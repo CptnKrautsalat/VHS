@@ -4,8 +4,6 @@ import com.opencsv.bean.CsvBindByName;
 
 public class FilmVersionEntryBean {
 
-	public static final String OFDB_LINK_PREFIX = "https://ssl.ofdb.de/";
-
 	@CsvBindByName(column = "Titel")
 	public String title;
 	@CsvBindByName(column = "Jahr")
@@ -28,13 +26,15 @@ public class FilmVersionEntryBean {
 		super();
 		this.title = title;
 		this.year = year;
-		this.filmLink = OFDB_LINK_PREFIX + filmLink;
+		this.filmLink = filmLink;
 		this.medium = medium;
 		this.publisher = publisher;
 		this.country = country;
 		this.rating = rating;
-		this.versionLink = OFDB_LINK_PREFIX + versionLink;
+		this.versionLink = versionLink;
 	}
+
+	public FilmVersionEntryBean() {}
 
 	@Override
 	public String toString() {

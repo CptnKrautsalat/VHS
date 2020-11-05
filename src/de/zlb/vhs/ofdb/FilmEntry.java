@@ -15,7 +15,19 @@ public class FilmEntry {
 		super();
 		this.title = extractTitle(title);
 		this.year = extractYear(title);
-		this.link = link;
+		this.link = OFDBListGenerator.OFDB_LINK_PREFIX + link;
+	}
+
+	public FilmEntry(FilmVersionEntryBean filmVersionEntryBean) {
+		super();
+		this.title = filmVersionEntryBean.title;
+		this.year = Integer.parseInt(filmVersionEntryBean.year);
+		this.link = filmVersionEntryBean.filmLink;
+		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
+	}
+
+	public void mergeVersions (FilmEntry otherFilm) {
+		otherFilm.versions.forEach(this::addVersion);
 	}
 	
 	private String extractTitle(String title) {
@@ -60,15 +72,7 @@ public class FilmEntry {
 			return false;
 		FilmEntry other = (FilmEntry) obj;
 		if (link == null) {
-			if (other.link != null)
-				return false;
-		} else if (!link.equals(other.link))
-			return false;
-		if (title == null) {
-			if (other.title != null)
-				return false;
-		} else if (!title.equals(other.title))
-			return false;
-		return true;
+			return other.link == null;
+		} else return link.equals(other.link);
 	}
 }
