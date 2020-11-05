@@ -65,6 +65,9 @@ public class OFDBListGenerator {
 					int count = films.size();
 					finished = count == 0;
 					log.info("Collected " + count + " films from ofdb.");
+					if (finished) {
+						log.info("Finished at M=" + medium + ", indiziert=" + indexed + ", pos=" + position);
+					}
 					films.forEach(this::addFilm);
 					Thread.sleep(100);
 				}
