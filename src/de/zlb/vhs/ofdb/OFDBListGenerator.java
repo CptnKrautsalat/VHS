@@ -71,25 +71,17 @@ public class OFDBListGenerator {
 		
 		FileWriter writer = new FileWriter("films.csv");
 		
-		ColumnPositionMappingStrategy<FilmVersionEntryBean> mappingStrategy = 
-				new ColumnPositionMappingStrategy<>();
-		mappingStrategy.setType(FilmVersionEntryBean.class);
-		
-		String[] columns = new String[] { "title", "year", "filmLink", "medium", "publisher", "country", "rating", "versionLink" };
-		mappingStrategy.setColumnMapping(columns);
-		
 		StatefulBeanToCsvBuilder<FilmVersionEntryBean> builder = new StatefulBeanToCsvBuilder<>(writer);
 		StatefulBeanToCsv<FilmVersionEntryBean> beanWriter = builder
 			.withSeparator(SEPARATOR)
-			.withMappingStrategy(mappingStrategy)
 			.build();
-		
+
 		List<FilmVersionEntryBean> beans = films
 				.stream()
-				.flatMap(f -> f.getVersions())
-				.map(v -> v.toBean())
+				.flatMap(FilmEntry::getVersions)
+				.map(FilmVersionEntry::toBean)
 				.collect(Collectors.toList());
-		
+
 		beanWriter.write(beans);
 		writer.close();
 	}
