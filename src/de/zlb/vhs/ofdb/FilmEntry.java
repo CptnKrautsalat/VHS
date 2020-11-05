@@ -1,5 +1,7 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;

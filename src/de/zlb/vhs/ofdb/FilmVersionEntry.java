@@ -1,5 +1,7 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+
 public class FilmVersionEntry {
 	public final FilmEntry film;
 	public final String medium;
