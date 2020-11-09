@@ -11,7 +11,7 @@ public class FilmEntry {
 	public final String year;
 	public final String link;
 	
-	private final List<FilmVersionEntry> versions = new LinkedList<FilmVersionEntry>();
+	private final List<FilmVersionEntry> versions = new LinkedList<>();
 
 	public FilmEntry(String title, String link) {
 		super();

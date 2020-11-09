@@ -24,6 +24,8 @@ public class OFDBListGenerator {
 
 	public static final int OFDB_PAGE_SIZE = 50;
 	public static final int OFDB_RETRY_INTERVAL_MILLIS = 60000;
+	public static final int OFDB_ATTEMPTS = 5;
+	public static final int OFDB_INTERVAL_MILLIS = 100;
 
 	private final Set<FilmEntry> films = new HashSet<>();
 
@@ -42,20 +44,25 @@ public class OFDBListGenerator {
 				.forEach(this::addFilm);
 	}
 
-	public void generateListAndWriteToCSV() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, InterruptedException {
+	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 		File csvFile = new File("films.csv");
 
-		if (csvFile.exists() && csvFile.isFile()) {
-			convertBeansToFilmList(CSVListUtil.readOFDBListFromCSV(csvFile));
-		} else {
-			collectOFDBData();
+		try {
+			if (csvFile.exists() && csvFile.isFile()) {
+				convertBeansToFilmList(CSVListUtil.readOFDBListFromCSV(csvFile));
+			} else {
+				collectOFDBData();
+			}
+		} catch (IOException | InterruptedException e) {
+			log.error(e.getMessage());
+		} finally {
+			CSVListUtil.writeOFBDListToCSV(films, "films9.csv");
+			log.info("Done!");
 		}
 
-		CSVListUtil.writeOFBDListToCSV(films, "films9.csv");
-		log.info("Done!");
 	}
 
-	private void collectOFDBData() throws IOException, InterruptedException {
+	private void collectOFDBData() throws InterruptedException {
 		log.info("Generating OFDB list from web...");
 
 		for (String medium : MEDIUMS) {
@@ -66,13 +73,18 @@ public class OFDBListGenerator {
 
 	}
 
-	private void collectOFDBDataForMedium(String medium, String indexed) throws IOException, InterruptedException {
+	private void collectOFDBDataForMedium(String medium, String indexed) throws InterruptedException {
 		boolean emptyPage = false;
 		for (int position = 0; !emptyPage; position += OFDB_PAGE_SIZE) {
-			for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < 3); ++attempt) {
+			for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < OFDB_ATTEMPTS); ++attempt) {
 				String url = WebUtil.generateOfdbUrl(medium, indexed, position);
-				Set <FilmEntry> films = WebUtil.generateOFDBList(url);
-				int count = films.size();
+				Set <FilmEntry> films = null;
+				try {
+					films = WebUtil.generateOFDBList(url);
+				} catch (IOException e) {
+					log.error("Failed to collect data from ofdb.", e);
+				}
+				int count = films == null ? 0 : films.size();
 				emptyPage = count == 0;
 
 				//OFDB sometimes returns empty pages even if there is still data left
@@ -85,7 +97,7 @@ public class OFDBListGenerator {
 				}
 			}
 			//let's take it easy on the old OFDB
-			Thread.sleep(250);
+			Thread.sleep(OFDB_INTERVAL_MILLIS);
 		}
 	}
 
@@ -93,7 +105,7 @@ public class OFDBListGenerator {
 		try {
 			OFDBListGenerator generator = new OFDBListGenerator();
 			generator.generateListAndWriteToCSV();
-		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | InterruptedException e) {
+		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
 			log.error(e.getMessage());
 		}
 	}
