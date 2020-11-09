@@ -31,6 +31,10 @@ public class FilmEntry {
 	public void mergeVersions (FilmEntry otherFilm) {
 		otherFilm.versions.forEach(this::addVersion);
 	}
+
+	public boolean isValid () {
+		return !year.isEmpty() && !versions.isEmpty();
+	}
 	
 	private String extractTitle(String title) {
 		int index = title.lastIndexOf('(');

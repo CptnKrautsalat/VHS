@@ -16,12 +16,14 @@ import java.util.Set;
 
 public class OFDBListGenerator {
 
+	public static final Logger log = LogManager.getLogger(OFDBListGenerator.class);
+
 	public static final String OFDB_LINK_PREFIX = "https://ssl.ofdb.de/";
-	public static final String[] MEDIUMS = {"V", "D", "B"};
+	public static final String[] MEDIUMS = {"D", "B"};
 	public static final String[] INDEXED = {"N", "J"};
 
-	public static final Logger log = LogManager.getLogger(OFDBListGenerator.class);
 	public static final int OFDB_PAGE_SIZE = 50;
+	public static final int OFDB_RETRY_INTERVAL_MILLIS = 60000;
 
 	private final Set<FilmEntry> films = new HashSet<>();
 
@@ -49,7 +51,7 @@ public class OFDBListGenerator {
 			collectOFDBData();
 		}
 
-		CSVListUtil.writeOFBDListToCSV(films, "films3.csv");
+		CSVListUtil.writeOFBDListToCSV(films, "films9.csv");
 		log.info("Done!");
 	}
 
@@ -58,22 +60,33 @@ public class OFDBListGenerator {
 
 		for (String medium : MEDIUMS) {
 			for (String indexed : INDEXED) {
-				boolean finished = false;
-				for (int position = 0; !finished; position += OFDB_PAGE_SIZE) {
-					String url = WebUtil.generateOfdbUrl(medium, indexed, position);
-					Set <FilmEntry> films = WebUtil.generateOFDBList(url);
-					int count = films.size();
-					finished = count == 0;
-					log.info("Collected " + count + " films from ofdb.");
-					if (finished) {
-						log.info("Finished at M=" + medium + ", indiziert=" + indexed + ", pos=" + position);
-					}
-					films.forEach(this::addFilm);
-					Thread.sleep(100);
-				}
+				collectOFDBDataForMedium(medium, indexed);
 			}
 		}
 
+	}
+
+	private void collectOFDBDataForMedium(String medium, String indexed) throws IOException, InterruptedException {
+		boolean emptyPage = false;
+		for (int position = 0; !emptyPage; position += OFDB_PAGE_SIZE) {
+			for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < 3); ++attempt) {
+				String url = WebUtil.generateOfdbUrl(medium, indexed, position);
+				Set <FilmEntry> films = WebUtil.generateOFDBList(url);
+				int count = films.size();
+				emptyPage = count == 0;
+
+				//OFDB sometimes returns empty pages even if there is still data left
+				if (emptyPage) {
+					log.info("Empty page at M=" + medium + ", indiziert=" + indexed + ", pos=" + position + ", attempt=" + attempt);
+					Thread.sleep(OFDB_RETRY_INTERVAL_MILLIS);
+				} else {
+					log.info("Collected " + count + " films from ofdb.");
+					films.forEach(this::addFilm);
+				}
+			}
+			//let's take it easy on the old OFDB
+			Thread.sleep(250);
+		}
 	}
 
 	public static void main(String [] args) {

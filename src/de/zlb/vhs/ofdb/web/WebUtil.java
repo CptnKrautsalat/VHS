@@ -57,7 +57,9 @@ public class WebUtil {
             for (Element link : links) {
                 log.trace(link.text());
                 lastFilm = parseListElement(link, lastFilm);
-                films.add(lastFilm);
+                if (lastFilm.isValid()) {
+                    films.add(lastFilm);
+                }
             }
         }
         for (FilmEntry film : films) {
