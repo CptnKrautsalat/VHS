@@ -4,6 +4,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +30,10 @@ public class OFDBListGenerator {
 	public static final int OFDB_INTERVAL_MILLIS = 100;
 
 	private final Set<FilmEntry> films = new HashSet<>();
+	private final Set<LibraryCatalogEntryBean> libraryCatalog = new HashSet<>();
+
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
+	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>('#');
 
 	private void addFilm(FilmEntry film) {
 		if (films.contains(film)) {
@@ -46,6 +50,9 @@ public class OFDBListGenerator {
 				.forEach(this::addFilm);
 	}
 
+	private void addBeansToLibraryCatalog(List<LibraryCatalogEntryBean> beans) {
+		libraryCatalog.addAll(beans);
+	}
 
 	private Set<FilmEntry> getVHSOnlyFilms() {
 		return films
@@ -69,8 +76,13 @@ public class OFDBListGenerator {
 
 	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 
+		libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
+		log.info(libraryCatalog.size() + " library catalog entries loaded.");
+
 		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
-		log.info("Done reading files, " + films.size() + " films loaded.");
+		log.info(films.size() + " films loaded.");
+
+		log.info("Done reading files.");
 
 		try {
 			if (films.isEmpty()) {

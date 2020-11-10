@@ -31,7 +31,7 @@ public class CSVListHandler<B> {
 
     public List<B> readListFromCSVFile(File csvFile, Class<? extends B> type) throws IOException {
 
-        log.info("Reading OFDB list from file " + csvFile.getName() + " ...");
+        log.info("Reading list from file " + csvFile.getName() + " ...");
 
         FileReader reader = new FileReader(csvFile);
 
@@ -53,7 +53,7 @@ public class CSVListHandler<B> {
     }
 
     public void writeListToCSVFile(List<B> beans, String file) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        log.info("Writing OFDB list to CSV file " + file + "...");
+        log.info("Writing list to CSV file " + file + "...");
 
         FileWriter writer = new FileWriter(file);
 
