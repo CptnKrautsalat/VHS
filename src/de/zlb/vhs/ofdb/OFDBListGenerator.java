@@ -10,9 +10,13 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public class OFDBListGenerator {
 
@@ -44,22 +48,43 @@ public class OFDBListGenerator {
 				.forEach(this::addFilm);
 	}
 
+
+	private void readOFDBListFromDirectory(String directory) {
+		try (Stream<Path> paths = Files.walk(Paths.get(directory))) {
+			paths
+					.filter(Files::isRegularFile)
+					.map(Path::toString)
+					.forEach(this::readOFDBListFromFile);
+		} catch (IOException e) {
+			log.error("Failed to read files in directory " + directory, e);
+		}
+	}
+
 	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
-		File csvFile = new File("films.csv");
+
+		readOFDBListFromDirectory("input/ofdb");
+		log.info("Done reading files, " + films.size() + " films loaded.");
 
 		try {
-			if (csvFile.exists() && csvFile.isFile()) {
-				convertBeansToFilmList(CSVListUtil.readOFDBListFromCSV(csvFile));
-			} else {
+			if (films.isEmpty()) {
 				collectOFDBData();
 			}
-		} catch (IOException | InterruptedException e) {
+		} catch (InterruptedException e) {
 			log.error(e.getMessage());
 		} finally {
-			CSVListUtil.writeOFBDListToCSV(films, "films9.csv");
+			CSVListUtil.writeOFBDListToCSV(films, "output/ofdb.csv");
 			log.info("Done!");
 		}
 
+	}
+
+	private void readOFDBListFromFile(String fileName) {
+		File csvFile = new File(fileName);
+		try {
+			convertBeansToFilmList(CSVListUtil.readOFDBListFromCSV(csvFile));
+		} catch (IOException e) {
+			log.error("Failed to read file " + fileName, e);
+		}
 	}
 
 	private void collectOFDBData() throws InterruptedException {

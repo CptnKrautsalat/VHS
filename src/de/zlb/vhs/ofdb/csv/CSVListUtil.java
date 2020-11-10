@@ -25,7 +25,7 @@ public class CSVListUtil {
 
     public static List<FilmVersionEntryBean> readOFDBListFromCSV(File csvFile) throws IOException {
 
-        log.info("Reading OFDB list from file...");
+        log.info("Reading OFDB list from file " + csvFile.getName() + " ...");
 
         FileReader reader = new FileReader(csvFile);
 
@@ -39,7 +39,7 @@ public class CSVListUtil {
                 .stream()
                 .collect(Collectors.toList());
 
-        log.info("Read " + beans.size() + " beans from file!");
+        log.info("Read " + beans.size() + " beans from " + csvFile.getName() + "!");
 
         reader.close();
 
