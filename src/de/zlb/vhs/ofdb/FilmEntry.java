@@ -35,6 +35,10 @@ public class FilmEntry {
 	public boolean isValid () {
 		return !year.isEmpty() && !versions.isEmpty();
 	}
+
+	public boolean isVHSOnly() {
+		return getVersions().allMatch(FilmVersionEntry::isVHS);
+	}
 	
 	private String extractTitle(String title) {
 		int index = title.lastIndexOf('(');

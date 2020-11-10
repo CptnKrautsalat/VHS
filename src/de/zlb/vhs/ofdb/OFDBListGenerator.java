@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OFDBListGenerator {
@@ -60,6 +61,13 @@ public class OFDBListGenerator {
 		}
 	}
 
+	private Set<FilmEntry> getVHSOnlyFilms() {
+		return films
+				.stream()
+				.filter(FilmEntry::isVHSOnly)
+				.collect(Collectors.toSet());
+	}
+
 	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 
 		readOFDBListFromDirectory("input/ofdb");
@@ -73,6 +81,7 @@ public class OFDBListGenerator {
 			log.error(e.getMessage());
 		} finally {
 			CSVListUtil.writeOFBDListToCSV(films, "output/ofdb.csv");
+			CSVListUtil.writeOFBDListToCSV(getVHSOnlyFilms(), "output/vhs_only.csv");
 			log.info("Done!");
 		}
 

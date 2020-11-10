@@ -47,7 +47,7 @@ public class CSVListUtil {
     }
 
     public static void writeOFBDListToCSV(Collection<FilmEntry> films, String file) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        log.info("Writing OFDB list to CSV file...");
+        log.info("Writing OFDB list to CSV file " + file + "...");
 
         FileWriter writer = new FileWriter(file);
 
@@ -67,6 +67,6 @@ public class CSVListUtil {
         beanWriter.write(beans);
         writer.close();
 
-        log.info("Done writing!");
+        log.info("Done writing " + file + "!");
     }
 }

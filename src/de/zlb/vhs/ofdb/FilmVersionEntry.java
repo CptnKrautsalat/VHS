@@ -33,6 +33,10 @@ public class FilmVersionEntry {
 	public FilmVersionEntryBean toBean() {
 		return new FilmVersionEntryBean(film.title, String.valueOf(film.year), film.link, medium, publisher, country, rating, link);
 	}
+
+	public boolean isVHS() {
+		return medium.equals("Video");
+	}
 	
 	private String extractMedium (String title) {
 		int index = title.indexOf(":");
