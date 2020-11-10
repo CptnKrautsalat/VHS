@@ -2,29 +2,25 @@ package de.zlb.vhs.ofdb;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import de.zlb.vhs.ofdb.csv.CSVListUtil;
+import de.zlb.vhs.ofdb.csv.CSVListHandler;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class OFDBListGenerator {
 
 	public static final Logger log = LogManager.getLogger(OFDBListGenerator.class);
 
 	public static final String OFDB_LINK_PREFIX = "https://ssl.ofdb.de/";
-	public static final String[] MEDIUMS = {"D", "B"};
+	public static final String[] MEDIUMS = {"V", "D", "B"};
 	public static final String[] INDEXED = {"N", "J"};
 
 	public static final int OFDB_PAGE_SIZE = 50;
@@ -33,6 +29,7 @@ public class OFDBListGenerator {
 	public static final int OFDB_INTERVAL_MILLIS = 100;
 
 	private final Set<FilmEntry> films = new HashSet<>();
+	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
 
 	private void addFilm(FilmEntry film) {
 		if (films.contains(film)) {
@@ -50,17 +47,6 @@ public class OFDBListGenerator {
 	}
 
 
-	private void readOFDBListFromDirectory(String directory) {
-		try (Stream<Path> paths = Files.walk(Paths.get(directory))) {
-			paths
-					.filter(Files::isRegularFile)
-					.map(Path::toString)
-					.forEach(this::readOFDBListFromFile);
-		} catch (IOException e) {
-			log.error("Failed to read files in directory " + directory, e);
-		}
-	}
-
 	private Set<FilmEntry> getVHSOnlyFilms() {
 		return films
 				.stream()
@@ -68,9 +54,22 @@ public class OFDBListGenerator {
 				.collect(Collectors.toSet());
 	}
 
+	private List<FilmVersionEntryBean> convertFilmListToBeans(Collection<FilmEntry> films) {
+		return films
+				.stream()
+				.flatMap(FilmEntry::getVersions)
+				.map(FilmVersionEntry::toBean)
+				.collect(Collectors.toList());
+	}
+
+	private void writeFilmListToFile(Collection<FilmEntry> films, String fileName) throws CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
+		List<FilmVersionEntryBean> beans = convertFilmListToBeans(films);
+		ofdbCsvListHandler.writeListToCSVFile(beans, fileName);
+	}
+
 	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 
-		readOFDBListFromDirectory("input/ofdb");
+		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
 		log.info("Done reading files, " + films.size() + " films loaded.");
 
 		try {
@@ -80,20 +79,11 @@ public class OFDBListGenerator {
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
 		} finally {
-			CSVListUtil.writeOFBDListToCSV(films, "output/ofdb.csv");
-			CSVListUtil.writeOFBDListToCSV(getVHSOnlyFilms(), "output/vhs_only.csv");
+			writeFilmListToFile(films, "output/ofdb.csv");
+			writeFilmListToFile(getVHSOnlyFilms(), "output/vhs_only.csv");
 			log.info("Done!");
 		}
 
-	}
-
-	private void readOFDBListFromFile(String fileName) {
-		File csvFile = new File(fileName);
-		try {
-			convertBeansToFilmList(CSVListUtil.readOFDBListFromCSV(csvFile));
-		} catch (IOException e) {
-			log.error("Failed to read file " + fileName, e);
-		}
 	}
 
 	private void collectOFDBData() throws InterruptedException {
