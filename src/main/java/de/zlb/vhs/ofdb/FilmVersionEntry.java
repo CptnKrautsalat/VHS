@@ -98,7 +98,8 @@ public class FilmVersionEntry {
 		int index1 = title.lastIndexOf(',');
 		int index2 = title.lastIndexOf('(');
 		boolean noRating = index1 < index2 && index2 == title.indexOf('(');
-		return (noRating || index1 == -1 || index1 == title.length() - 1) ? "" : title.substring(index1 + 2);
+		String rating = (noRating || index1 == -1 || index1 == title.length() - 1) ? "" : title.substring(index1 + 2);
+		return rating.endsWith("\\") ? "" : rating;
 	}
 
 	@Override

@@ -78,7 +78,6 @@ public class OFDBListGenerator {
 	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 
 		readDataFromFiles();
-		fixBrokenData();
 
 		try {
 			if (films.isEmpty()) {
