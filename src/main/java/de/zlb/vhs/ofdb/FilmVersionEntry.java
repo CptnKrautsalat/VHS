@@ -1,13 +1,18 @@
 package de.zlb.vhs.ofdb;
 
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FilmVersionEntry {
+
+	public static final Logger log = LogManager.getLogger(FilmVersionEntry.class);
+
 	public final FilmEntry film;
 	public final String medium;
-	public final String publisher;
-	public final String country;
-	public final String rating;
+	public String publisher;
+	public String country;
+	public String rating;
 	public final String link;
 	
 	public FilmVersionEntry(FilmEntry film, String title, String link) {
@@ -45,6 +50,21 @@ public class FilmVersionEntry {
 	public boolean isBluRay() {
 		return medium.equals("Blu-ray Disc");
 	}
+
+	private boolean isSuspicious() {
+		return rating.contains("(");
+	}
+
+	public void fixBrokenEntry() {
+		if (isSuspicious()) {
+			log.info(this + " looks supicious!");
+			String title = medium + ": " + publisher.split(",")[0] + ", " + rating;
+			publisher = extractPublisher(title);
+			rating = extractRating(title);
+			country = extractCountry(title);
+			log.info(this + " should be fixed now!");
+		}
+	}
 	
 	private String extractMedium (String title) {
 		int index = title.indexOf(":");
@@ -52,8 +72,13 @@ public class FilmVersionEntry {
 	}
 
 	private String extractPublisher (String title) {
+		int lastCommaIndex = title.lastIndexOf(",");
 		int index1 = title.indexOf(':');
 		int index2 = title.lastIndexOf('(');
+		if (lastCommaIndex != -1 && lastCommaIndex < index2 && index2 != title.indexOf('(')) {
+			String titleWithoutRating = title.substring(0, lastCommaIndex);
+			index2 = titleWithoutRating.lastIndexOf('(');
+		}
 		return title.substring(index1 + 2, index2 - 1);
 	}
 
@@ -61,7 +86,7 @@ public class FilmVersionEntry {
 		int lastCommaIndex = title.lastIndexOf(",");
 		int index1 = title.lastIndexOf('(');
 		int index2 = title.lastIndexOf(')');
-		if (lastCommaIndex != -1 && lastCommaIndex < index2) {
+		if (lastCommaIndex != -1 && lastCommaIndex < index2 && index2 != title.indexOf(')')) {
 			String titleWithoutRating = title.substring(0, lastCommaIndex);
 			index1 = titleWithoutRating.lastIndexOf('(');
 			index2 = titleWithoutRating.lastIndexOf(')');
@@ -71,7 +96,9 @@ public class FilmVersionEntry {
 
 	private String extractRating (String title) {
 		int index1 = title.lastIndexOf(',');
-		return (index1 == -1 || index1 == title.length() - 1) ? "" : title.substring(index1 + 2);
+		int index2 = title.lastIndexOf('(');
+		boolean noRating = index1 < index2 && index2 == title.indexOf('(');
+		return (noRating || index1 == -1 || index1 == title.length() - 1) ? "" : title.substring(index1 + 2);
 	}
 
 	@Override

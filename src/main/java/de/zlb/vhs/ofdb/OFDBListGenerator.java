@@ -77,13 +77,8 @@ public class OFDBListGenerator {
 
 	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
 
-		libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
-		log.info(libraryCatalog.size() + " library catalog entries loaded.");
-
-		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
-		log.info(films.size() + " films loaded.");
-
-		log.info("Done reading files.");
+		readDataFromFiles();
+		fixBrokenData();
 
 		try {
 			if (films.isEmpty()) {
@@ -96,6 +91,25 @@ public class OFDBListGenerator {
 			log.info("Done!");
 		}
 
+	}
+
+	private void readDataFromFiles() {
+		libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
+		log.info(libraryCatalog.size() + " library catalog entries loaded.");
+
+		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
+		log.info(films.size() + " films loaded.");
+
+		log.info("Done reading files.");
+	}
+
+	private void fixBrokenData() {
+		log.info("Looking for invalid entries...");
+		films
+				.stream()
+				.flatMap(FilmEntry::getVersions)
+				.forEach(FilmVersionEntry::fixBrokenEntry);
+		log.info("Invalid entries fixed!");
 	}
 
 	private void processFilmData() throws CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
