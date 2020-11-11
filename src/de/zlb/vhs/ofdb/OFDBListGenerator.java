@@ -5,6 +5,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
+import de.zlb.vhs.ofdb.stats.StatsCollector;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,11 +92,25 @@ public class OFDBListGenerator {
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
 		} finally {
-			writeFilmListToFile(films, "output/ofdb.csv");
-			writeFilmListToFile(getVHSOnlyFilms(), "output/vhs_only.csv");
+			processFilmData();
 			log.info("Done!");
 		}
 
+	}
+
+	private void processFilmData() throws CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
+
+		log.info("Evaluating all OFDB data:");
+		new StatsCollector().collectStats(films);
+
+		log.info("Evaluating VHS-only OFDB data:");
+		Set<FilmEntry> vhsOnly = getVHSOnlyFilms();
+		new StatsCollector().collectStats(vhsOnly);
+
+		log.info("Writing data to CSV files...");
+		writeFilmListToFile(films, "output/ofdb.csv");
+		writeFilmListToFile(vhsOnly, "output/vhs_only.csv");
+		log.info("...done writing!");
 	}
 
 	private void collectOFDBData() throws InterruptedException {

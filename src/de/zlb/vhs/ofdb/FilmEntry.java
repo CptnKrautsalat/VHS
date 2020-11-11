@@ -1,9 +1,11 @@
 package de.zlb.vhs.ofdb;
 
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 public class FilmEntry {
@@ -38,6 +40,39 @@ public class FilmEntry {
 
 	public boolean isVHSOnly() {
 		return getVersions().allMatch(FilmVersionEntry::isVHS);
+	}
+
+	public boolean isTVShow() {
+		return title.contains("[TV-Serie]");
+	}
+
+	public boolean isShortFilm() {
+		return title.contains("[Kurzfilm]");
+	}
+
+	public boolean isFeatureFilm() {
+		return !(isTVShow() || isShortFilm());
+	}
+
+	public void addToStats(OFDBFilmStats stats) {
+		stats.films++;
+		stats.features += isFeatureFilm() ? 1 : 0;
+		stats.shorts += isShortFilm() ? 1 : 0;
+		stats.tvShows += isTVShow() ? 1 : 0;
+		stats.releases += versions.size();
+		stats.vhsReleases += getVersionCount(FilmVersionEntry::isVHS);
+		stats.dvdReleases += getVersionCount(FilmVersionEntry::isDVD);
+		stats.blurayReleases += getVersionCount(FilmVersionEntry::isBluRay);
+
+		getVersions()
+				.map(v -> v.country)
+				.forEach(stats::incrementCountry);
+	}
+
+	public long getVersionCount (Predicate<FilmVersionEntry> predicate) {
+		return getVersions()
+				.filter(predicate)
+				.count();
 	}
 	
 	private String extractTitle(String title) {

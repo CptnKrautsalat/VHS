@@ -37,6 +37,14 @@ public class FilmVersionEntry {
 	public boolean isVHS() {
 		return medium.equals("Video");
 	}
+
+	public boolean isDVD() {
+		return medium.equals("DVD");
+	}
+
+	public boolean isBluRay() {
+		return medium.equals("Blu-ray Disc");
+	}
 	
 	private String extractMedium (String title) {
 		int index = title.indexOf(":");
