@@ -46,24 +46,24 @@ public class FilmVersionEntry {
 		return medium.equals("Blu-ray Disc");
 	}
 	
-	private String extractMedium (String title) {
+	String extractMedium (String title) {
 		int index = title.indexOf(":");
 		return title.substring(0, index);
 	}
 	
-	private String extractPublisher (String title) {
+	String extractPublisher (String title) {
 		int index1 = title.indexOf(':');
 		int index2 = title.lastIndexOf('(');
 		return title.substring(index1 + 2, index2 - 1);
 	}
 	
-	private String extractCountry (String title) {
+	String extractCountry (String title) {
 		int index1 = title.lastIndexOf('(');
 		int index2 = title.lastIndexOf(')');
 		return (index1 == -1 || index2 == -1) ? "" : title.substring(index1 + 1, index2);
 	}
 	
-	private String extractRating (String title) {
+	String extractRating (String title) {
 		int index1 = title.lastIndexOf(',');
 		return (index1 == -1 || index1 == title.length() - 1) ? "" : title.substring(index1 + 2);
 	}
