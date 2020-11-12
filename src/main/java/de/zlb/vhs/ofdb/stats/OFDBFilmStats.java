@@ -1,11 +1,9 @@
 package de.zlb.vhs.ofdb.stats;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OFDBFilmStats {
+    public static final String SUPERTAB = "\t\t\t\t\t: ";
     public long films = 0;
     public long tvShows = 0;
     public long shorts = 0;
@@ -27,18 +25,22 @@ public class OFDBFilmStats {
 
     public List<String> toLines() {
         List<String> lines = new LinkedList<>();
-        lines.add("Filme \t:\t" + films);
-        lines.add("Serien \t:\t" + tvShows);
-        lines.add("Kurzfilme \t:\t" + shorts);
-        lines.add("Langfilme \t:\t" + features);
-        lines.add("");
-        lines.add("Veröffentlichungen \t:\t" + releases);
-        lines.add("Videos \t:\t" + vhsReleases);
-        lines.add("DVDs \t:\t" + dvdReleases);
-        lines.add("Blu-Rays \t:\t" + blurayReleases);
-        lines.add("");
+        lines.add("Filme " + SUPERTAB + films);
+        lines.add("Serien " + SUPERTAB + tvShows);
+        lines.add("Kurzfilme " + SUPERTAB + shorts);
+        lines.add("Langfilme " + SUPERTAB + features);
+        lines.add("----------");
+        lines.add("Veröffentlichungen " + SUPERTAB + releases);
+        lines.add("Videos " + SUPERTAB + vhsReleases);
+        lines.add("DVDs " + SUPERTAB + dvdReleases);
+        lines.add("Blu-Rays " + SUPERTAB + blurayReleases);
+        lines.add("----------");
         lines.add("Länder:");
-        countries.forEach((k, v) -> lines.add(k + " \t:\t" + v));
+        countries
+                .entrySet()
+                .stream()
+                .sorted(Comparator.comparingLong(Map.Entry::getValue))
+                .forEach(e -> lines.add(e.getKey() + SUPERTAB + e.getValue()));
         return lines;
     }
 

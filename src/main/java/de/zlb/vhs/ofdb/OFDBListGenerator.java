@@ -73,9 +73,12 @@ public class OFDBListGenerator {
 	private void writeFilmListToFile(Collection<FilmEntry> films, String fileName) {
 		List<FilmVersionEntryBean> beans = convertFilmListToBeans(films);
 		try {
+			log.info("Writing {} beans from {} films to file {}...",
+					beans.size(), films.size(), fileName);
 			ofdbCsvListHandler.writeListToCSVFile(beans, fileName);
+			log.info("... done writing to file {}!", fileName);
 		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-			log.error("Failed to write to file " + fileName, e);
+			log.error("Failed to write to file {}!", fileName, e);
 		}
 	}
 
