@@ -74,6 +74,10 @@ public class FilmEntry {
 				.filter(predicate)
 				.count();
 	}
+
+	public String getTitle() {
+		return title;
+	}
 	
 	private String extractTitle(String title) {
 		int index = title.lastIndexOf('(');

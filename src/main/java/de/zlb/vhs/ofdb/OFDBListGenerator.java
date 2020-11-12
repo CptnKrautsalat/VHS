@@ -9,12 +9,11 @@ import de.zlb.vhs.ofdb.stats.StatsCollector;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.google.common.collect.Lists;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class OFDBListGenerator {
@@ -29,6 +28,7 @@ public class OFDBListGenerator {
 	public static final int OFDB_RETRY_INTERVAL_MILLIS = 60000;
 	public static final int OFDB_ATTEMPTS = 5;
 	public static final int OFDB_INTERVAL_MILLIS = 100;
+	public static final int MAX_FILMS_PER_SMALL_FILE = 10000;
 
 	private final Set<FilmEntry> films = new HashSet<>();
 	private final Set<LibraryCatalogEntryBean> libraryCatalog = new HashSet<>();
@@ -70,12 +70,16 @@ public class OFDBListGenerator {
 				.collect(Collectors.toList());
 	}
 
-	private void writeFilmListToFile(Collection<FilmEntry> films, String fileName) throws CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
+	private void writeFilmListToFile(Collection<FilmEntry> films, String fileName) {
 		List<FilmVersionEntryBean> beans = convertFilmListToBeans(films);
-		ofdbCsvListHandler.writeListToCSVFile(beans, fileName);
+		try {
+			ofdbCsvListHandler.writeListToCSVFile(beans, fileName);
+		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+			log.error("Failed to write to file " + fileName, e);
+		}
 	}
 
-	public void generateListAndWriteToCSV() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException, IOException {
+	public void generateListAndWriteToCSV() {
 
 		readDataFromFiles();
 
@@ -111,7 +115,7 @@ public class OFDBListGenerator {
 		log.info("Invalid entries fixed!");
 	}
 
-	private void processFilmData() throws CsvRequiredFieldEmptyException, IOException, CsvDataTypeMismatchException {
+	private void processFilmData() {
 
 		log.info("Evaluating all OFDB data:");
 		new StatsCollector().collectStats(films);
@@ -121,6 +125,13 @@ public class OFDBListGenerator {
 		new StatsCollector().collectStats(vhsOnly);
 
 		log.info("Writing data to CSV files...");
+		List <FilmEntry> sortedFilms = films
+				.stream()
+				.sorted(Comparator.comparing(FilmEntry::getTitle))
+				.collect(Collectors.toList());
+		List<List<FilmEntry>> smallerLists = Lists.partition(sortedFilms, MAX_FILMS_PER_SMALL_FILE);
+		AtomicInteger i = new AtomicInteger();
+		smallerLists.forEach(l -> writeFilmListToFile(l, "output/ofdb_" + i.getAndIncrement() + ".csv"));
 		writeFilmListToFile(films, "output/ofdb.csv");
 		writeFilmListToFile(vhsOnly, "output/vhs_only.csv");
 		log.info("...done writing!");
@@ -166,11 +177,7 @@ public class OFDBListGenerator {
 	}
 
 	public static void main(String [] args) {
-		try {
-			OFDBListGenerator generator = new OFDBListGenerator();
-			generator.generateListAndWriteToCSV();
-		} catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-			log.error(e.getMessage());
-		}
+		OFDBListGenerator generator = new OFDBListGenerator();
+		generator.generateListAndWriteToCSV();
 	}
 }

@@ -8,4 +8,5 @@ module de.zlb.vhs {
     requires org.apache.logging.log4j;
     requires opencsv;
     requires java.sql;
+    requires com.google.common;
 }
