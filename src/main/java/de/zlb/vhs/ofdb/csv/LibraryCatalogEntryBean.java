@@ -17,6 +17,8 @@ public class LibraryCatalogEntryBean {
     public String department;
     @CsvBindByName(column = "regie_gndnr")
     public String director;
+    @CsvBindByName(column = "verantwortlichkeitsangabe")
+    public String castAndCrew;
     @CsvBindByName(column = "titel")
     public String title;
     @CsvBindByName(column = "weitere_titel")

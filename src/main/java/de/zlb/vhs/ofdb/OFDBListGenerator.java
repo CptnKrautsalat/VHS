@@ -34,7 +34,7 @@ public class OFDBListGenerator {
 	private final Set<LibraryCatalogEntryBean> libraryCatalog = new HashSet<>();
 
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
-	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>('#');
+	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(',');
 
 	private void addFilm(FilmEntry film) {
 		if (films.contains(film)) {
