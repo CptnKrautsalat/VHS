@@ -30,17 +30,18 @@ public class OFDBListGenerator {
 	public static final int OFDB_INTERVAL_MILLIS = 100;
 	public static final int MAX_FILMS_PER_SMALL_FILE = 10000;
 
-	private final Set<FilmEntry> films = new HashSet<>();
+	private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
 	private final Set<LibraryCatalogEntryBean> libraryCatalog = new HashSet<>();
 
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
 	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(',');
 
 	private void addFilm(FilmEntry film) {
-		if (films.contains(film)) {
-			films.stream().filter(f -> f.equals(film)).forEach(f -> f.mergeVersions(film));
+		FilmEntry existingFilm = ofdbFilms.get(film.link);
+		if (existingFilm == null) {
+			ofdbFilms.put(film.link, film);
 		} else {
-			films.add(film);
+			existingFilm.mergeVersions(film);
 		}
 	}
 
@@ -56,7 +57,8 @@ public class OFDBListGenerator {
 	}
 
 	private Set<FilmEntry> getVHSOnlyFilms() {
-		return films
+		return ofdbFilms
+				.values()
 				.stream()
 				.filter(FilmEntry::isVHSOnly)
 				.collect(Collectors.toSet());
@@ -87,7 +89,7 @@ public class OFDBListGenerator {
 		readDataFromFiles();
 
 		try {
-			if (films.isEmpty()) {
+			if (ofdbFilms.isEmpty()) {
 				collectOFDBData();
 			}
 		} catch (InterruptedException e) {
@@ -104,14 +106,15 @@ public class OFDBListGenerator {
 		log.info(libraryCatalog.size() + " library catalog entries loaded.");
 
 		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
-		log.info(films.size() + " films loaded.");
+		log.info(ofdbFilms.size() + " films loaded.");
 
 		log.info("Done reading files.");
 	}
 
 	private void fixBrokenData() {
 		log.info("Looking for invalid entries...");
-		films
+		ofdbFilms
+				.values()
 				.stream()
 				.flatMap(FilmEntry::getVersions)
 				.forEach(FilmVersionEntry::fixBrokenEntry);
@@ -121,21 +124,22 @@ public class OFDBListGenerator {
 	private void processFilmData() {
 
 		log.info("Evaluating all OFDB data:");
-		new StatsCollector().collectStats(films);
+		new StatsCollector().collectStats(ofdbFilms.values());
 
 		log.info("Evaluating VHS-only OFDB data:");
 		Set<FilmEntry> vhsOnly = getVHSOnlyFilms();
 		new StatsCollector().collectStats(vhsOnly);
 
 		log.info("Writing data to CSV files...");
-		List <FilmEntry> sortedFilms = films
+		List <FilmEntry> sortedFilms = ofdbFilms
+				.values()
 				.stream()
 				.sorted(Comparator.comparing(FilmEntry::getTitle))
 				.collect(Collectors.toList());
 		List<List<FilmEntry>> smallerLists = Lists.partition(sortedFilms, MAX_FILMS_PER_SMALL_FILE);
 		AtomicInteger i = new AtomicInteger();
 		smallerLists.forEach(l -> writeFilmListToFile(l, "output/ofdb_" + i.getAndIncrement() + ".csv"));
-		writeFilmListToFile(films, "output/ofdb.csv");
+		writeFilmListToFile(ofdbFilms.values(), "output/ofdb.csv");
 		writeFilmListToFile(vhsOnly, "output/vhs_only.csv");
 		log.info("...done writing!");
 	}
