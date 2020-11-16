@@ -4,23 +4,45 @@ import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LibraryCatalogEntry {
-    LibraryCatalogEntryBean bean;
+
+    private final Set<LibraryCatalogEntryBean> beans = new HashSet<>();
 
     final Set<String> titles = new HashSet<>();
     final Set <String> directors = new HashSet<>();
     String year;
+    String mediaNumber;
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
-        this.bean = bean;
+        this.mediaNumber = bean.mediaNumber;
+        addBean(bean);
+    }
+
+    public LibraryCatalogEntry() {}
+
+    public void addBean(LibraryCatalogEntryBean bean) {
+        this.beans.add(bean);
         this.titles.add(extractMainTitle(bean.title));
         this.titles.addAll(extractAlternativeTitles(bean.alternativeTitles));
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
         this.year = extractYear(bean.comments);
     }
 
-    public LibraryCatalogEntry() {}
+    public Stream<LibraryCatalogEntryBean> getBeans() {
+        return beans.stream();
+    }
+
+    @Override
+    public String toString() {
+        return "LibraryCatalogEntry{" +
+                "titles=" + titles +
+                ", directors=" + directors +
+                ", year='" + year + '\'' +
+                ", mediaNumber='" + mediaNumber + '\'' +
+                '}';
+    }
 
     String extractMainTitle(String title) {
         String result = title;
@@ -47,7 +69,7 @@ public class LibraryCatalogEntry {
     }
 
     List<String> extractAlternativeTitles(String titles) {
-        return Arrays.stream(titles.split("\\|"))
+        return titles.isEmpty() ? Collections.emptyList() : Arrays.stream(titles.split("\\|"))
                 .map(String::trim)
                 .collect(Collectors.toList());
     }
@@ -81,7 +103,7 @@ public class LibraryCatalogEntry {
             for (String p : people) {
                 if (p.contains("[")) {
                     String[] sections = p.split("\\[");
-                    if (sections[1].contains("Regie")) {
+                    if (sections.length > 1 && sections[1].contains("Regie")) {
                         result.add(sections[0].trim());
                     }
                 }

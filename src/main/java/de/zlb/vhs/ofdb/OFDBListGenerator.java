@@ -31,7 +31,8 @@ public class OFDBListGenerator {
 	public static final int MAX_FILMS_PER_SMALL_FILE = 10000;
 
 	private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
-	private final Set<LibraryCatalogEntryBean> libraryCatalog = new HashSet<>();
+	private final Set<LibraryCatalogEntryBean> libraryCatalogBeans = new HashSet<>();
+	private final Map<String, LibraryCatalogEntry> libraryCatalog = new HashMap<>();
 
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
 	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(',');
@@ -53,7 +54,17 @@ public class OFDBListGenerator {
 	}
 
 	private void addBeansToLibraryCatalog(List<LibraryCatalogEntryBean> beans) {
-		libraryCatalog.addAll(beans);
+		libraryCatalogBeans.addAll(beans);
+		beans.forEach(this::addBeanToLibraryCatalog);
+	}
+
+	private void addBeanToLibraryCatalog(LibraryCatalogEntryBean bean) {
+		LibraryCatalogEntry existingEntry = libraryCatalog.get(bean.mediaNumber);
+		if (existingEntry == null) {
+			libraryCatalog.put(bean.mediaNumber, new LibraryCatalogEntry(bean));
+		} else {
+			existingEntry.addBean(bean);
+		}
 	}
 
 	private Set<FilmEntry> getVHSOnlyFilms() {
@@ -103,7 +114,7 @@ public class OFDBListGenerator {
 
 	private void readDataFromFiles() {
 		libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
-		log.info(libraryCatalog.size() + " library catalog entries loaded.");
+		log.info("{} library catalog entries loaded from {} beans.", libraryCatalog.size(), libraryCatalogBeans.size());
 
 		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
 		log.info(ofdbFilms.size() + " films loaded.");
