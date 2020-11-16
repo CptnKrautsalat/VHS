@@ -33,6 +33,7 @@ public class OFDBListGenerator {
 	private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
 	private final Set<LibraryCatalogEntryBean> libraryCatalogBeans = new HashSet<>();
 	private final Map<String, LibraryCatalogEntry> libraryCatalog = new HashMap<>();
+	private final List<CombinedFilm> combinedFilms = new LinkedList<>();
 
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
 	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(',');
@@ -95,6 +96,25 @@ public class OFDBListGenerator {
 		}
 	}
 
+	private void combineFilms() {
+		log.info("Combining films...");
+		ofdbFilms
+				.values()
+				.forEach(f -> {
+					List<LibraryCatalogEntry> libraryCatalogEntries = libraryCatalog
+							.values()
+							.stream()
+							.filter(f::matchesLibraryCatalogEntry)
+							.collect(Collectors.toList());
+					if (!libraryCatalogEntries.isEmpty()) {
+						CombinedFilm combinedFilm = new CombinedFilm(f);
+						libraryCatalogEntries.forEach(combinedFilm::addLibraryCatalogEntry);
+						combinedFilms.add(combinedFilm);
+					}
+				});
+		log.info("... finished combining {} films!", combinedFilms.size());
+	}
+
 	public void generateListAndWriteToCSV() {
 
 		readDataFromFiles();
@@ -106,6 +126,7 @@ public class OFDBListGenerator {
 		} catch (InterruptedException e) {
 			log.error(e.getMessage());
 		} finally {
+			combineFilms();
 			processFilmData();
 			log.info("Done!");
 		}

@@ -54,6 +54,17 @@ public class FilmEntry {
 		return !(isTVShow() || isShortFilm());
 	}
 
+	public boolean matchesLibraryCatalogEntry(LibraryCatalogEntry libraryCatalogEntry) {
+		if (!year.equals(libraryCatalogEntry.year)) {
+			return false;
+		}
+
+		return libraryCatalogEntry.titles
+				.stream()
+				.anyMatch(t -> t.equals(title));
+
+	}
+
 	public void addToStats(OFDBFilmStats stats) {
 		stats.films++;
 		stats.features += isFeatureFilm() ? 1 : 0;
