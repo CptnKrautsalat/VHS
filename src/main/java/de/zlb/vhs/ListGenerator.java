@@ -25,7 +25,7 @@ public class ListGenerator {
 				.getFilms()
 				.forEach(f -> {
 					List<LibraryCatalogEntry> libraryCatalogEntries = libraryCatalog
-							.getCatalogValues()
+							.getEntriesWithYear(f.year)
 							.filter(f::matchesLibraryCatalogEntry)
 							.collect(Collectors.toList());
 					if (!libraryCatalogEntries.isEmpty()) {

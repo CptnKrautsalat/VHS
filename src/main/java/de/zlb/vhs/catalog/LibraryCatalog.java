@@ -40,8 +40,12 @@ public class LibraryCatalog {
         entry.titles.forEach(t -> entriesByTitle.put(t, entry));
     }
 
-    public Stream<LibraryCatalogEntry> getCatalogValues() {
+    public Stream<LibraryCatalogEntry> getAllEntries() {
         return entriesByYear.values().stream();
+    }
+
+    public Stream<LibraryCatalogEntry> getEntriesWithYear(String year) {
+        return entriesByYear.get(year).stream();
     }
 
 }
