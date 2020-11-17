@@ -1,4 +1,4 @@
-package de.zlb.vhs.ofdb;
+package de.zlb.vhs.catalog;
 
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 
@@ -10,10 +10,10 @@ public class LibraryCatalogEntry {
 
     private final Set<LibraryCatalogEntryBean> beans = new HashSet<>();
 
-    final Set<String> titles = new HashSet<>();
-    final Set <String> directors = new HashSet<>();
-    String year;
-    String mediaNumber;
+    public final Set<String> titles = new HashSet<>();
+    public final Set <String> directors = new HashSet<>();
+    public String year;
+    public String mediaNumber;
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.mediaNumber = bean.mediaNumber;

@@ -1,4 +1,6 @@
 module de.zlb.vhs {
+    exports de.zlb.vhs;
+    exports de.zlb.vhs.catalog;
     exports de.zlb.vhs.ofdb;
     exports de.zlb.vhs.ofdb.csv;
     exports de.zlb.vhs.ofdb.web;

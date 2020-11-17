@@ -1,15 +1,19 @@
-package de.zlb.vhs.ofdb;
+package de.zlb.vhs;
 
+import com.google.common.collect.Lists;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import de.zlb.vhs.catalog.LibraryCatalog;
+import de.zlb.vhs.catalog.LibraryCatalogEntry;
+import de.zlb.vhs.ofdb.CombinedFilm;
+import de.zlb.vhs.ofdb.FilmEntry;
+import de.zlb.vhs.ofdb.FilmVersionEntry;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
-import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import de.zlb.vhs.ofdb.stats.StatsCollector;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.util.*;
@@ -31,12 +35,11 @@ public class OFDBListGenerator {
 	public static final int MAX_FILMS_PER_SMALL_FILE = 10000;
 
 	private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
-	private final Set<LibraryCatalogEntryBean> libraryCatalogBeans = new HashSet<>();
-	private final Map<String, LibraryCatalogEntry> libraryCatalog = new HashMap<>();
 	private final List<CombinedFilm> combinedFilms = new LinkedList<>();
 
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
-	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(';');
+
+	private final LibraryCatalog libraryCatalog = new LibraryCatalog();
 
 	private void addFilm(FilmEntry film) {
 		FilmEntry existingFilm = ofdbFilms.get(film.link);
@@ -52,20 +55,6 @@ public class OFDBListGenerator {
 				.stream()
 				.map(FilmEntry::new)
 				.forEach(this::addFilm);
-	}
-
-	private void addBeansToLibraryCatalog(List<LibraryCatalogEntryBean> beans) {
-		libraryCatalogBeans.addAll(beans);
-		beans.forEach(this::addBeanToLibraryCatalog);
-	}
-
-	private void addBeanToLibraryCatalog(LibraryCatalogEntryBean bean) {
-		LibraryCatalogEntry existingEntry = libraryCatalog.get(bean.mediaNumber);
-		if (existingEntry == null) {
-			libraryCatalog.put(bean.mediaNumber, new LibraryCatalogEntry(bean));
-		} else {
-			existingEntry.addBean(bean);
-		}
 	}
 
 	private Set<FilmEntry> getVHSOnlyFilms() {
@@ -102,8 +91,7 @@ public class OFDBListGenerator {
 				.values()
 				.forEach(f -> {
 					List<LibraryCatalogEntry> libraryCatalogEntries = libraryCatalog
-							.values()
-							.stream()
+							.getCatalogValues()
 							.filter(f::matchesLibraryCatalogEntry)
 							.collect(Collectors.toList());
 					if (!libraryCatalogEntries.isEmpty()) {
@@ -134,8 +122,7 @@ public class OFDBListGenerator {
 	}
 
 	private void readDataFromFiles() {
-		libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
-		log.info("{} library catalog entries loaded from {} beans.", libraryCatalog.size(), libraryCatalogBeans.size());
+		libraryCatalog.readDataFromFiles();
 
 		ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
 		log.info(ofdbFilms.size() + " films loaded.");

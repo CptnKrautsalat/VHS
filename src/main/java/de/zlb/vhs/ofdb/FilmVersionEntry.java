@@ -1,5 +1,6 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.OFDBListGenerator;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

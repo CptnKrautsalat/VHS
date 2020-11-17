@@ -1,5 +1,7 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.catalog.LibraryCatalogEntry;
+
 import java.util.HashSet;
 import java.util.Set;
 

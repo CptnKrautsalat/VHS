@@ -2,7 +2,6 @@ package de.zlb.vhs.ofdb.web;
 
 import de.zlb.vhs.ofdb.FilmEntry;
 import de.zlb.vhs.ofdb.FilmVersionEntry;
-import de.zlb.vhs.ofdb.OFDBListGenerator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jsoup.Jsoup;

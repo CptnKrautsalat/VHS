@@ -1,5 +1,6 @@
-package de.zlb.vhs.ofdb;
+package de.zlb.vhs.catalog;
 
+import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
