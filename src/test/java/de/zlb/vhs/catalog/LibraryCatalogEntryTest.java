@@ -52,6 +52,24 @@ public class LibraryCatalogEntryTest {
     }
 
     @Test
+    public void testExtractYear3() {
+        String year = subject.extractYear("Ländercode: 2 PAL | Orig.: USA, 2012. - Nach dem Roman von Mark O'Brien | Untertitel: dt., engl., franz., türk. u.a.");
+        Assertions.assertEquals(year, "2012");
+    }
+
+    @Test
+    public void testExtractYear4() {
+        String year = subject.extractYear("Ländercode: 2 | Orig.: Deutschland, 1984 (8., 11., 12., 17., und 19. Dezember 1984)");
+        Assertions.assertEquals(year, "1984");
+    }
+
+    @Test
+    public void testExtractYear5() {
+        String year = subject.extractYear("Bonus: Diamond Sutra (Orig.: VR China 2012, Regie: Bi Gan] | Orig.: VR China, 2015 | Untertitel: englisch");
+        Assertions.assertEquals(year, "2015");
+    }
+
+    @Test
     public void testExtractDirectors1() {
         String director = "Powell, Michael (118741675)";
         String castAndCrew = "Emeric Pressburger [Regie, Drehbuch, Darst., Prod.]";

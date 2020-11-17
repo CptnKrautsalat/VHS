@@ -25,6 +25,7 @@ public class LibraryCatalog {
     public void readDataFromFiles() {
         libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
         log.info("{} library catalog entries loaded from {} beans.", entriesByYear.size(), beans.size());
+        analyzeCatalog();
     }
 
     private void addBeansToLibraryCatalog(List<LibraryCatalogEntryBean> beans) {
@@ -46,6 +47,13 @@ public class LibraryCatalog {
 
     public Stream<LibraryCatalogEntry> getEntriesWithYear(String year) {
         return entriesByYear.get(year).stream();
+    }
+
+    private void analyzeCatalog() {
+        long withoutYear = entriesByYear.get("").size();
+        long withoutDirector = getAllEntries().filter(e -> !e.hasDirector()).count();
+        log.info("Library catalog has {} entries, {} without year, {} without director.",
+                getAllEntries().count(), withoutYear, withoutDirector);
     }
 
 }

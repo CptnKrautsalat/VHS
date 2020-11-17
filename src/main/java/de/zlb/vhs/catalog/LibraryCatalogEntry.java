@@ -3,6 +3,7 @@ package de.zlb.vhs.catalog;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class LibraryCatalogEntry {
@@ -74,6 +75,10 @@ public class LibraryCatalogEntry {
         return !year.isEmpty();
     }
 
+    public boolean hasDirector() {
+        return !directors.isEmpty();
+    }
+
     public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other) {
         boolean matchesTitles = other.titles
                 .stream()
@@ -118,20 +123,37 @@ public class LibraryCatalogEntry {
     }
 
     String extractYear(String miscData) {
-        Optional<String> split = Arrays.stream(miscData.split("\\|"))
+        String year = "";
+        List<String> splits = Arrays.stream(miscData.split("\\|"))
                 .filter(s -> s.contains("Orig.:"))
-                .findFirst();
+                .collect(Collectors.toList());
+        Optional<String> split = splits.size() > 1
+                ? splits.stream().filter(s -> s.trim().startsWith("Orig.:")).findFirst()
+                : splits.stream().findFirst();
         if (split.isPresent()) {
             String[] sections = split.get().split("Orig\\.:");
             if (sections.length > 1) {
                 String[] subSections = sections[sections.length - 1].split(",");
-                if (subSections.length > 1) {
-                    return subSections[subSections.length - 1].trim();
+                Pattern yearPattern = Pattern.compile("\\d{4}");
+                Optional<String> possibleYear = Arrays.stream(subSections)
+                        .map(String::trim)
+                        .filter(yearPattern.asPredicate())
+                        .findFirst();
+                if (possibleYear.isPresent()) {
+                    year = possibleYear.get();
                 }
             }
         }
 
-        return "";
+        if (year.contains(" ")) {
+            year = year.substring(0, year.indexOf(' '));
+        }
+
+        if (year.contains(".")) {
+            year = year.substring(0, year.indexOf('.'));
+        }
+
+        return year;
     }
 
     Set<String> extractDirectors (String director, String castAndCrew) {
