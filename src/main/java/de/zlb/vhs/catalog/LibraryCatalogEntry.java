@@ -7,6 +7,8 @@ import java.util.stream.Collectors;
 
 public class LibraryCatalogEntry {
 
+    public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
+
     public LibraryCatalogEntryBean bean;
 
     public final Set<String> titles = new HashSet<>();
@@ -96,7 +98,7 @@ public class LibraryCatalogEntry {
     Set<String> extractDirectors (String director, String castAndCrew) {
         Set<String> result = new HashSet<>();
 
-        if (!director.isEmpty()) {
+        if (!(director.isEmpty() || director.equals(EMPTY_DIRECTOR_PLACEHOLDER))) {
             String directorWithoutId = director.split("\\(")[0].trim();
             if (directorWithoutId.contains(",")) {
                 String[] sections = directorWithoutId.split(",");
