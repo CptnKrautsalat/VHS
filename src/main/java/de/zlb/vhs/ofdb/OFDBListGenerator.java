@@ -36,7 +36,7 @@ public class OFDBListGenerator {
 	private final List<CombinedFilm> combinedFilms = new LinkedList<>();
 
 	private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
-	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(',');
+	private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(';');
 
 	private void addFilm(FilmEntry film) {
 		FilmEntry existingFilm = ofdbFilms.get(film.link);
