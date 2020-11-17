@@ -60,10 +60,12 @@ public class FilmEntry {
 			return false;
 		}
 
-		return libraryCatalogEntry.titles
-				.stream()
-				.anyMatch(t -> t.equals(title));
+		return matchesTitles(libraryCatalogEntry);
 
+	}
+
+	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry) {
+		return libraryCatalogEntry.matchesTitle(title);
 	}
 
 	public void addToStats(OFDBFilmStats stats) {

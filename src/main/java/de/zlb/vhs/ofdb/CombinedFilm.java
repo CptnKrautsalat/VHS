@@ -3,6 +3,7 @@ package de.zlb.vhs.ofdb;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class CombinedFilm {
@@ -26,8 +27,22 @@ public class CombinedFilm {
     @Override
     public String toString() {
         return "CombinedFilm{" +
-                "ofdbTitle=" + ofdbEntry.title +
+                "ofdbEntry=" + ofdbEntry +
                 ", libraryCatalogEntries=" + libraryCatalogEntries +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CombinedFilm)) return false;
+        CombinedFilm that = (CombinedFilm) o;
+        return Objects.equals(ofdbEntry, that.ofdbEntry) &&
+                libraryCatalogEntries.equals(that.libraryCatalogEntries);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ofdbEntry, libraryCatalogEntries);
     }
 }

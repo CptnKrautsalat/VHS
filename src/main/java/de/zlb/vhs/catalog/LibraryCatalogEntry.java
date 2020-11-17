@@ -54,6 +54,39 @@ public class LibraryCatalogEntry {
         return Objects.hash(bean, titles, directors, year);
     }
 
+    public boolean matchesTitle(String title) {
+        return titles
+                .stream()
+                .anyMatch(title::equalsIgnoreCase);
+    }
+
+    public boolean matchesDirector(String director) {
+        return directors
+                .stream()
+                .anyMatch(director::equalsIgnoreCase);
+    }
+
+    public boolean matchesYear(String year) {
+        return year.equals(this.year);
+    }
+
+    public boolean hasYear() {
+        return !year.isEmpty();
+    }
+
+    public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other) {
+        boolean matchesTitles = other.titles
+                .stream()
+                .anyMatch(this::matchesTitle);
+        if (!matchesTitles) {
+            return false;
+        }
+
+        return other.directors
+                .stream()
+                .anyMatch(this::matchesDirector);
+    }
+
     String extractMainTitle(String title) {
         String result = title;
 
