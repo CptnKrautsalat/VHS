@@ -1,6 +1,5 @@
 package de.zlb.vhs.ofdb;
 
-import de.zlb.vhs.OFDBListGenerator;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,7 +22,7 @@ public class FilmVersionEntry {
 		this.publisher = extractPublisher(title);
 		this.country = extractCountry(title);
 		this.rating = extractRating(title);
-		this.link = OFDBListGenerator.OFDB_LINK_PREFIX + link;
+		this.link = OfdbManager.OFDB_LINK_PREFIX + link;
 	}
 
 	public FilmVersionEntry(FilmEntry film, FilmVersionEntryBean bean) {

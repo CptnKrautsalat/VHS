@@ -1,6 +1,5 @@
 package de.zlb.vhs.ofdb;
 
-import de.zlb.vhs.OFDBListGenerator;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
@@ -21,7 +20,7 @@ public class FilmEntry {
 		super();
 		this.title = extractTitle(title);
 		this.year = extractYear(title);
-		this.link = OFDBListGenerator.OFDB_LINK_PREFIX + link;
+		this.link = OfdbManager.OFDB_LINK_PREFIX + link;
 	}
 
 	public FilmEntry(FilmVersionEntryBean filmVersionEntryBean) {
