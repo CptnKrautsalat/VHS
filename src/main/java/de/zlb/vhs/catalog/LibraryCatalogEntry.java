@@ -85,13 +85,19 @@ public class LibraryCatalogEntry {
     }
 
     String extractYear(String miscData) {
-        String[] sections = miscData.split("Orig\\.:");
-        if (sections.length > 1) {
-            String[] subSections = sections[sections.length - 1].split(",");
-            if (subSections.length > 1) {
-                return subSections[subSections.length - 1].trim();
+        Optional<String> split = Arrays.stream(miscData.split("\\|"))
+                .filter(s -> s.contains("Orig.:"))
+                .findFirst();
+        if (split.isPresent()) {
+            String[] sections = split.get().split("Orig\\.:");
+            if (sections.length > 1) {
+                String[] subSections = sections[sections.length - 1].split(",");
+                if (subSections.length > 1) {
+                    return subSections[subSections.length - 1].trim();
+                }
             }
         }
+
         return "";
     }
 

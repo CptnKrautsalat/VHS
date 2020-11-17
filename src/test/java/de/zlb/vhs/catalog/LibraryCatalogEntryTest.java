@@ -1,6 +1,5 @@
 package de.zlb.vhs.catalog;
 
-import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -41,9 +40,15 @@ public class LibraryCatalogEntryTest {
     }
 
     @Test
-    public void testExtractYear() {
+    public void testExtractYear1() {
         String year = subject.extractYear("Deutsche Synchronfassung,dt.,Orig.: USA, 1983");
         Assertions.assertEquals(year, "1983");
+    }
+
+    @Test
+    public void testExtractYear2() {
+        String year = subject.extractYear("Ländercode: 2 | Orig.: USA/Deutschland, 2000 | Verschiedene Trailer. - Filmdokumentationen. - Filmkommentare: Regisseur, Produzent. - Filmografien: Schauspieler, Regisseur, Produzent.");
+        Assertions.assertEquals(year, "2000");
     }
 
     @Test
