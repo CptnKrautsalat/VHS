@@ -2,6 +2,8 @@ package de.zlb.vhs.ofdb.csv;
 
 import com.opencsv.bean.CsvBindByName;
 
+import java.util.Objects;
+
 public class LibraryCatalogEntryBean {
     @CsvBindByName(column = "phyform")
     public String physicalForm;
@@ -45,4 +47,38 @@ public class LibraryCatalogEntryBean {
     public String austat;
 
     public LibraryCatalogEntryBean() {}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LibraryCatalogEntryBean)) return false;
+        LibraryCatalogEntryBean that = (LibraryCatalogEntryBean) o;
+        return physicalForm.equals(that.physicalForm) &&
+                akds.equals(that.akds) &&
+                mediaNumber.equals(that.mediaNumber) &&
+                signature.equals(that.signature) &&
+                sigel.equals(that.sigel) &&
+                department.equals(that.department) &&
+                director.equals(that.director) &&
+                castAndCrew.equals(that.castAndCrew) &&
+                title.equals(that.title) &&
+                alternativeTitles.equals(that.alternativeTitles) &&
+                comments.equals(that.comments) &&
+                release.equals(that.release) &&
+                languages.equals(that.languages) &&
+                length.equals(that.length) &&
+                acquisition.equals(that.acquisition) &&
+                genres.equals(that.genres) &&
+                rentals2010to2020.equals(that.rentals2010to2020) &&
+                rentals2020.equals(that.rentals2020) &&
+                exstat.equals(that.exstat) &&
+                austat.equals(that.austat);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(physicalForm, akds, mediaNumber, signature, sigel, department, director, castAndCrew, title,
+                alternativeTitles, comments, release, languages, length, acquisition, genres, rentals2010to2020, rentals2020,
+                exstat, austat);
+    }
 }

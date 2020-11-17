@@ -4,34 +4,27 @@ import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LibraryCatalogEntry {
 
-    private final Set<LibraryCatalogEntryBean> beans = new HashSet<>();
+    public LibraryCatalogEntryBean bean;
 
     public final Set<String> titles = new HashSet<>();
     public final Set <String> directors = new HashSet<>();
     public String year;
-    public String mediaNumber;
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
-        this.mediaNumber = bean.mediaNumber;
-        addBean(bean);
-    }
-
-    public LibraryCatalogEntry() {}
-
-    public void addBean(LibraryCatalogEntryBean bean) {
-        this.beans.add(bean);
+        this.bean = bean;
         this.titles.add(extractMainTitle(bean.title));
         this.titles.addAll(extractAlternativeTitles(bean.alternativeTitles));
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
         this.year = extractYear(bean.comments);
     }
 
-    public Stream<LibraryCatalogEntryBean> getBeans() {
-        return beans.stream();
+    LibraryCatalogEntry() {}
+
+    public String getMediaNumber() {
+        return bean.mediaNumber;
     }
 
     @Override
@@ -40,8 +33,23 @@ public class LibraryCatalogEntry {
                 "titles=" + titles +
                 ", directors=" + directors +
                 ", year='" + year + '\'' +
-                ", mediaNumber='" + mediaNumber + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LibraryCatalogEntry)) return false;
+        LibraryCatalogEntry that = (LibraryCatalogEntry) o;
+        return bean.equals(that.bean) &&
+                titles.equals(that.titles) &&
+                directors.equals(that.directors) &&
+                year.equals(that.year);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(bean, titles, directors, year);
     }
 
     String extractMainTitle(String title) {
