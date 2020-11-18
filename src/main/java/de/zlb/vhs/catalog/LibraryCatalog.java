@@ -4,15 +4,16 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import de.zlb.vhs.ofdb.FilmEntry;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
-import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

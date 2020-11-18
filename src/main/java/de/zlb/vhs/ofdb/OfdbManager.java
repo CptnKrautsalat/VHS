@@ -1,6 +1,8 @@
 package de.zlb.vhs.ofdb;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
@@ -32,6 +34,7 @@ public class OfdbManager {
     public static final int MAX_FILMS_PER_SMALL_FILE = 10000;
 
     private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
+    private final Multimap<String, FilmEntry> filmsByYear = HashMultimap.create();
     private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
     private Set<FilmEntry> vhsOnly;
 
@@ -49,6 +52,10 @@ public class OfdbManager {
                 .stream()
                 .map(FilmEntry::new)
                 .forEach(this::addFilm);
+    }
+
+    private void sortFilms() {
+        getFilms().forEach(f -> filmsByYear.put(f.year, f));
     }
 
     private Set<FilmEntry> getVHSOnlyFilms() {
@@ -83,6 +90,10 @@ public class OfdbManager {
         return ofdbFilms.values().stream();
     }
 
+    public Stream<FilmEntry> getEntriesWithYear(String year) {
+        return filmsByYear.get(year).stream();
+    }
+
     public boolean isEmpty() {
         return ofdbFilms.isEmpty();
     }
@@ -95,6 +106,8 @@ public class OfdbManager {
     }
 
     public void processFilmData() {
+
+        sortFilms();
 
         log.info("Evaluating all OFDB data:");
         new StatsCollector().collectStats(ofdbFilms.values());

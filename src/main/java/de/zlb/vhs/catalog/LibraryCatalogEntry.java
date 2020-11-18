@@ -1,5 +1,6 @@
 package de.zlb.vhs.catalog;
 
+import de.zlb.vhs.ofdb.CombinedFilm;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 
 import java.util.*;
@@ -21,6 +22,7 @@ public class LibraryCatalogEntry {
             "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt"};
 
     public LibraryCatalogEntryBean bean;
+    public CombinedFilm film;
 
     public final Set<String> titles = new HashSet<>();
     public final Set <String> directors = new HashSet<>();
@@ -87,6 +89,10 @@ public class LibraryCatalogEntry {
 
     public boolean hasDirector() {
         return !directors.isEmpty();
+    }
+
+    public boolean isLinkedToFilm() {
+        return film != null;
     }
 
     public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other) {

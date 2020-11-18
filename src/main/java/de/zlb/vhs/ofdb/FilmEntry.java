@@ -13,6 +13,8 @@ public class FilmEntry {
 	public final String title;
 	public final String year;
 	public final String link;
+
+	public CombinedFilm film;
 	
 	private final List<FilmVersionEntry> versions = new LinkedList<>();
 
@@ -66,6 +68,10 @@ public class FilmEntry {
 
 	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry) {
 		return libraryCatalogEntry.matchesTitle(title);
+	}
+
+	public boolean isLinkedToFilm() {
+		return film != null;
 	}
 
 	public void addToStats(OFDBFilmStats stats) {

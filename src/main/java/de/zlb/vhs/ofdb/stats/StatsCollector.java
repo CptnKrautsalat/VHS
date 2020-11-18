@@ -16,7 +16,7 @@ public class StatsCollector {
 
         films.forEach(f -> f.addToStats(stats));
 
-        stats.toLines().forEach(log::info);
+        stats.toLines().forEach(log::trace);
 
         return stats;
     }
