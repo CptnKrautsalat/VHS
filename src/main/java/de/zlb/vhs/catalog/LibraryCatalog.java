@@ -2,12 +2,18 @@ package de.zlb.vhs.catalog;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import de.zlb.vhs.ofdb.FilmEntry;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
+import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class LibraryCatalog {
@@ -54,6 +60,28 @@ public class LibraryCatalog {
         long withoutDirector = getAllEntries().filter(e -> !e.hasDirector()).count();
         log.info("Library catalog has {} entries, {} without year, {} without director.",
                 getAllEntries().count(), withoutYear, withoutDirector);
+    }
+
+    public void writeToFiles() {
+        log.info("Writing library catalog data to CSV files...");
+        writeFilmListToFile(entriesByDirector.get(""), "output/zlb/no_director.csv");
+        writeFilmListToFile(entriesByYear.get(""), "output/zlb/no_year.csv");
+        log.info("...done writing!");
+    }
+
+    private void writeFilmListToFile(Collection<LibraryCatalogEntry> entries, String fileName) {
+        List<LibraryCatalogEntryBean> beans = entries
+                .stream()
+                .map(e -> e.bean)
+                .collect(Collectors.toList());
+        try {
+            log.info("Writing {} beans from {} films to file {}...",
+                    beans.size(), entries.size(), fileName);
+            libraryCsvListHandler.writeListToCSVFile(beans, fileName);
+            log.info("... done writing to file {}!", fileName);
+        } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+            log.error("Failed to write to file {}!", fileName, e);
+        }
     }
 
 }

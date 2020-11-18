@@ -33,6 +33,7 @@ public class OfdbManager {
 
     private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
     private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
+    private Set<FilmEntry> vhsOnly;
 
     private void addFilm(FilmEntry film) {
         FilmEntry existingFilm = ofdbFilms.get(film.link);
@@ -99,12 +100,14 @@ public class OfdbManager {
         new StatsCollector().collectStats(ofdbFilms.values());
 
         log.info("Evaluating VHS-only OFDB data:");
-        Set<FilmEntry> vhsOnly = getVHSOnlyFilms();
+        vhsOnly = getVHSOnlyFilms();
         new StatsCollector().collectStats(vhsOnly);
+    }
 
-        log.info("Writing data to CSV files...");
-        writeFilmListToFile(ofdbFilms.values(), "output/ofdb.csv");
-        writeFilmListToFile(vhsOnly, "output/vhs_only.csv");
+    public void writeToFiles() {
+        log.info("Writing OFDB data to CSV files...");
+        writeFilmListToFile(ofdbFilms.values(), "output/ofdb/ofdb.csv");
+        writeFilmListToFile(vhsOnly, "output/ofdb/vhs_only.csv");
         log.info("...done writing!");
     }
 

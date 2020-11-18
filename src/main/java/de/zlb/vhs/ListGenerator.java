@@ -71,6 +71,8 @@ public class ListGenerator {
 		matchLibraryCatalogWithOfdb();
 		findDuplicateFilms();
 
+		writeDataToFiles();
+
 		log.info("Done!");
 
 	}
@@ -79,6 +81,11 @@ public class ListGenerator {
 		libraryCatalog.readDataFromFiles();
 		ofdbManager.readDataFromFiles();
 		log.info("Done reading files.");
+	}
+
+	private void writeDataToFiles() {
+		ofdbManager.writeToFiles();
+		libraryCatalog.writeToFiles();
 	}
 
 	public static void main(String [] args) {
