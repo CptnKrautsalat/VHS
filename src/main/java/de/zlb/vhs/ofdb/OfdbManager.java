@@ -93,16 +93,6 @@ public class OfdbManager {
         log.info("Done reading files.");
     }
 
-    private void fixBrokenData() {
-        log.info("Looking for invalid entries...");
-        ofdbFilms
-                .values()
-                .stream()
-                .flatMap(FilmEntry::getVersions)
-                .forEach(FilmVersionEntry::fixBrokenEntry);
-        log.info("Invalid entries fixed!");
-    }
-
     public void processFilmData() {
 
         log.info("Evaluating all OFDB data:");
@@ -113,14 +103,6 @@ public class OfdbManager {
         new StatsCollector().collectStats(vhsOnly);
 
         log.info("Writing data to CSV files...");
-        List <FilmEntry> sortedFilms = ofdbFilms
-                .values()
-                .stream()
-                .sorted(Comparator.comparing(FilmEntry::getTitle))
-                .collect(Collectors.toList());
-        List<List<FilmEntry>> smallerLists = Lists.partition(sortedFilms, OfdbManager.MAX_FILMS_PER_SMALL_FILE);
-        AtomicInteger i = new AtomicInteger();
-        smallerLists.forEach(l -> writeFilmListToFile(l, "output/ofdb_" + i.getAndIncrement() + ".csv"));
         writeFilmListToFile(ofdbFilms.values(), "output/ofdb.csv");
         writeFilmListToFile(vhsOnly, "output/vhs_only.csv");
         log.info("...done writing!");

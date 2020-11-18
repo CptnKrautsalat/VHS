@@ -50,21 +50,6 @@ public class FilmVersionEntry {
 	public boolean isBluRay() {
 		return medium.equals("Blu-ray Disc");
 	}
-
-	private boolean isSuspicious() {
-		return rating.contains("(");
-	}
-
-	public void fixBrokenEntry() {
-		if (isSuspicious()) {
-			log.info(this + " looks supicious!");
-			String title = medium + ": " + publisher.split(",")[0] + ", " + rating;
-			publisher = extractPublisher(title);
-			rating = extractRating(title);
-			country = extractCountry(title);
-			log.info(this + " should be fixed now!");
-		}
-	}
 	
 	private String extractMedium (String title) {
 		int index = title.indexOf(":");
