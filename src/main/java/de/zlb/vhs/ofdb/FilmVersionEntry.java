@@ -43,6 +43,10 @@ public class FilmVersionEntry {
 		return medium.equals("Video");
 	}
 
+	public boolean isDigital() {
+		return !isVHS();
+	}
+
 	public boolean isDVD() {
 		return medium.equals("DVD");
 	}

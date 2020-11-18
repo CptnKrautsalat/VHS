@@ -58,7 +58,7 @@ public class FilmEntry {
 	}
 
 	public boolean hasDigitalRelease() {
-		return getVersions().noneMatch(FilmVersionEntry::isVHS);
+		return getVersions().anyMatch(FilmVersionEntry::isDigital);
 	}
 
 	public boolean matchesLibraryCatalogEntry(LibraryCatalogEntry libraryCatalogEntry) {
