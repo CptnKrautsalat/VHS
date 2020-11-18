@@ -57,6 +57,10 @@ public class FilmEntry {
 		return !(isTVShow() || isShortFilm());
 	}
 
+	public boolean hasDigitalRelease() {
+		return getVersions().noneMatch(FilmVersionEntry::isVHS);
+	}
+
 	public boolean matchesLibraryCatalogEntry(LibraryCatalogEntry libraryCatalogEntry) {
 		if (!year.equals(libraryCatalogEntry.year)) {
 			return false;

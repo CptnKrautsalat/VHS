@@ -20,6 +20,7 @@ public class LibraryCatalogEntry {
     private static final String[] CAST_AND_CREW_POSITIONS = { "Schauspiel", "Komp", "Kamera", "Drehbuch", "Prod",
             "Inter", "Musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
             "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt"};
+    public static final String VHS_FORMAT_NAME = "ad";
 
     public LibraryCatalogEntryBean bean;
     public CombinedFilm film;
@@ -27,6 +28,7 @@ public class LibraryCatalogEntry {
     public final Set<String> titles = new HashSet<>();
     public final Set <String> directors = new HashSet<>();
     public String year;
+    public String physicalFormat;
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.bean = bean;
@@ -34,6 +36,7 @@ public class LibraryCatalogEntry {
         this.titles.addAll(extractAlternativeTitles(bean.alternativeTitles));
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
         this.year = extractYear(bean.comments);
+        this.physicalFormat = bean.physicalForm;
     }
 
     LibraryCatalogEntry() {}
@@ -106,6 +109,10 @@ public class LibraryCatalogEntry {
         return other.directors
                 .stream()
                 .anyMatch(this::matchesDirector);
+    }
+
+    public boolean isVhs() {
+        return physicalFormat.equals(VHS_FORMAT_NAME);
     }
 
     String extractMainTitle(String title) {

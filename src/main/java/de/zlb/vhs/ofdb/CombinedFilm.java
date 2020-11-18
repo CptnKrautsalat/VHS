@@ -39,6 +39,16 @@ public class CombinedFilm {
         return ofdbEntry != null;
     }
 
+    public boolean isOnlyOnVhsInCatalog() {
+        return libraryCatalogEntries
+                .stream()
+                .allMatch(LibraryCatalogEntry::isVhs);
+    }
+
+    public boolean existsDigitally() {
+        return hasOfdbEntry() && ofdbEntry.hasDigitalRelease();
+    }
+
     @Override
     public String toString() {
         return "CombinedFilm{" +
