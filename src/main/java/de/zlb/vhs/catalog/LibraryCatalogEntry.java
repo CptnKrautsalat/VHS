@@ -5,10 +5,15 @@ import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LibraryCatalogEntry {
 
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
+
+    //this should cover English, German, Italian, Spanish and French
+    private static final String[] LEADING_ARTICLES = { "The ", "A ", "An ", "Der ", "Die" , "Das", "Ein ", "Eine ",
+            "Il ", "La ", "Lo ", "L'", "I ", "Le ", "Gli ", "Un ", "Una ", "Uno ", "El ", "Los ", "Las ", "Les ", "Une "};
 
     public LibraryCatalogEntryBean bean;
 
@@ -116,10 +121,22 @@ public class LibraryCatalogEntry {
         return result;
     }
 
-    List<String> extractAlternativeTitles(String titles) {
-        return titles.isEmpty() ? Collections.emptyList() : Arrays.stream(titles.split("\\|"))
+    Set<String> extractAlternativeTitles(String titles) {
+        return titles.isEmpty() ? Collections.emptySet() : Arrays.stream(titles.split("\\|"))
                 .map(String::trim)
-                .collect(Collectors.toList());
+                .flatMap(t -> Stream.of(t, moveLeadingArticles(t)))
+                .collect(Collectors.toSet());
+    }
+
+    private String moveLeadingArticles(String title) {
+        Optional<String> article = Arrays.stream(LEADING_ARTICLES)
+                .filter(title::startsWith)
+                .findFirst();
+
+        return article
+                .map(s -> title.replaceFirst(s, "") + ", " + s.trim())
+                .orElse(title);
+
     }
 
     String extractYear(String miscData) {

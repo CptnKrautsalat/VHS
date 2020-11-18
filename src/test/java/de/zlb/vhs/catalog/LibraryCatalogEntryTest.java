@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 
 public class LibraryCatalogEntryTest {
@@ -32,11 +30,20 @@ public class LibraryCatalogEntryTest {
 
     @Test
     public void testExtractAlternativeTitles() {
-        List<String> titles = subject.extractAlternativeTitles("Not tonight, Josephine! | Some like it hot");
-        List<String> expected = new LinkedList<>();
+        Set<String> titles = subject.extractAlternativeTitles("Not tonight, Josephine! | Some like it hot");
+        Set<String> expected = new HashSet<>();
         expected.add("Not tonight, Josephine!");
         expected.add("Some like it hot");
-        Assertions.assertEquals(titles, expected);
+        Assertions.assertEquals(expected, titles);
+    }
+
+    @Test
+    public void testExtractAlternativeTitles2() {
+        Set<String> titles = subject.extractAlternativeTitles("The legend of Bagger Vance");
+        Set<String> expected = new HashSet<>();
+        expected.add("The legend of Bagger Vance");
+        expected.add("legend of Bagger Vance, The");
+        Assertions.assertEquals(expected, titles);
     }
 
     @Test
