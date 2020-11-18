@@ -108,4 +108,59 @@ public class LibraryCatalogEntryTest {
         expected.add("He Ping");
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
+
+    @Test
+    public void testExtractDirectors4() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Regie: Stephen Hopkins ; Drehbuch: William Goldman ; Kamera: Vilmos Zsigmond ; Musik: John Goldsmith ; Darsteller: Val Kilmer, Michael Douglas, Bernard Hill";
+        Set<String> expected = new HashSet<>();
+        expected.add("Stephen Hopkins");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors5() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Filmregisseur und Drehbuchautor: Gus Van Sant ; Kamera: Christopher Blauvelt ; Komponist: Danny Elfman ; Schauspieler: Joaquin Phoenix, Jonah Hill, Rooney Mara [und andere]";
+        Set<String> expected = new HashSet<>();
+        expected.add("Gus Van Sant");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors6() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Joseph H. Lewis ; Philip Yordan Drehbuchautor/in ; John Alton Kamera ; Cornel Wilde Schauspieler/in ; Richard Conte Schauspieler/in ; Brian Donlevy Schauspieler/in ; David Raksin Komponist/in";
+        Set<String> expected = new HashSet<>();
+        expected.add("Joseph H. Lewis");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors7() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Tom Hooper Regie; Ellis Kirk Drehbuchautor/in ; Tak Fujimoto Kamera ; Paul Giamatti Schauspieler/in ; Laura Linney Schauspieler/in ; John Dossett Schauspieler/in ; David G. McCullough ; Robert Lane Komponist/in";
+        Set<String> expected = new HashSet<>();
+        expected.add("Tom Hooper");
+        expected.add("David G. McCullough");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors8() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "[Regie: Howard E. Baker ; Peter Chung. Produzent: Catherine Winder. Drehbuch: Mark Mars ... Musik: Drew Neuman]";
+        Set<String> expected = new HashSet<>();
+        expected.add("Howard E. Baker");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors9() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Gerhard Hahn Regisseur ; Roberto De Nigris Kamera ; Rosabell Laurenti Sellers Schauspieler/in ; Josephine Benini ... Schauspieler/in ; Gerd Kaeding ... Komponist/in";
+        Set<String> expected = new HashSet<>();
+        expected.add("Gerhard Hahn");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
 }

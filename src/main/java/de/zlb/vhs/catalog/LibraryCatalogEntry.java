@@ -11,9 +11,14 @@ public class LibraryCatalogEntry {
 
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
     public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
+
     //this should cover English, German, Italian, Spanish and French
     private static final String[] LEADING_ARTICLES = { "The ", "A ", "An ", "Der ", "Die" , "Das", "Ein ", "Eine ",
             "Il ", "La ", "Lo ", "L'", "I ", "Le ", "Gli ", "Un ", "Una ", "Uno ", "El ", "Los ", "Las ", "Les ", "Une "};
+
+    private static final String[] CAST_AND_CREW_POSITIONS = { "Schauspiel", "Komp", "Kamera", "Drehbuch", "Prod",
+            "Inter", "Musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
+            "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt"};
 
     public LibraryCatalogEntryBean bean;
 
@@ -186,21 +191,51 @@ public class LibraryCatalogEntry {
             }
         }
 
+        result.addAll(extractDirectorsFromCastAndCrew(castAndCrew));
+
+        return result;
+    }
+
+    private Set<String> extractDirectorsFromCastAndCrew(String castAndCrew) {
+        Set<String> result = new HashSet<>();
         if (!castAndCrew.isEmpty()) {
             String[] people = castAndCrew.split(";");
             for (String p : people) {
-                if (p.contains("[")) {
-                    String[] sections = p.split("\\[");
-                    if (sections.length > 1 && sections[1].contains("Regie")) {
-                        String possibleDirector = sections[0].trim();
+                if (containsDirector(p)) {
+                    String clean = p.startsWith("[")
+                            ? p.replaceFirst("\\[", "")
+                            : p;
+                    String[] sections = clean.split("[\\[:]");
+                    if (sections.length > 1) {
+                        String possibleDirector = containsDirector(sections[1])
+                                ? sections[0].trim()
+                                : sections[1].trim();
                         if (!possibleDirector.isEmpty()) {
                             result.add(possibleDirector);
                         }
+                    } else {
+                        String directorWithoutPosition = Arrays.stream(p.split(" "))
+                                .filter(s -> !containsDirector(s))
+                                .collect(Collectors.joining(" "));
+                        if (!directorWithoutPosition.contains("]")) {
+                            result.add(directorWithoutPosition);
+                        }
+                    }
+                } else {
+                    if (!p.matches("[\\[:]") && !containsAnyPosition(p)) {
+                        result.add(p.trim());
                     }
                 }
             }
         }
-
         return result;
+    }
+
+    private boolean containsDirector(String subject) {
+        return subject.contains("Regie") || subject.contains("Regisseur") || subject.contains("Filmregisseur");
+    }
+
+    private boolean containsAnyPosition(String subject) {
+        return Arrays.stream(CAST_AND_CREW_POSITIONS).anyMatch(subject::contains);
     }
 }

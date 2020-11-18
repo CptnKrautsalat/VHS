@@ -64,7 +64,7 @@ public class LibraryCatalog {
 
     public void writeToFiles() {
         log.info("Writing library catalog data to CSV files...");
-        writeFilmListToFile(entriesByDirector.get(""), "output/zlb/no_director.csv");
+        writeFilmListToFile(getAllEntries().filter(e -> !e.hasDirector()).collect(Collectors.toSet()), "output/zlb/no_director.csv");
         writeFilmListToFile(entriesByYear.get(""), "output/zlb/no_year.csv");
         log.info("...done writing!");
     }
@@ -75,8 +75,7 @@ public class LibraryCatalog {
                 .map(e -> e.bean)
                 .collect(Collectors.toList());
         try {
-            log.info("Writing {} beans from {} films to file {}...",
-                    beans.size(), entries.size(), fileName);
+            log.info("Writing {} beans to file {}...", beans.size(), fileName);
             libraryCsvListHandler.writeListToCSVFile(beans, fileName);
             log.info("... done writing to file {}!", fileName);
         } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
