@@ -77,6 +77,12 @@ public class LibraryCatalogEntryTest {
     }
 
     @Test
+    public void testExtractYear6() {
+        String year = subject.extractYear("Engl. | Ländercode: 2 + 4 | Orig.: Großbritannien/USA, 2. Januar 1983");
+        Assertions.assertEquals(year, "1983");
+    }
+
+    @Test
     public void testExtractDirectors1() {
         String director = "Powell, Michael (118741675)";
         String castAndCrew = "Emeric Pressburger [Regie, Drehbuch, Darst., Prod.]";

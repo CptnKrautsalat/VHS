@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class LibraryCatalogEntry {
 
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
-
+    public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
     //this should cover English, German, Italian, Spanish and French
     private static final String[] LEADING_ARTICLES = { "The ", "A ", "An ", "Der ", "Die" , "Das", "Ein ", "Eine ",
             "Il ", "La ", "Lo ", "L'", "I ", "Le ", "Gli ", "Un ", "Una ", "Uno ", "El ", "Los ", "Las ", "Les ", "Une "};
@@ -151,10 +151,9 @@ public class LibraryCatalogEntry {
             String[] sections = split.get().split("Orig\\.:");
             if (sections.length > 1) {
                 String[] subSections = sections[sections.length - 1].split(",");
-                Pattern yearPattern = Pattern.compile("\\d{4}");
                 Optional<String> possibleYear = Arrays.stream(subSections)
                         .map(String::trim)
-                        .filter(yearPattern.asPredicate())
+                        .filter(YEAR_PATTERN.asPredicate())
                         .findFirst();
                 if (possibleYear.isPresent()) {
                     year = possibleYear.get();
@@ -162,12 +161,13 @@ public class LibraryCatalogEntry {
             }
         }
 
-        if (year.contains(" ")) {
-            year = year.substring(0, year.indexOf(' '));
-        }
-
-        if (year.contains(".")) {
-            year = year.substring(0, year.indexOf('.'));
+        if (year.length() > 4) {
+            Optional<String> possibleYear = Arrays.stream(year.split("\\D"))
+                    .filter(YEAR_PATTERN.asPredicate())
+                    .findFirst();
+            if (possibleYear.isPresent()) {
+                return possibleYear.get();
+            }
         }
 
         return year;
