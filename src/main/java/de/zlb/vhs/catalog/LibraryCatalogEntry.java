@@ -142,13 +142,13 @@ public class LibraryCatalogEntry {
     String extractYear(String miscData) {
         String year = "";
         List<String> splits = Arrays.stream(miscData.split("\\|"))
-                .filter(s -> s.contains("Orig.:"))
+                .filter(s -> s.contains("Orig"))
                 .collect(Collectors.toList());
         Optional<String> split = splits.size() > 1
-                ? splits.stream().filter(s -> s.trim().startsWith("Orig.:")).findFirst()
+                ? splits.stream().filter(s -> s.trim().startsWith("Orig")).findFirst()
                 : splits.stream().findFirst();
         if (split.isPresent()) {
-            String[] sections = split.get().split("Orig\\.:");
+            String[] sections = split.get().split("Orig");
             if (sections.length > 1) {
                 String[] subSections = sections[sections.length - 1].split(",");
                 Optional<String> possibleYear = Arrays.stream(subSections)
@@ -192,7 +192,10 @@ public class LibraryCatalogEntry {
                 if (p.contains("[")) {
                     String[] sections = p.split("\\[");
                     if (sections.length > 1 && sections[1].contains("Regie")) {
-                        result.add(sections[0].trim());
+                        String possibleDirector = sections[0].trim();
+                        if (!possibleDirector.isEmpty()) {
+                            result.add(possibleDirector);
+                        }
                     }
                 }
             }

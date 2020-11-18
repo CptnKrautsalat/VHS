@@ -99,4 +99,13 @@ public class LibraryCatalogEntryTest {
         Set<String> expected = new HashSet<>();
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
+
+    @Test
+    public void testExtractDirectors3() {
+        String director = "He Ping (OHNE_DNDNR)";
+        String castAndCrew = "[Regie führt He Ping. Die Hauptrollen spielen Zhang Fengyi, Wang Xue Qi und Yang Kueimei]";
+        Set<String> expected = new HashSet<>();
+        expected.add("He Ping");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
 }
