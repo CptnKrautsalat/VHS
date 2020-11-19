@@ -142,7 +142,6 @@ public class LibraryCatalogEntryTest {
         String castAndCrew = "Tom Hooper Regie; Ellis Kirk Drehbuchautor/in ; Tak Fujimoto Kamera ; Paul Giamatti Schauspieler/in ; Laura Linney Schauspieler/in ; John Dossett Schauspieler/in ; David G. McCullough ; Robert Lane Komponist/in";
         Set<String> expected = new HashSet<>();
         expected.add("Tom Hooper");
-        expected.add("David G. McCullough");
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
 
@@ -161,6 +160,15 @@ public class LibraryCatalogEntryTest {
         String castAndCrew = "Gerhard Hahn Regisseur ; Roberto De Nigris Kamera ; Rosabell Laurenti Sellers Schauspieler/in ; Josephine Benini ... Schauspieler/in ; Gerd Kaeding ... Komponist/in";
         Set<String> expected = new HashSet<>();
         expected.add("Gerhard Hahn");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors10() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "ein Film von Wolfgang Becker. Mit Jürgen Vogel, Christiane Paul und Ricky Tomlinson ... Buch Wolfgang Becker & Tom Tykwer. Filmmusik Jürgen Knieper. Szenenmusik Christian Steyer";
+        Set<String> expected = new HashSet<>();
+        expected.add("Wolfgang Becker");
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
 }

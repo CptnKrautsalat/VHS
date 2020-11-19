@@ -2,6 +2,8 @@ package de.zlb.vhs.catalog;
 
 import de.zlb.vhs.ofdb.CombinedFilm;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -10,6 +12,8 @@ import java.util.stream.Stream;
 
 public class LibraryCatalogEntry {
 
+    private static final Logger log = LogManager.getLogger(LibraryCatalogEntry.class);
+
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
     public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
 
@@ -17,9 +21,12 @@ public class LibraryCatalogEntry {
     private static final String[] LEADING_ARTICLES = { "The ", "A ", "An ", "Der ", "Die" , "Das", "Ein ", "Eine ",
             "Il ", "La ", "Lo ", "L'", "I ", "Le ", "Gli ", "Un ", "Una ", "Uno ", "El ", "Los ", "Las ", "Les ", "Une "};
 
-    private static final String[] CAST_AND_CREW_POSITIONS = { "Schauspiel", "Komp", "Kamera", "Drehbuch", "Prod",
-            "Inter", "Musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
-            "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt"};
+    private static final String[] CAST_AND_CREW_POSITIONS = { "Schauspiel", "Komp", "Kamera", "Drehbuch", "Buch", "Prod",
+            "Inter", "Musik", "musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
+            "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt", "Mit"};
+
+    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di "};
+
     public static final String VHS_FORMAT_NAME = "ad";
 
     public LibraryCatalogEntryBean bean;
@@ -225,6 +232,8 @@ public class LibraryCatalogEntry {
     private Set<String> extractDirectorsFromCastAndCrew(String castAndCrew) {
         Set<String> result = new HashSet<>();
         if (!castAndCrew.isEmpty()) {
+            boolean descriptionContainsDirectorTitle = containsDirector(castAndCrew);
+            boolean descriptionContainsDirectorPhrase = containsDirectorPhrase(castAndCrew);
             String[] people = castAndCrew.split(";");
             for (String p : people) {
                 if (containsDirector(p)) {
@@ -248,17 +257,61 @@ public class LibraryCatalogEntry {
                         }
                     }
                 } else {
-                    if (!p.matches("[\\[:]") && !containsAnyPosition(p)) {
-                        result.add(p.trim());
-                    }
+                    result.addAll(extractDirectorsFromPoorlyFormattedDescription(p, descriptionContainsDirectorTitle,
+                            descriptionContainsDirectorPhrase));
                 }
             }
         }
         return result;
     }
 
+    private Set<String> extractDirectorsFromPoorlyFormattedDescription(String description,
+                                                                       boolean containsDirectorTitle,
+                                                                       boolean containDirectorPhrase) {
+        Set<String> result = new HashSet<>();
+        Arrays.stream(description.split("\\.{3}"))
+                .forEach(section -> {
+                    if (containDirectorPhrase && containsDirectorPhrase(section)) {
+                        Optional<Integer> index = Arrays.stream(DIRECTOR_PHRASES)
+                                .filter(section::contains)
+                                .map(p -> section.indexOf(p) + p.length())
+                                .findFirst();
+                        if (index.isPresent()) {
+                            String director = section.substring(index.get()).trim();
+                            if (!director.isEmpty()) {
+                                result.add(extractDirectorName(director));
+                            }
+                        }
+                    } else if ((containsDirectorTitle && containsDirector(section))
+                            || (!containsDirectorTitle && !section.matches("[\\[:]") && !containsAnyPosition(section))) {
+                        if (!section.isEmpty()) {
+                            result.add(section.trim());
+                        }
+                    }
+                });
+
+        return result;
+    }
+
+    private String extractDirectorName(String director) {
+        if (!(director.contains(".") || director.contains(","))) {
+            return director;
+        }
+        int index1 = director.indexOf('.');
+        int index2 = director.indexOf(',');
+        int index = Math.min(index1, index2);
+        if (index == -1) {
+            index = Math.max(index1, index2);
+        }
+        return director.substring(0, index);
+    }
+
     private boolean containsDirector(String subject) {
         return subject.contains("Regie") || subject.contains("Regisseur") || subject.contains("Filmregisseur");
+    }
+
+    private boolean containsDirectorPhrase(String subject) {
+        return Arrays.stream(DIRECTOR_PHRASES).anyMatch(subject::contains);
     }
 
     private boolean containsAnyPosition(String subject) {
