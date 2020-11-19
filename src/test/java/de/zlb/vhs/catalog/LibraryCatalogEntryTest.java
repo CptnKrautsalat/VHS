@@ -12,20 +12,28 @@ public class LibraryCatalogEntryTest {
 
     @Test
     public void testExtractMainTitle1() {
-        String title = subject.extractMainTitle("¬Der¬ mit dem Wolf tanzt : [Video]");
-        Assertions.assertEquals("mit dem Wolf tanzt, Der", title);
+        Set<String> titles = subject.extractMainTitle("¬Der¬ mit dem Wolf tanzt : [Video]");
+        Set<String> expected = new HashSet<>();
+        expected.add("mit dem Wolf tanzt, Der");
+        expected.add("Der mit dem Wolf tanzt");
+        Assertions.assertEquals(expected, titles);
     }
 
     @Test
     public void testExtractMainTitle2() {
-        String title = subject.extractMainTitle("Flashdance : What a feeling ; [Video]");
-        Assertions.assertEquals("Flashdance : What a feeling", title);
+        Set<String> titles = subject.extractMainTitle("Flashdance : What a feeling ; [Video]");
+        Set<String> expected = new HashSet<>();
+        expected.add("Flashdance : What a feeling");
+        Assertions.assertEquals(expected, titles);
     }
 
     @Test
     public void testExtractMainTitle3() {
-        String title = subject.extractMainTitle("¬Die¬ unglaubliche Maschine Mensch");
-        Assertions.assertEquals("unglaubliche Maschine Mensch, Die", title);
+        Set<String> titles =  subject.extractMainTitle("¬Die¬ unglaubliche Maschine Mensch");
+        Set<String> expected = new HashSet<>();
+        expected.add("unglaubliche Maschine Mensch, Die");
+        expected.add("Die unglaubliche Maschine Mensch");
+        Assertions.assertEquals(expected, titles);
     }
 
     @Test

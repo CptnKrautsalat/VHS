@@ -28,24 +28,14 @@ public class ListGenerator {
 				.getAllEntries()
 				.filter(LibraryCatalogEntry::hasYear)
 				.forEach(lce -> {
-					List<FilmEntry> films = ofdbManager
-							.getEntriesWithYear(lce.year)
-							.filter(f -> f.matchesTitles(lce))
-							.collect(Collectors.toList());
+					Optional<FilmEntry> film = findMatchingOfdbFilmEntry(lce);
 					List<LibraryCatalogEntry> matches = libraryCatalog
 							.getEntriesWithYear(lce.year)
-							.filter(lce::matchesTitlesAndDirectors)
+							.filter(other -> lce.matchesTitlesAndDirectors(other, false))
 							.collect(Collectors.toList());
-					if (!(films.isEmpty() && matches.size() < 2)) {
-						Optional<FilmEntry> film = films.isEmpty()
-								? Optional.empty()
-								: Optional.of(films.get(0));
-						if (films.size() > 1) {
-							log.warn("Library catalog entry {} matches {} films: {}", lce, films.size(),
-									films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
-						}
+					if (!(film.isEmpty() && matches.size() < 2)) {
 						CombinedFilm combinedFilm = film.isPresent() && film.get().isLinkedToFilm()
-								? film.get().film
+								? film.get().getFilm()
 								: new CombinedFilm(film);
 						combinedFilm.addLibraryCatalogEntry(lce);
 						combinedFilm = lce.getFilm();
@@ -58,6 +48,24 @@ public class ListGenerator {
 				combinedFilms.size(),
 				combinedFilms.stream().flatMap(CombinedFilm::getLibraryCatalogEntries).count(),
 				combinedFilms.stream().filter(CombinedFilm::hasOfdbEntry).count());
+	}
+
+	Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
+		Set<FilmEntry> films = ofdbManager
+				.getEntriesWithYear(libraryCatalogEntry.year)
+				.filter(f -> f.matchesTitles(libraryCatalogEntry, false))
+				.collect(Collectors.toSet());
+		if (films.size() > 1) {
+			films.removeIf(f -> !f.matchesTitles(libraryCatalogEntry, true));
+		}
+		if (films.size() > 1) {
+			films.removeIf(f -> !libraryCatalogEntry.matchesYear(f.year, true));
+		}
+		if (films.size() > 1) {
+			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),
+					films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
+		}
+		return films.stream().findFirst();
 	}
 
 	public void generateListAndWriteToCSV() {

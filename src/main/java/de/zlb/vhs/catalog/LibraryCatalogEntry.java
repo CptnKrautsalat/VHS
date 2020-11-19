@@ -40,7 +40,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.bean = bean;
-        this.titles.add(extractMainTitle(bean.title));
+        this.titles.addAll(extractMainTitle(bean.title));
         this.titles.addAll(extractAlternativeTitles(bean.alternativeTitles));
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
         this.year = extractYear(bean.comments);
@@ -91,10 +91,17 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return Objects.hash(bean, titles, directors, year);
     }
 
-    public boolean matchesTitle(String title) {
+    public boolean matchesTitle(String title, boolean strict) {
         return titles
                 .stream()
-                .anyMatch(title::equalsIgnoreCase);
+                .anyMatch(t -> titlesMatch(t, title, strict));
+    }
+
+    private boolean titlesMatch(String title1, String title2, boolean strict) {
+        return title1.equalsIgnoreCase(title2)
+                || (!strict
+                    && (title1.contains(title2)
+                        || title2.contains(title1)));
     }
 
     public boolean matchesDirector(String director) {
@@ -103,9 +110,13 @@ public class LibraryCatalogEntry implements ISortableEntry {
                 .anyMatch(director::equalsIgnoreCase);
     }
 
-    public boolean matchesYear(String year) {
+    public boolean matchesYear(String year, boolean strict) {
         if (year.equals(this.year)) {
             return true;
+        }
+
+        if (strict) {
+            return false;
         }
 
         try {
@@ -129,10 +140,10 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return film != null;
     }
 
-    public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other) {
+    public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other, boolean strict) {
         boolean matchesTitles = other.titles
                 .stream()
-                .anyMatch(this::matchesTitle);
+                .anyMatch(title -> matchesTitle(title, strict));
         if (!matchesTitles) {
             return false;
         }
@@ -146,25 +157,29 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return physicalFormat.equals(VHS_FORMAT_NAME);
     }
 
-    String extractMainTitle(String title) {
-        String result = title;
+    Set<String> extractMainTitle(String title) {
+        Set<String> result = new HashSet<>();
+        String tempTitle = title;
 
         //get rid of format suffix
         String[] sections = title.split("[:;]");
         if (sections.length != 1 && sections[sections.length - 1].contains("[")) {
             int lastSemicolon = title.lastIndexOf(';');
             int lastColon = title.lastIndexOf(':');
-            result = title
+            tempTitle = title
                     .substring(0, Math.max(lastColon, lastSemicolon))
                     .trim();
         }
 
         //move article to the end
-        if (result.contains("¬")) {
-            sections = result.split("¬");
+        if (tempTitle.contains("¬")) {
+            sections = tempTitle.split("¬");
             if (sections.length == 3) {
-                result = sections[2].trim() + ", " + sections[1].trim();
+                result.add(sections[2].trim() + ", " + sections[1].trim());
+                result.add(sections[1].trim() + " " + sections[2].trim());
             }
+        } else {
+            result.add(tempTitle);
         }
 
         return result;

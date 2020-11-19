@@ -15,8 +15,16 @@ public class FilmEntry implements ISortableEntry {
 	public final String year;
 	public final String link;
 
-	public CombinedFilm film;
-	
+	private CombinedFilm film;
+
+	public CombinedFilm getFilm() {
+		return film;
+	}
+
+	public void setFilm(CombinedFilm film) {
+		this.film = film;
+	}
+
 	private final List<FilmVersionEntry> versions = new LinkedList<>();
 
 	public FilmEntry(String title, String link) {
@@ -62,17 +70,8 @@ public class FilmEntry implements ISortableEntry {
 		return getVersions().anyMatch(FilmVersionEntry::isDigital);
 	}
 
-	public boolean matchesLibraryCatalogEntry(LibraryCatalogEntry libraryCatalogEntry) {
-		if (!year.equals(libraryCatalogEntry.year)) {
-			return false;
-		}
-
-		return matchesTitles(libraryCatalogEntry);
-
-	}
-
-	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry) {
-		return libraryCatalogEntry.matchesTitle(title);
+	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
+		return libraryCatalogEntry.matchesTitle(title, strict);
 	}
 
 	public boolean isLinkedToFilm() {

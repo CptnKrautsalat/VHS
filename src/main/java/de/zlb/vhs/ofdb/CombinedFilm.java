@@ -23,7 +23,7 @@ public class CombinedFilm {
 
     public void setOfdbEntry(FilmEntry ofdbEntry) {
         this.ofdbEntry = ofdbEntry;
-        ofdbEntry.film = this;
+        ofdbEntry.setFilm(this);
     }
 
     public CombinedFilm() {}
