@@ -1,5 +1,6 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class FilmEntry {
+public class FilmEntry implements ISortableEntry {
 	public final String title;
 	public final String year;
 	public final String link;
@@ -148,5 +149,10 @@ public class FilmEntry {
 		if (link == null) {
 			return other.link == null;
 		} else return link.equals(other.link);
+	}
+
+	@Override
+	public String getYear() {
+		return year;
 	}
 }

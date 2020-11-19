@@ -1,5 +1,6 @@
 package de.zlb.vhs.catalog;
 
+import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.ofdb.CombinedFilm;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
@@ -10,7 +11,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class LibraryCatalogEntry {
+public class LibraryCatalogEntry implements ISortableEntry {
 
     private static final Logger log = LogManager.getLogger(LibraryCatalogEntry.class);
 
@@ -103,7 +104,17 @@ public class LibraryCatalogEntry {
     }
 
     public boolean matchesYear(String year) {
-        return year.equals(this.year);
+        if (year.equals(this.year)) {
+            return true;
+        }
+
+        try {
+            int year1 = Integer.parseInt(year);
+            int year2 = Integer.parseInt(this.year);
+            return Math.abs(year1 - year2) <= 1;
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     public boolean hasYear() {
@@ -316,5 +327,10 @@ public class LibraryCatalogEntry {
 
     private boolean containsAnyPosition(String subject) {
         return Arrays.stream(CAST_AND_CREW_POSITIONS).anyMatch(subject::contains);
+    }
+
+    @Override
+    public String getYear() {
+        return year;
     }
 }

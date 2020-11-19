@@ -35,7 +35,7 @@ public class CombinedFilm {
     }
 
     public void merge(CombinedFilm other) {
-        log.debug("Merging {} into {}.", other, this);
+        log.trace("Merging {} into {}.", other, this);
         this.libraryCatalogEntries.addAll(other.libraryCatalogEntries);
         other.libraryCatalogEntries.clear();
         if (!this.hasOfdbEntry() && other.hasOfdbEntry()) {

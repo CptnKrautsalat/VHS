@@ -42,7 +42,7 @@ public class ListGenerator {
 								: Optional.of(films.get(0));
 						if (films.size() > 1) {
 							log.warn("Library catalog entry {} matches {} films: {}", lce, films.size(),
-									films.stream().map(f -> f.link).collect(Collectors.joining(";")));
+									films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
 						}
 						CombinedFilm combinedFilm = film.isPresent() && film.get().isLinkedToFilm()
 								? film.get().film

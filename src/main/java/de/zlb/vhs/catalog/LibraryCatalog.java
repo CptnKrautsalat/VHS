@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import de.zlb.vhs.SortedManager;
 import de.zlb.vhs.ofdb.csv.CSVListHandler;
 import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
@@ -15,14 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public class LibraryCatalog {
+public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
 
     private static final Logger log = LogManager.getLogger(LibraryCatalog.class);
 
     private final Set<LibraryCatalogEntryBean> beans = new HashSet<>();
-    private final Multimap<String, LibraryCatalogEntry> entriesByYear = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesByMediaNumber = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesByTitle = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesByDirector = HashMultimap.create();
@@ -31,7 +30,7 @@ public class LibraryCatalog {
 
     public void readDataFromFiles() {
         libraryCsvListHandler.readListFromDirectory("input/zlb", this::addBeansToLibraryCatalog, LibraryCatalogEntryBean.class);
-        log.info("{} library catalog entries loaded from {} beans.", entriesByYear.size(), beans.size());
+        log.info("{} library catalog entries loaded from {} beans.", getAllEntries().count(), beans.size());
         analyzeCatalog();
     }
 
@@ -42,22 +41,14 @@ public class LibraryCatalog {
 
     private void addBeanToLibraryCatalog(LibraryCatalogEntryBean bean) {
         LibraryCatalogEntry entry = new LibraryCatalogEntry(bean);
-        entriesByYear.put(entry.year, entry);
+        addEntry(entry);
         entriesByMediaNumber.put(entry.getMediaNumber(), entry);
         entry.directors.forEach(d -> entriesByDirector.put(d, entry));
         entry.titles.forEach(t -> entriesByTitle.put(t, entry));
     }
 
-    public Stream<LibraryCatalogEntry> getAllEntries() {
-        return entriesByYear.values().stream();
-    }
-
-    public Stream<LibraryCatalogEntry> getEntriesWithYear(String year) {
-        return entriesByYear.get(year).stream();
-    }
-
     private void analyzeCatalog() {
-        long withoutYear = entriesByYear.get("").size();
+        long withoutYear = getEntriesWithYear("").count();
         long withoutDirector = getAllEntries().filter(e -> !e.hasDirector()).count();
         log.info("Library catalog has {} entries, {} without year, {} without director.",
                 getAllEntries().count(), withoutYear, withoutDirector);
@@ -66,7 +57,7 @@ public class LibraryCatalog {
     public void writeToFiles() {
         log.info("Writing library catalog data to CSV files...");
         writeFilmListToFile(getAllEntries().filter(e -> !e.hasDirector()).collect(Collectors.toSet()), "output/zlb/no_director.csv");
-        writeFilmListToFile(entriesByYear.get(""), "output/zlb/no_year.csv");
+        writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
         Set<LibraryCatalogEntry> indentifiedVhsTapes = getAllEntries()
                 .filter(LibraryCatalogEntry::isLinkedToFilm)
                 .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
