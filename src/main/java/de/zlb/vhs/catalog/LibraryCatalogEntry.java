@@ -23,7 +23,7 @@ public class LibraryCatalogEntry {
     public static final String VHS_FORMAT_NAME = "ad";
 
     public LibraryCatalogEntryBean bean;
-    public CombinedFilm film;
+    private CombinedFilm film;
 
     public final Set<String> titles = new HashSet<>();
     public final Set <String> directors = new HashSet<>();
@@ -43,6 +43,19 @@ public class LibraryCatalogEntry {
 
     public String getMediaNumber() {
         return bean.mediaNumber;
+    }
+
+    public boolean tryToSetFilm(CombinedFilm film) {
+        if (this.film != null) {
+            this.film.merge(film);
+            return false;
+        }
+        this.film = film;
+        return true;
+    }
+
+    public CombinedFilm getFilm() {
+        return film;
     }
 
     @Override

@@ -28,22 +28,32 @@ public class ListGenerator {
 				.getAllEntries()
 				.filter(LibraryCatalogEntry::hasYear)
 				.forEach(lce -> {
-					Optional<FilmEntry> filmEntry = ofdbManager
+					List<FilmEntry> films = ofdbManager
 							.getEntriesWithYear(lce.year)
 							.filter(f -> f.matchesTitles(lce))
-							.findFirst();
+							.collect(Collectors.toList());
 					List<LibraryCatalogEntry> matches = libraryCatalog
 							.getEntriesWithYear(lce.year)
-							.filter(e -> !e.isLinkedToFilm())
 							.filter(lce::matchesTitlesAndDirectors)
 							.collect(Collectors.toList());
-					if (matches.size() > 1) {
-						CombinedFilm combinedFilm = new CombinedFilm(filmEntry);
+					if (!(films.isEmpty() && matches.size() < 2)) {
+						Optional<FilmEntry> film = films.isEmpty()
+								? Optional.empty()
+								: Optional.of(films.get(0));
+						if (films.size() > 1) {
+							log.warn("Library catalog entry {} matches {} films: {}", lce, films.size(),
+									films.stream().map(f -> f.link).collect(Collectors.joining(";")));
+						}
+						CombinedFilm combinedFilm = film.isPresent() && film.get().isLinkedToFilm()
+								? film.get().film
+								: new CombinedFilm(film);
 						combinedFilm.addLibraryCatalogEntry(lce);
+						combinedFilm = lce.getFilm();
 						matches.forEach(combinedFilm::addLibraryCatalogEntry);
 						combinedFilms.add(combinedFilm);
 					}
 				});
+		combinedFilms.removeIf(CombinedFilm::isEmpty);
 		log.info("... created {} combined films, linked to {} catalog entries and {} OFDB films!",
 				combinedFilms.size(),
 				combinedFilms.stream().flatMap(CombinedFilm::getLibraryCatalogEntries).count(),

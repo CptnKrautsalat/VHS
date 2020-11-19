@@ -1,6 +1,8 @@
 package de.zlb.vhs.ofdb;
 
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -9,22 +11,41 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 public class CombinedFilm {
+
+    private static final Logger log = LogManager.getLogger(CombinedFilm.class);
+
     private FilmEntry ofdbEntry;
     private final Set<LibraryCatalogEntry> libraryCatalogEntries = new HashSet<>();
 
     public CombinedFilm(Optional<FilmEntry> ofdbEntry) {
-        if (ofdbEntry.isPresent()) {
-            this.ofdbEntry = ofdbEntry.get();
-            ofdbEntry.get().film = this;
-        }
+        ofdbEntry.ifPresent(this::setOfdbEntry);
+    }
 
+    public void setOfdbEntry(FilmEntry ofdbEntry) {
+        this.ofdbEntry = ofdbEntry;
+        ofdbEntry.film = this;
     }
 
     public CombinedFilm() {}
 
     public void addLibraryCatalogEntry(LibraryCatalogEntry entry) {
-        entry.film = this;
-        this.libraryCatalogEntries.add(entry);
+        if (this != entry.getFilm() && entry.tryToSetFilm(this)) {
+            this.libraryCatalogEntries.add(entry);
+        }
+    }
+
+    public void merge(CombinedFilm other) {
+        log.debug("Merging {} into {}.", other, this);
+        this.libraryCatalogEntries.addAll(other.libraryCatalogEntries);
+        other.libraryCatalogEntries.clear();
+        if (!this.hasOfdbEntry() && other.hasOfdbEntry()) {
+            setOfdbEntry(other.ofdbEntry);
+            other.ofdbEntry = null;
+        }
+    }
+
+    public boolean isEmpty() {
+        return libraryCatalogEntries.isEmpty();
     }
 
     public FilmEntry getOfdbEntry() {

@@ -69,14 +69,14 @@ public class LibraryCatalog {
         writeFilmListToFile(entriesByYear.get(""), "output/zlb/no_year.csv");
         Set<LibraryCatalogEntry> indentifiedVhsTapes = getAllEntries()
                 .filter(LibraryCatalogEntry::isLinkedToFilm)
-                .filter(e -> e.film.isOnlyOnVhsInCatalog())
+                .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
                 .collect(Collectors.toSet());
         Set<LibraryCatalogEntry> replace = indentifiedVhsTapes
                 .stream()
-                .filter(f -> f.film.existsDigitally()).collect(Collectors.toSet());
+                .filter(f -> f.getFilm().existsDigitally()).collect(Collectors.toSet());
         Set<LibraryCatalogEntry> digitize = indentifiedVhsTapes
                 .stream()
-                .filter(f -> !f.film.existsDigitally()).collect(Collectors.toSet());
+                .filter(f -> !f.getFilm().existsDigitally()).collect(Collectors.toSet());
         writeFilmListToFile(replace, "output/zlb/replace.csv");
         writeFilmListToFile(digitize, "output/zlb/digitize.csv");
         log.info("...done writing!");
