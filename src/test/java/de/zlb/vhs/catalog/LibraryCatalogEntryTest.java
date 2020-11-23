@@ -188,4 +188,13 @@ public class LibraryCatalogEntryTest {
         expected.add("Fritz Lang");
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
+
+    @Test
+    public void testExtractDirectors12() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "produced and directed by Bob Carruthers. Written by Stuart Reid. Michael Leighton [Darst.]. Narrated by Terry Malloy";
+        Set<String> expected = new HashSet<>();
+        expected.add("Bob Carruthers");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
 }

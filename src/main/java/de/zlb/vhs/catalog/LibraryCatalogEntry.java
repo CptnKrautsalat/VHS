@@ -27,7 +27,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
             "Inter", "Musik", "musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
             "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt", "Mit"};
 
-    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di ", "Regie führt "};
+    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di ", "Regie führt ", "directed by "};
 
     public static final String VHS_FORMAT_NAME = "ad";
 
@@ -267,11 +267,13 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return result;
     }
 
-    private Set<String> extractDirectorsFromCrewArray(boolean descriptionContainsDirectorTitle, boolean descriptionContainsDirectorPhrase, String[] people) {
+    private Set<String> extractDirectorsFromCrewArray(boolean descriptionContainsDirectorTitle,
+                                                      boolean descriptionContainsDirectorPhrase, String[] people) {
         Set<String> result = new HashSet<>();
         for (String p : people) {
             if (containsPeriodThatIsNotAnInitial(p)) {
-                result.addAll(extractDirectorsFromCrewArray(descriptionContainsDirectorTitle, descriptionContainsDirectorPhrase, p.split("\\.")));
+                result.addAll(extractDirectorsFromCrewArray(descriptionContainsDirectorTitle,
+                        descriptionContainsDirectorPhrase, p.split("\\.")));
             } else if (containsDirector(p) && !containsDirectorPhrase(p)) {
                 String clean = p.startsWith("[")
                         ? p.replaceFirst("\\[", "")
@@ -325,7 +327,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
                             }
                         }
                     } else if ((containsDirectorTitle && containsDirector(section))
-                            || (!containsDirectorTitle && !section.matches("[\\[:]") && !containsAnyPosition(section))) {
+                            || (!containsDirectorTitle && !containDirectorPhrase && !section.matches("[\\[:]") && !containsAnyPosition(section))) {
                         if (!section.isEmpty()) {
                             result.add(section.trim());
                         }
