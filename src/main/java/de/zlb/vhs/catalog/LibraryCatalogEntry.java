@@ -46,6 +46,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         this.titles.addAll(extractMainTitle(bean.title));
         this.titles.addAll(extractAlternativeTitles(bean.alternativeTitles));
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
+        this.genres.addAll(extractGenres(bean.genres));
         this.year = extractYear(bean.comments);
         this.physicalFormat = bean.physicalForm;
     }
@@ -158,6 +159,18 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public boolean isVhs() {
         return physicalFormat.equals(VHS_FORMAT_NAME);
+    }
+
+    public boolean isBerlinaleFilm() {
+        return genres
+                .stream()
+                .anyMatch(g -> g.contains("Berlinale"));
+    }
+
+    Set<String> extractGenres(String genres) {
+        return Arrays.stream(genres.split(","))
+                .map(String::trim)
+                .collect(Collectors.toSet());
     }
 
     Set<String> extractMainTitle(String title) {
@@ -364,14 +377,16 @@ public class LibraryCatalogEntry implements ISortableEntry {
     }
 
     private boolean containsDirectorPhrase(String subject) {
-        return Arrays.stream(DIRECTOR_PHRASES).anyMatch(subject::contains);
+        return Arrays.stream(DIRECTOR_PHRASES).anyMatch(p -> containsIgnoreCase(subject, p));
     }
 
     private boolean containsAnyPosition(String subject) {
-        return Arrays.stream(CAST_AND_CREW_POSITIONS).anyMatch(subject::contains);
+        return Arrays.stream(CAST_AND_CREW_POSITIONS).anyMatch(p -> containsIgnoreCase(subject, p));
     }
 
-
+    private static boolean containsIgnoreCase(String a, String b) {
+        return a.toLowerCase().contains(b.toLowerCase());
+    }
 
     @Override
     public String getYear() {

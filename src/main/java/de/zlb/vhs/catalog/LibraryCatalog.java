@@ -69,8 +69,18 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         Set<LibraryCatalogEntry> digitize = indentifiedVhsTapes
                 .stream()
                 .filter(f -> !f.getFilm().existsDigitally()).collect(Collectors.toSet());
+        Set<LibraryCatalogEntry> replaceBerlinale = replace
+                .stream()
+                .filter(LibraryCatalogEntry::isBerlinaleFilm)
+                .collect(Collectors.toSet());
+        Set<LibraryCatalogEntry> digitizeBerlinale = digitize
+                .stream()
+                .filter(LibraryCatalogEntry::isBerlinaleFilm)
+                .collect(Collectors.toSet());
         writeFilmListToFile(replace, "output/zlb/replace.csv");
         writeFilmListToFile(digitize, "output/zlb/digitize.csv");
+        writeFilmListToFile(replaceBerlinale,"output/zlb/replace_berlinale.csv");
+        writeFilmListToFile(digitizeBerlinale,"output/zlb/digitize_berlinale.csv");
         log.info("...done writing!");
     }
 
