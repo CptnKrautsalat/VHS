@@ -179,4 +179,13 @@ public class LibraryCatalogEntryTest {
         expected.add("Wolfgang Becker");
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
+
+    @Test
+    public void testExtractDirectors11() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Regie: Fritz Lang. Buch: Fritz Lang und Thea von Harbou. Darsteller: Peter Lorre ; Gustaf Gründgens ; Theo Lingen...";
+        Set<String> expected = new HashSet<>();
+        expected.add("Fritz Lang");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
 }

@@ -17,6 +17,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
     public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
+    public static final Pattern PERIOD_WITHOUT_INITIALS_PATTERS = Pattern.compile("\\w{2,}\\.");
 
     //this should cover English, German, Italian, Spanish and French
     private static final String[] LEADING_ARTICLES = { "The ", "A ", "An ", "Der ", "Die" , "Das", "Ein ", "Eine ",
@@ -26,7 +27,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
             "Inter", "Musik", "musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
             "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt", "Mit"};
 
-    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di "};
+    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di ", "Regie führt "};
 
     public static final String VHS_FORMAT_NAME = "ad";
 
@@ -261,34 +262,49 @@ public class LibraryCatalogEntry implements ISortableEntry {
             boolean descriptionContainsDirectorTitle = containsDirector(castAndCrew);
             boolean descriptionContainsDirectorPhrase = containsDirectorPhrase(castAndCrew);
             String[] people = castAndCrew.split(";");
-            for (String p : people) {
-                if (containsDirector(p)) {
-                    String clean = p.startsWith("[")
-                            ? p.replaceFirst("\\[", "")
-                            : p;
-                    String[] sections = clean.split("[\\[:]");
-                    if (sections.length > 1) {
-                        String possibleDirector = containsDirector(sections[1])
-                                ? sections[0].trim()
-                                : sections[1].trim();
-                        if (!possibleDirector.isEmpty()) {
-                            result.add(possibleDirector);
-                        }
-                    } else {
-                        String directorWithoutPosition = Arrays.stream(p.split(" "))
-                                .filter(s -> !containsDirector(s))
-                                .collect(Collectors.joining(" "));
-                        if (!directorWithoutPosition.contains("]")) {
-                            result.add(directorWithoutPosition);
-                        }
+            result.addAll(extractDirectorsFromCrewArray(descriptionContainsDirectorTitle, descriptionContainsDirectorPhrase, people));
+        }
+        return result;
+    }
+
+    private Set<String> extractDirectorsFromCrewArray(boolean descriptionContainsDirectorTitle, boolean descriptionContainsDirectorPhrase, String[] people) {
+        Set<String> result = new HashSet<>();
+        for (String p : people) {
+            if (containsPeriodThatIsNotAnInitial(p)) {
+                result.addAll(extractDirectorsFromCrewArray(descriptionContainsDirectorTitle, descriptionContainsDirectorPhrase, p.split("\\.")));
+            } else if (containsDirector(p) && !containsDirectorPhrase(p)) {
+                String clean = p.startsWith("[")
+                        ? p.replaceFirst("\\[", "")
+                        : p;
+                String[] sections = clean.split("[\\[:]");
+                if (sections.length > 1) {
+                    String possibleDirector = containsDirector(sections[1])
+                            ? sections[0].trim()
+                            : sections[1].trim();
+                    if (!possibleDirector.isEmpty()) {
+                        result.add(possibleDirector);
                     }
                 } else {
-                    result.addAll(extractDirectorsFromPoorlyFormattedDescription(p, descriptionContainsDirectorTitle,
-                            descriptionContainsDirectorPhrase));
+                    String directorWithoutPosition = Arrays.stream(p.split(" "))
+                            .filter(s -> !containsDirector(s))
+                            .collect(Collectors.joining(" "));
+                    if (!directorWithoutPosition.contains("]")) {
+                        result.add(directorWithoutPosition);
+                    }
                 }
+            } else {
+                result.addAll(extractDirectorsFromPoorlyFormattedDescription(p, descriptionContainsDirectorTitle,
+                        descriptionContainsDirectorPhrase));
             }
         }
         return result;
+    }
+
+    private boolean containsPeriodThatIsNotAnInitial(String subject) {
+        if (!subject.contains(".")) {
+            return false;
+        }
+        return PERIOD_WITHOUT_INITIALS_PATTERS.matcher(subject).find();
     }
 
     private Set<String> extractDirectorsFromPoorlyFormattedDescription(String description,
