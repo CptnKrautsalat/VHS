@@ -59,6 +59,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         writeFilmListToFile(getAllEntries().filter(e -> !e.hasDirector()).collect(Collectors.toSet()), "output/zlb/no_director.csv");
         writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
         Set<LibraryCatalogEntry> indentifiedVhsTapes = getAllEntries()
+                .filter(LibraryCatalogEntry::isVhs)
                 .filter(LibraryCatalogEntry::isLinkedToFilm)
                 .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
                 .collect(Collectors.toSet());
@@ -81,7 +82,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         try {
             log.info("Writing {} beans to file {}...", beans.size(), fileName);
             libraryCsvListHandler.writeListToCSVFile(beans, fileName);
-            log.info("... done writing to file {}!", fileName);
+            log.trace("... done writing to file {}!", fileName);
         } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
             log.error("Failed to write to file {}!", fileName, e);
         }

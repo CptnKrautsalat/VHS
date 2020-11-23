@@ -53,7 +53,7 @@ public class CSVListHandler<B> {
     }
 
     public void writeListToCSVFile(List<B> beans, String file) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        log.info("Writing list to CSV file " + file + "...");
+        log.trace("Writing list to CSV file " + file + "...");
 
         FileWriter writer = new FileWriter(file);
 
@@ -62,12 +62,12 @@ public class CSVListHandler<B> {
             .withSeparator(separator)
             .build();
 
-        log.info("Writing " + beans.size() + " releases.");
+        log.trace("Writing " + beans.size() + " releases.");
 
         beanWriter.write(beans);
         writer.close();
 
-        log.info("Done writing " + file + "!");
+        log.trace("Done writing " + file + "!");
     }
 
     public void readListFromFile(String fileName, Consumer<List<B>> listConsumer, Class<? extends B> type) {
