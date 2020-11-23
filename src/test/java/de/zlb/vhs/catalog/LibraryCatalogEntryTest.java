@@ -91,6 +91,12 @@ public class LibraryCatalogEntryTest {
     }
 
     @Test
+    public void testExtractYear7() {
+        String year = subject.extractYear("Dänemark/Grönland/Großbritannien, 2012 | Girl in the layby | Ländercode: 2 | Mit engl., dän., franz. und span. Untertiteln | Special features: Interview with Sarah Gavron & David Katznelson. 5 deleted scenes. Sarah Gavron short film: Girl in the layby ...");
+        Assertions.assertEquals(year, "2012");
+    }
+
+    @Test
     public void testExtractDirectors1() {
         String director = "Powell, Michael (118741675)";
         String castAndCrew = "Emeric Pressburger [Regie, Drehbuch, Darst., Prod.]";

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +37,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public final Set<String> titles = new HashSet<>();
     public final Set <String> directors = new HashSet<>();
+    public final Set<String> genres = new HashSet<>();
     public String year;
     public String physicalFormat;
 
@@ -235,6 +237,13 @@ public class LibraryCatalogEntry implements ISortableEntry {
             }
         }
 
+        if (year.isEmpty()) {
+            Matcher matcher = YEAR_PATTERN.matcher(miscData);
+            if (matcher.find()) {
+                return matcher.group();
+            }
+        }
+
         return year;
     }
 
@@ -361,6 +370,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
     private boolean containsAnyPosition(String subject) {
         return Arrays.stream(CAST_AND_CREW_POSITIONS).anyMatch(subject::contains);
     }
+
+
 
     @Override
     public String getYear() {
