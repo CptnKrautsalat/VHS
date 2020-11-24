@@ -60,9 +60,10 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
         Set<LibraryCatalogEntry> indentifiedVhsTapes = getAllEntries()
                 .filter(LibraryCatalogEntry::isVhs)
-                .filter(LibraryCatalogEntry::isLinkedToFilm)
+                .filter(LibraryCatalogEntry::isLinkedToOfdbFilm)
                 .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
                 .collect(Collectors.toSet());
+        indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
         Set<LibraryCatalogEntry> replace = indentifiedVhsTapes
                 .stream()
                 .filter(f -> f.getFilm().existsDigitally()).collect(Collectors.toSet());

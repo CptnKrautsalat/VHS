@@ -1,6 +1,7 @@
 package de.zlb.vhs.csv;
 
 import com.opencsv.bean.CsvBindByName;
+import de.zlb.vhs.catalog.LibraryCatalogEntry;
 
 import java.util.Objects;
 
@@ -45,6 +46,8 @@ public class LibraryCatalogEntryBean {
     public String exstat;
     @CsvBindByName(column = "austat")
     public String austat;
+    @CsvBindByName(column = "ofdb")
+    public String ofdbLink;
 
     public LibraryCatalogEntryBean() {}
 
@@ -80,5 +83,11 @@ public class LibraryCatalogEntryBean {
         return Objects.hash(physicalForm, akds, mediaNumber, signature, sigel, department, director, castAndCrew, title,
                 alternativeTitles, comments, release, languages, length, acquisition, genres, rentals2010to2020, rentals2020,
                 exstat, austat);
+    }
+
+    public void update(LibraryCatalogEntry entry) {
+        if (entry.isLinkedToOfdbFilm()) {
+            ofdbLink = entry.getFilm().getOfdbEntry().link;
+        }
     }
 }

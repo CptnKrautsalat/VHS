@@ -135,8 +135,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return !directors.isEmpty();
     }
 
-    public boolean isLinkedToFilm() {
-        return film != null;
+    public boolean isLinkedToOfdbFilm() {
+        return film != null && film.hasOfdbEntry();
     }
 
     public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other, boolean strict) {
@@ -160,6 +160,10 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return genres
                 .stream()
                 .anyMatch(g -> g.contains("Berlinale"));
+    }
+
+    public void updateBean() {
+        bean.update(this);
     }
 
     Set<String> extractGenres(String genres) {
