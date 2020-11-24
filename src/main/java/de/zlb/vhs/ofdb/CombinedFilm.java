@@ -28,20 +28,38 @@ public class CombinedFilm {
 
     public CombinedFilm() {}
 
-    public void addLibraryCatalogEntry(LibraryCatalogEntry entry) {
-        if (this != entry.getFilm() && entry.tryToSetFilm(this)) {
-            this.libraryCatalogEntries.add(entry);
+    public CombinedFilm addLibraryCatalogEntry(LibraryCatalogEntry entry) {
+        libraryCatalogEntries.add(entry);
+        CombinedFilm other = entry.getFilm();
+        if (this == other) {
+            return this;
         }
+        if (other != null) {
+            entry.setFilm(other);
+            return merge(other);
+        }
+        entry.setFilm(this);
+        return this;
     }
 
-    public void merge(CombinedFilm other) {
-        log.trace("Merging {} into {}.", other, this);
-        this.libraryCatalogEntries.addAll(other.libraryCatalogEntries);
-        other.libraryCatalogEntries.clear();
-        if (!this.hasOfdbEntry() && other.hasOfdbEntry()) {
-            setOfdbEntry(other.ofdbEntry);
-            other.ofdbEntry = null;
+    public CombinedFilm merge(CombinedFilm other) {
+        log.trace("Merging {} and {}.", other, this);
+
+        if (!other.hasOfdbEntry()) {
+            other.libraryCatalogEntries.forEach(e -> {
+                libraryCatalogEntries.add(e);
+                e.setFilm(this);
+            });
+            other.libraryCatalogEntries.clear();
+            return this;
         }
+        this.ofdbEntry = null;
+        libraryCatalogEntries.forEach(e -> {
+            other.libraryCatalogEntries.add(e);
+            e.setFilm(other);
+        });
+        this.libraryCatalogEntries.clear();
+        return other;
     }
 
     public boolean isEmpty() {

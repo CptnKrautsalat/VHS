@@ -37,8 +37,7 @@ public class ListGenerator {
 						CombinedFilm combinedFilm = film.isPresent() && film.get().isLinkedToFilm()
 								? film.get().getFilm()
 								: new CombinedFilm(film);
-						combinedFilm.addLibraryCatalogEntry(lce);
-						combinedFilm = lce.getFilm();
+						combinedFilm = combinedFilm.addLibraryCatalogEntry(lce);
 						matches.forEach(combinedFilm::addLibraryCatalogEntry);
 						combinedFilms.add(combinedFilm);
 					}

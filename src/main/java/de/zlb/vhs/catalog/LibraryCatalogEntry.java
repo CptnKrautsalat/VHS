@@ -57,17 +57,12 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return bean.mediaNumber;
     }
 
-    public boolean tryToSetFilm(CombinedFilm film) {
-        if (this.film != null) {
-            this.film.merge(film);
-            return false;
-        }
-        this.film = film;
-        return true;
-    }
-
     public CombinedFilm getFilm() {
         return film;
+    }
+
+    public void setFilm(CombinedFilm film) {
+        this.film = film;
     }
 
     @Override
