@@ -1,12 +1,10 @@
 package de.zlb.vhs.ofdb;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.zlb.vhs.SortedManager;
-import de.zlb.vhs.ofdb.csv.CSVListHandler;
-import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+import de.zlb.vhs.csv.CSVListHandler;
+import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.stats.StatsCollector;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;

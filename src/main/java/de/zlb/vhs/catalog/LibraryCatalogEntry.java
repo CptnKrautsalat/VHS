@@ -1,8 +1,8 @@
 package de.zlb.vhs.catalog;
 
 import de.zlb.vhs.ISortableEntry;
-import de.zlb.vhs.ofdb.CombinedFilm;
-import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
+import de.zlb.vhs.CombinedFilm;
+import de.zlb.vhs.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

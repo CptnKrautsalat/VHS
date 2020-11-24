@@ -1,8 +1,9 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.CombinedFilm;
 import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
-import de.zlb.vhs.ofdb.csv.FilmVersionEntryBean;
+import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
 
 import java.util.LinkedList;

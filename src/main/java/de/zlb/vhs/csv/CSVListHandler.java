@@ -1,4 +1,4 @@
-package de.zlb.vhs.ofdb.csv;
+package de.zlb.vhs.csv;
 
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;

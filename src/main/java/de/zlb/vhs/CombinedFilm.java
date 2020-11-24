@@ -1,6 +1,7 @@
-package de.zlb.vhs.ofdb;
+package de.zlb.vhs;
 
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
+import de.zlb.vhs.ofdb.FilmEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

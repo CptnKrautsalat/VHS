@@ -5,8 +5,8 @@ import com.google.common.collect.Multimap;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.zlb.vhs.SortedManager;
-import de.zlb.vhs.ofdb.csv.CSVListHandler;
-import de.zlb.vhs.ofdb.csv.LibraryCatalogEntryBean;
+import de.zlb.vhs.csv.CSVListHandler;
+import de.zlb.vhs.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
