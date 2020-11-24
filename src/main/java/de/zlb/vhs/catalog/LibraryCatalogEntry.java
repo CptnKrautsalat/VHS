@@ -40,6 +40,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
     public final Set<String> genres = new HashSet<>();
     public String year;
     public String physicalFormat;
+    public String signaturePrefix;
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.bean = bean;
@@ -48,6 +49,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
         this.genres.addAll(extractGenres(bean.genres));
         this.year = extractYear(bean.comments);
+        this.signaturePrefix = extractSignaturePrefix(bean.signature);
         this.physicalFormat = bean.physicalForm;
     }
 
@@ -164,6 +166,15 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public void updateBean() {
         bean.update(this);
+    }
+
+    String extractSignaturePrefix(String signature) {
+        String noMediaFormat = signature.split(":")[0];
+        String[] sections = noMediaFormat.split(" ");
+        if (sections[sections.length - 1].matches("\\w")) {
+            return noMediaFormat.substring(0, noMediaFormat.length() - 2);
+        }
+        return noMediaFormat;
     }
 
     Set<String> extractGenres(String genres) {

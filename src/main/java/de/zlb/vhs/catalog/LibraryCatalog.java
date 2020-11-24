@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
 
@@ -25,6 +26,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     private final Multimap<String, LibraryCatalogEntry> entriesByMediaNumber = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesByTitle = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesByDirector = HashMultimap.create();
+    private final Multimap<String, LibraryCatalogEntry> entriesBySignaturePrefix = HashMultimap.create();
 
     private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(';');
 
@@ -43,6 +45,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         LibraryCatalogEntry entry = new LibraryCatalogEntry(bean);
         addEntry(entry);
         entriesByMediaNumber.put(entry.getMediaNumber(), entry);
+        entriesBySignaturePrefix.put(entry.signaturePrefix, entry);
         entry.directors.forEach(d -> entriesByDirector.put(d, entry));
         entry.titles.forEach(t -> entriesByTitle.put(t, entry));
     }
@@ -52,6 +55,10 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         long withoutDirector = getAllEntries().filter(e -> !e.hasDirector()).count();
         log.info("Library catalog has {} entries, {} without year, {} without director.",
                 getAllEntries().count(), withoutYear, withoutDirector);
+    }
+
+    public Stream<LibraryCatalogEntry> getEntriesWithSignaturePrefix(String signaturePrefix) {
+        return entriesBySignaturePrefix.get(signaturePrefix).stream();
     }
 
     public void writeToFiles() {

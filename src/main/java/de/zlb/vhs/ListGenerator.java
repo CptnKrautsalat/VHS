@@ -8,7 +8,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,10 +27,7 @@ public class ListGenerator {
 				.filter(LibraryCatalogEntry::hasYear)
 				.forEach(lce -> {
 					Optional<FilmEntry> film = findMatchingOfdbFilmEntry(lce);
-					List<LibraryCatalogEntry> matches = libraryCatalog
-							.getEntriesWithYear(lce.year)
-							.filter(other -> lce.matchesTitlesAndDirectors(other, false))
-							.collect(Collectors.toList());
+					Set<LibraryCatalogEntry> matches = findMatchingLibraryCatalogEntries(lce);
 					if (!(film.isEmpty() && matches.size() < 2)) {
 						CombinedFilm combinedFilm = film.isPresent() && film.get().isLinkedToFilm()
 								? film.get().getFilm()
@@ -46,6 +42,17 @@ public class ListGenerator {
 				combinedFilms.size(),
 				combinedFilms.stream().flatMap(CombinedFilm::getLibraryCatalogEntries).count(),
 				combinedFilms.stream().filter(CombinedFilm::hasOfdbEntry).count());
+	}
+
+	private Set<LibraryCatalogEntry> findMatchingLibraryCatalogEntries(LibraryCatalogEntry lce) {
+		Set<LibraryCatalogEntry> matches = libraryCatalog
+				.getEntriesWithSignaturePrefix(lce.signaturePrefix)
+				.collect(Collectors.toSet());
+		libraryCatalog
+				.getEntriesWithYear(lce.year)
+				.filter(other -> lce.matchesTitlesAndDirectors(other, false))
+				.forEach(matches::add);
+		return matches;
 	}
 
 	Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {

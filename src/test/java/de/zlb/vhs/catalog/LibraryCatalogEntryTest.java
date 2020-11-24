@@ -203,4 +203,12 @@ public class LibraryCatalogEntryTest {
         expected.add("Bob Carruthers");
         Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
     }
+
+    @Test
+    public void testExtractSignaturePrefix() {
+        String signature = "Film 10 Wei 11 a:Video";
+        String expected = "Film 10 Wei 11";
+        Assertions.assertEquals(expected, subject.extractSignaturePrefix(signature));
+    }
+
 }
