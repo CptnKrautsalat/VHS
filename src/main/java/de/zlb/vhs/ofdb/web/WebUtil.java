@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class WebUtil {
@@ -66,5 +67,38 @@ public class WebUtil {
         }
 
         return films;
+    }
+
+    public static Optional<AdditionalOfdbData> getAdditionalOfdbData(String url) {
+        try {
+            Set<String> titles = new HashSet<>();
+            Document doc = Jsoup.connect(url).get();
+            Element imdbLinkElement = doc.selectFirst("td a[href^=http://www.imdb.com/Title?]");
+            Element altTitleTd = doc.selectFirst("font:contains(Alternativtitel:)").parent().lastElementSibling();
+            Element origTitleTr = doc.selectFirst("font:contains(Originaltitel:)").parent().lastElementSibling();
+            Element directorTr = doc.selectFirst("font:contains(Regie:)").parent().lastElementSibling();
+            titles.addAll(extractTitlesFromTableData(origTitleTr));
+            titles.addAll(extractTitlesFromTableData(altTitleTd));
+            return Optional.of(new AdditionalOfdbData(extractNamesFromTableData(directorTr), titles, imdbLinkElement.attr("href")));
+        } catch (IOException e) {
+            log.error("Failed to get additional OFDB data from {}.", url, e);
+            return Optional.empty();
+        }
+    }
+
+    private static Set<String> extractNamesFromTableData(Element tableData) {
+        Set<String> result = new HashSet<>();
+        for (Element span: tableData.select("span")) {
+            result.add(span.text());
+        }
+        return result;
+    }
+
+    private static Set<String> extractTitlesFromTableData(Element tableData) {
+        Set<String> result = new HashSet<>();
+        for (Element b: tableData.select("b")) {
+            result.add(b.text());
+        }
+        return result;
     }
 }
