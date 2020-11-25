@@ -205,9 +205,16 @@ public class LibraryCatalogEntryTest {
     }
 
     @Test
-    public void testExtractSignaturePrefix() {
+    public void testExtractSignaturePrefix1() {
         String signature = "Film 10 Wei 11 a:Video";
         String expected = "Film 10 Wei 11";
+        Assertions.assertEquals(expected, subject.extractSignaturePrefix(signature));
+    }
+
+    @Test
+    public void testExtractSignaturePrefix2() {
+        String signature = "Film 30 Emi 5:Video";
+        String expected = "Film 30 Emi 5";
         Assertions.assertEquals(expected, subject.extractSignaturePrefix(signature));
     }
 

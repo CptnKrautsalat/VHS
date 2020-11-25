@@ -171,7 +171,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
     String extractSignaturePrefix(String signature) {
         String noMediaFormat = signature.split(":")[0];
         String[] sections = noMediaFormat.split(" ");
-        if (sections[sections.length - 1].matches("\\w")) {
+        if (sections[sections.length - 1].matches("[a-z]")) {
             return noMediaFormat.substring(0, noMediaFormat.length() - 2);
         }
         return noMediaFormat;
