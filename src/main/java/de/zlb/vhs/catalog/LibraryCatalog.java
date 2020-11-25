@@ -61,6 +61,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     public void writeToFiles() {
         log.info("Writing library catalog data to CSV files...");
         writeFilmListToFile(getAllEntries().filter(e -> !e.hasDirector()).collect(Collectors.toSet()), "output/zlb/no_director.csv");
+        writeFilmListToFile(getAllEntries().filter(LibraryCatalogEntry::hasWrongYear).collect(Collectors.toSet()), "output/zlb/wrong_year.csv");
         writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
         Set<LibraryCatalogEntry> indentifiedVhsTapes = getAllEntries()
                 .filter(LibraryCatalogEntry::isVhs)
