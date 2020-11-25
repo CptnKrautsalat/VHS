@@ -42,6 +42,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
     public String physicalFormat;
     public String signaturePrefix;
 
+    public int rentalsSince2010 = 0;
+
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.bean = bean;
         this.titles.addAll(extractMainTitle(bean.title));
@@ -51,6 +53,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         this.year = extractYear(bean.comments);
         this.signaturePrefix = extractSignaturePrefix(bean.signature);
         this.physicalFormat = bean.physicalForm;
+        this.rentalsSince2010 = Integer.parseInt(bean.rentals2010to2020);
     }
 
     LibraryCatalogEntry() {}
@@ -61,6 +64,10 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public CombinedFilm getFilm() {
         return film;
+    }
+
+    public int getRentalsSince2010() {
+        return rentalsSince2010;
     }
 
     public void setFilm(CombinedFilm film) {

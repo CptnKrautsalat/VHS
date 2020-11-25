@@ -11,10 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -71,24 +68,18 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
                 .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
                 .collect(Collectors.toSet());
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
-        Set<LibraryCatalogEntry> replace = indentifiedVhsTapes
+        List<LibraryCatalogEntry> replace = indentifiedVhsTapes
                 .stream()
-                .filter(f -> f.getFilm().existsDigitally()).collect(Collectors.toSet());
-        Set<LibraryCatalogEntry> digitize = indentifiedVhsTapes
+                .filter(f -> f.getFilm().existsDigitally())
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
+        List<LibraryCatalogEntry> digitize = indentifiedVhsTapes
                 .stream()
-                .filter(f -> !f.getFilm().existsDigitally()).collect(Collectors.toSet());
-        Set<LibraryCatalogEntry> replaceBerlinale = replace
-                .stream()
-                .filter(LibraryCatalogEntry::isBerlinaleFilm)
-                .collect(Collectors.toSet());
-        Set<LibraryCatalogEntry> digitizeBerlinale = digitize
-                .stream()
-                .filter(LibraryCatalogEntry::isBerlinaleFilm)
-                .collect(Collectors.toSet());
+                .filter(f -> !f.getFilm().existsDigitally())
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
         writeFilmListToFile(replace, "output/zlb/replace.csv");
         writeFilmListToFile(digitize, "output/zlb/digitize.csv");
-        writeFilmListToFile(replaceBerlinale,"output/zlb/replace_berlinale.csv");
-        writeFilmListToFile(digitizeBerlinale,"output/zlb/digitize_berlinale.csv");
         log.info("...done writing!");
     }
 
