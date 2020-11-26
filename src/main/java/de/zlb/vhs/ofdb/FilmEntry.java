@@ -5,18 +5,31 @@ import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
+import de.zlb.vhs.ofdb.web.AdditionalOfdbData;
+import de.zlb.vhs.ofdb.web.WebUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FilmEntry implements ISortableEntry {
+
+	private static final Logger log = LogManager.getLogger(FilmEntry.class);
+
+	private static final AdditionalOfdbData EMPTY_ADDITIONAL_OFDB_DATA = new AdditionalOfdbData(
+			Collections.emptySet(), Collections.emptySet(), "");
+	public static final String STRING_SET_SEPARATOR = " \\| ";
+
 	public final String title;
 	public final String year;
 	public final String link;
 
 	private CombinedFilm film;
+	private AdditionalOfdbData additionalOfdbData;
 
 	public CombinedFilm getFilm() {
 		return film;
@@ -40,6 +53,9 @@ public class FilmEntry implements ISortableEntry {
 		this.title = filmVersionEntryBean.title;
 		this.year = filmVersionEntryBean.year;
 		this.link = filmVersionEntryBean.filmLink;
+		this.additionalOfdbData = extractAdditionalOfdbData(
+				filmVersionEntryBean.imdbLink, filmVersionEntryBean.alternativeTitles, filmVersionEntryBean.directors)
+				.orElse(null);
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
 	}
 
@@ -100,10 +116,48 @@ public class FilmEntry implements ISortableEntry {
 				.count();
 	}
 
+	public String getImdbLink() {
+		return getAdditionalOfdbData().imdbLink;
+	}
+
+	public String getAlternativeTitlesAsString() {
+		return String.join(STRING_SET_SEPARATOR, getAdditionalOfdbData()
+				.alternativeTitles);
+	}
+
+	public String getDirectorsAsString() {
+		return String.join(STRING_SET_SEPARATOR, getAdditionalOfdbData()
+				.directors);
+	}
+
 	public String getTitle() {
 		return title;
 	}
-	
+
+	public AdditionalOfdbData getAdditionalOfdbData() {
+		return additionalOfdbData == null ? EMPTY_ADDITIONAL_OFDB_DATA : additionalOfdbData;
+	}
+
+	public Optional<AdditionalOfdbData> getOrCreateAdditionalOfdbData() {
+		if (additionalOfdbData != null) {
+			return Optional.of(additionalOfdbData);
+		}
+
+		Optional<AdditionalOfdbData> ofdbResult = WebUtil.getAdditionalOfdbData(link);
+		if (ofdbResult.isPresent()) {
+			log.info("Updating {} with {}.", title, ofdbResult.get());
+			additionalOfdbData = ofdbResult.get();
+		}
+
+		return ofdbResult;
+	}
+
+	public boolean matchesDirectors(LibraryCatalogEntry libraryCatalogEntry) {
+		Set<String> directors = getAdditionalOfdbData().directors;
+		return directors.isEmpty()
+				|| directors.stream().anyMatch(libraryCatalogEntry::matchesDirector);
+	}
+
 	private String extractTitle(String title) {
 		int index = title.lastIndexOf('(');
 		return index == -1 ? title : title.substring(0, index-1);
@@ -113,6 +167,17 @@ public class FilmEntry implements ISortableEntry {
 		int index1 = title.lastIndexOf('(');
 		int index2 = title.lastIndexOf(')');
 		return (index1 == -1 || index2 == -1) ? "" : title.substring(index1 + 1, index2);
+	}
+
+	static Optional<AdditionalOfdbData> extractAdditionalOfdbData(String imdbLink, String alternativeTitles, String directors) {
+		if (Strings.isBlank(imdbLink) && Strings.isBlank(alternativeTitles) && Strings.isBlank(directors)) {
+			return Optional.empty();
+		}
+		Set<String> altTitles = Arrays.stream(alternativeTitles.split(STRING_SET_SEPARATOR))
+				.collect(Collectors.toSet());
+		Set<String> dirs = Arrays.stream(directors.split(STRING_SET_SEPARATOR))
+				.collect(Collectors.toSet());
+		return Optional.of(new AdditionalOfdbData(dirs, altTitles, imdbLink));
 	}
 	
 	public void addVersion(FilmVersionEntry version) {

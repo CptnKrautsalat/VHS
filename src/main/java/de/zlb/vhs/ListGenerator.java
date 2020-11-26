@@ -67,6 +67,10 @@ public class ListGenerator {
 			films.removeIf(f -> !libraryCatalogEntry.matchesYear(f.year, true));
 		}
 		if (films.size() > 1) {
+			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
+			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
+		}
+		if (films.size() > 1) {
 			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),
 					films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
 		}

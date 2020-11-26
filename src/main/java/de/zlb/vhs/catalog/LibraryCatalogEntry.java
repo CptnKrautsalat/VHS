@@ -1,7 +1,7 @@
 package de.zlb.vhs.catalog;
 
-import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.CombinedFilm;
+import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.csv.LibraryCatalogEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,6 +33,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
     public static final String VHS_FORMAT_NAME = "ad";
 
     public LibraryCatalogEntryBean bean;
+
     private CombinedFilm film;
 
     public final Set<String> titles = new HashSet<>();

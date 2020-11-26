@@ -20,9 +20,15 @@ public class FilmVersionEntryBean {
 	public String rating;
 	@CsvBindByName(column = "Fassungslink")
 	public String versionLink;
+	@CsvBindByName(column = "Imdb_link")
+	public String imdbLink;
+	@CsvBindByName(column = "Regie")
+	public String directors;
+	@CsvBindByName(column = "Alternative_titel")
+	public String alternativeTitles;
 
 	public FilmVersionEntryBean(String title, String year, String filmLink, String medium, String publisher,
-			String country, String rating, String versionLink) {
+			String country, String rating, String versionLink, String imdbLink, String directors, String alternativeTitles) {
 		super();
 		this.title = title;
 		this.year = year;
@@ -32,6 +38,9 @@ public class FilmVersionEntryBean {
 		this.country = country;
 		this.rating = rating;
 		this.versionLink = versionLink;
+		this.imdbLink = imdbLink;
+		this.directors = directors;
+		this.alternativeTitles = alternativeTitles;
 	}
 
 	public FilmVersionEntryBean() {}

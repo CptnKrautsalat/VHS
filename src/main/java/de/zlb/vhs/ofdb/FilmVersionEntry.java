@@ -36,7 +36,8 @@ public class FilmVersionEntry {
 	}
 	
 	public FilmVersionEntryBean toBean() {
-		return new FilmVersionEntryBean(film.title, String.valueOf(film.year), film.link, medium, publisher, country, rating, link);
+		return new FilmVersionEntryBean(film.title, String.valueOf(film.year), film.link, medium, publisher, country,
+				rating, link, film.getImdbLink(), film.getDirectorsAsString(), film.getAlternativeTitlesAsString());
 	}
 
 	public boolean isVHS() {

@@ -74,12 +74,13 @@ public class WebUtil {
             Set<String> titles = new HashSet<>();
             Document doc = Jsoup.connect(url).get();
             Element imdbLinkElement = doc.selectFirst("td a[href^=http://www.imdb.com/Title?]");
-            Element altTitleTd = doc.selectFirst("font:contains(Alternativtitel:)").parent().lastElementSibling();
-            Element origTitleTr = doc.selectFirst("font:contains(Originaltitel:)").parent().lastElementSibling();
-            Element directorTr = doc.selectFirst("font:contains(Regie:)").parent().lastElementSibling();
+            Element altTitleTd = doc.selectFirst("font:contains(Alternativtitel:)");
+            Element origTitleTr = doc.selectFirst("font:contains(Originaltitel:)");
+            Element directorTr = doc.selectFirst("font:contains(Regie:)");
             titles.addAll(extractTitlesFromTableData(origTitleTr));
             titles.addAll(extractTitlesFromTableData(altTitleTd));
-            return Optional.of(new AdditionalOfdbData(extractNamesFromTableData(directorTr), titles, imdbLinkElement.attr("href")));
+            String imdbLink = imdbLinkElement == null ? "" : imdbLinkElement.attr("href");
+            return Optional.of(new AdditionalOfdbData(extractNamesFromTableData(directorTr), titles, imdbLink));
         } catch (IOException e) {
             log.error("Failed to get additional OFDB data from {}.", url, e);
             return Optional.empty();
@@ -88,7 +89,10 @@ public class WebUtil {
 
     private static Set<String> extractNamesFromTableData(Element tableData) {
         Set<String> result = new HashSet<>();
-        for (Element span: tableData.select("span")) {
+        if (tableData == null) {
+            return result;
+        }
+        for (Element span: tableData.parent().lastElementSibling().select("span")) {
             result.add(span.text());
         }
         return result;
@@ -96,7 +100,10 @@ public class WebUtil {
 
     private static Set<String> extractTitlesFromTableData(Element tableData) {
         Set<String> result = new HashSet<>();
-        for (Element b: tableData.select("b")) {
+        if (tableData == null) {
+            return result;
+        }
+        for (Element b: tableData.parent().lastElementSibling().select("b")) {
             result.add(b.text());
         }
         return result;
