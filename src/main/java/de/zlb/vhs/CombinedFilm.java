@@ -1,5 +1,7 @@
 package de.zlb.vhs;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.ofdb.FilmEntry;
 import org.apache.logging.log4j.LogManager;
@@ -83,6 +85,17 @@ public class CombinedFilm {
         return libraryCatalogEntries
                 .stream()
                 .allMatch(LibraryCatalogEntry::isVhs);
+    }
+
+    public boolean hasUniqueLanguageOnVhs() {
+        Multimap<String, LibraryCatalogEntry> sortedByLanguage = HashMultimap.create();
+        libraryCatalogEntries.forEach(lce -> lce.languages.forEach(l -> sortedByLanguage.put(l, lce)));
+        for (String language : sortedByLanguage.keySet()) {
+            if (sortedByLanguage.get(language).stream().allMatch(LibraryCatalogEntry::isVhs)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean existsDigitally() {

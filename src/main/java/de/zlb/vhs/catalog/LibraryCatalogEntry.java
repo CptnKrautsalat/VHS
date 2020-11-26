@@ -37,8 +37,10 @@ public class LibraryCatalogEntry implements ISortableEntry {
     private CombinedFilm film;
 
     public final Set<String> titles = new HashSet<>();
-    public final Set <String> directors = new HashSet<>();
+    public final Set<String> directors = new HashSet<>();
     public final Set<String> genres = new HashSet<>();
+    public final Set<String> languages = new HashSet<>();
+
     public String year;
     public String physicalFormat;
     public String signaturePrefix;
@@ -51,6 +53,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         this.titles.addAll(extractAlternativeTitles(bean.alternativeTitles));
         this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
         this.genres.addAll(extractGenres(bean.genres));
+        this.languages.addAll(extractLanguages(bean.languages));
         this.year = extractYear(bean.comments);
         this.signaturePrefix = extractSignaturePrefix(bean.signature);
         this.physicalFormat = bean.physicalForm;
@@ -182,6 +185,11 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public void updateBean() {
         bean.update(this);
+    }
+
+    static Set<String> extractLanguages(String languages) {
+        return Arrays.stream(languages.split(","))
+                .collect(Collectors.toSet());
     }
 
     String extractSignaturePrefix(String signature) {

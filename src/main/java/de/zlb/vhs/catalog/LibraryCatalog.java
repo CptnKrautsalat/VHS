@@ -69,6 +69,12 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
                 .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
                 .collect(Collectors.toSet());
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
+        List<LibraryCatalogEntry> languageOnlyOnVhs = getAllEntries()
+                .filter(LibraryCatalogEntry::isVhs)
+                .filter(LibraryCatalogEntry::isLinkedToOfdbFilm)
+                .filter(e -> e.getFilm().hasUniqueLanguageOnVhs())
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
         List<LibraryCatalogEntry> replace = indentifiedVhsTapes
                 .stream()
                 .filter(f -> f.getFilm().existsDigitally())
@@ -79,6 +85,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
                 .filter(f -> !f.getFilm().existsDigitally())
                 .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
                 .collect(Collectors.toList());
+        writeFilmListToFile(languageOnlyOnVhs, "output/zlb/language.csv");
         writeFilmListToFile(replace, "output/zlb/replace.csv");
         writeFilmListToFile(digitize, "output/zlb/digitize.csv");
         log.info("...done writing!");
