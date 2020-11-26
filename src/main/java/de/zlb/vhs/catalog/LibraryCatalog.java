@@ -63,32 +63,55 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         writeFilmListToFile(getAllEntries().filter(e -> !e.hasDirector()).collect(Collectors.toSet()), "output/zlb/no_director.csv");
         writeFilmListToFile(getAllEntries().filter(LibraryCatalogEntry::hasWrongYear).collect(Collectors.toSet()), "output/zlb/wrong_year.csv");
         writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
-        Set<LibraryCatalogEntry> indentifiedVhsTapes = getAllEntries()
-                .filter(LibraryCatalogEntry::isVhs)
-                .filter(LibraryCatalogEntry::isLinkedToOfdbFilm)
-                .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
-                .collect(Collectors.toSet());
+        writeFilmListToFile(createUnidentifiedButCompleteEntryList(), "output/zlb/mystery.csv");
+
+        Set<LibraryCatalogEntry> indentifiedVhsTapes = collectIdentifiedVhsTapes();
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
-        List<LibraryCatalogEntry> languageOnlyOnVhs = getAllEntries()
+
+        writeFilmListToFile(collectEntriesWithALanguageOnlyOnVhs(), "output/zlb/language.csv");
+        writeFilmListToFile(createReplacableEntryList(indentifiedVhsTapes), "output/zlb/replace.csv");
+        writeFilmListToFile(createNonReplacableEntryList(indentifiedVhsTapes), "output/zlb/digitize.csv");
+        log.info("...done writing!");
+    }
+
+    private List<LibraryCatalogEntry> createUnidentifiedButCompleteEntryList() {
+        return getAllEntries()
+                .filter(f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.hasDirector())
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private List<LibraryCatalogEntry> createNonReplacableEntryList(Set<LibraryCatalogEntry> indentifiedVhsTapes) {
+        return indentifiedVhsTapes
+                .stream()
+                .filter(f -> !f.getFilm().existsDigitally())
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private List<LibraryCatalogEntry> createReplacableEntryList(Set<LibraryCatalogEntry> indentifiedVhsTapes) {
+        return indentifiedVhsTapes
+                .stream()
+                .filter(f -> f.getFilm().existsDigitally())
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
+    }
+
+    private List<LibraryCatalogEntry> collectEntriesWithALanguageOnlyOnVhs() {
+        return getAllEntries()
                 .filter(LibraryCatalogEntry::isVhs)
                 .filter(LibraryCatalogEntry::isLinkedToOfdbFilm)
                 .filter(e -> e.getFilm().hasUniqueLanguageOnVhs())
                 .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
                 .collect(Collectors.toList());
-        List<LibraryCatalogEntry> replace = indentifiedVhsTapes
-                .stream()
-                .filter(f -> f.getFilm().existsDigitally())
-                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
-                .collect(Collectors.toList());
-        List<LibraryCatalogEntry> digitize = indentifiedVhsTapes
-                .stream()
-                .filter(f -> !f.getFilm().existsDigitally())
-                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
-                .collect(Collectors.toList());
-        writeFilmListToFile(languageOnlyOnVhs, "output/zlb/language.csv");
-        writeFilmListToFile(replace, "output/zlb/replace.csv");
-        writeFilmListToFile(digitize, "output/zlb/digitize.csv");
-        log.info("...done writing!");
+    }
+
+    private Set<LibraryCatalogEntry> collectIdentifiedVhsTapes() {
+        return getAllEntries()
+                .filter(LibraryCatalogEntry::isVhs)
+                .filter(LibraryCatalogEntry::isLinkedToOfdbFilm)
+                .filter(e -> e.getFilm().isOnlyOnVhsInCatalog())
+                .collect(Collectors.toSet());
     }
 
     private void writeFilmListToFile(Collection<LibraryCatalogEntry> entries, String fileName) {

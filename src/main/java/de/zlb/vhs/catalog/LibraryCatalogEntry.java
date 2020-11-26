@@ -113,8 +113,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
     private boolean titlesMatch(String title1, String title2, boolean strict) {
         return title1.equalsIgnoreCase(title2)
                 || (!strict
-                    && (title1.contains(title2)
-                        || title2.contains(title1)));
+                    && (containsIgnoreCase(title1, title2)
+                        || containsIgnoreCase(title2, title1)));
     }
 
     public boolean matchesDirector(String director) {
