@@ -205,6 +205,24 @@ public class LibraryCatalogEntryTest {
     }
 
     @Test
+    public void testExtractDirectors13() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "[with Sergio Kleiner ; Diana Mariscal ; Maria Teresa Rivas ... Screenplay by Alejandro Jodorowsky. Play: Fernando Arrabal. Produced by Moshe Rosemberg ; Samuel Rosemberg. Original music by Mario Lozua ; Hector Morely ; Pepe Ávila. Cinematography by Rafael Corkidi ; Antonio Reynoso]. Directed by Alejandro Jodorowsky";
+        Set<String> expected = new HashSet<>();
+        expected.add("Alejandro Jodorowsky");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
+    public void testExtractDirectors14() {
+        String director = "NN (OHNE_DNDNR)";
+        String castAndCrew = "Carl Theodor Dreyer [Name im Titel]";
+        Set<String> expected = new HashSet<>();
+        expected.add("Carl Theodor Dreyer");
+        Assertions.assertEquals(expected, subject.extractDirectors(director, castAndCrew));
+    }
+
+    @Test
     public void testExtractSignaturePrefix1() {
         String signature = "Film 10 Wei 11 a:Video";
         String expected = "Film 10 Wei 11";

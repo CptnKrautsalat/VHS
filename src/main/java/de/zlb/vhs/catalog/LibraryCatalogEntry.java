@@ -28,7 +28,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
             "Inter", "Musik", "musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
             "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt", "Mit"};
 
-    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di ", "Regie führt ", "directed by "};
+    private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di ", "Regie führt ", "directed by ", "Directed by "};
+    private static final String[] DIRECTOR_POSITIONS = { "Regie", "Regisseur", "Name im Titel"};
 
     public static final String VHS_FORMAT_NAME = "ad";
 
@@ -407,7 +408,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
     }
 
     private boolean containsDirector(String subject) {
-        return subject.contains("Regie") || subject.contains("Regisseur") || subject.contains("Filmregisseur");
+        return Arrays.stream(DIRECTOR_POSITIONS).anyMatch(p -> containsIgnoreCase(subject, p));
     }
 
     private boolean containsDirectorPhrase(String subject) {
