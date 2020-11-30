@@ -169,7 +169,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
             return false;
         }
 
-        return other.directors
+        return directors.isEmpty() || other.directors.isEmpty()
+                || other.directors
                 .stream()
                 .anyMatch(this::matchesDirector);
     }
@@ -226,12 +227,19 @@ public class LibraryCatalogEntry implements ISortableEntry {
         if (tempTitle.contains("¬")) {
             sections = tempTitle.split("¬");
             if (sections.length == 3) {
-                result.add(sections[2].trim());
+                tempTitle = sections[2].trim();
+                result.add(tempTitle);
                 result.add(sections[2].trim() + ", " + sections[1].trim());
                 result.add(sections[1].trim() + " " + sections[2].trim());
             }
         } else {
             result.add(tempTitle);
+        }
+
+        //remove subtitles {
+        sections = tempTitle.split("[:\\-\\.] ");
+        if (sections.length > 1) {
+            result.add(sections[0].trim());
         }
 
         return result;

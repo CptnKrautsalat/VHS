@@ -28,6 +28,8 @@ public class FilmEntry implements ISortableEntry {
 	public final String year;
 	public final String link;
 
+	private final Set<String> titles = new HashSet<>();
+
 	private CombinedFilm film;
 	private AdditionalOfdbData additionalOfdbData;
 
@@ -44,6 +46,7 @@ public class FilmEntry implements ISortableEntry {
 	public FilmEntry(String title, String link) {
 		super();
 		this.title = extractTitle(title);
+		this.titles.addAll(generateTitleVariations(title));
 		this.year = extractYear(title);
 		this.link = OfdbManager.OFDB_LINK_PREFIX + link;
 	}
@@ -51,11 +54,15 @@ public class FilmEntry implements ISortableEntry {
 	public FilmEntry(FilmVersionEntryBean filmVersionEntryBean) {
 		super();
 		this.title = filmVersionEntryBean.title;
+		this.titles.addAll(generateTitleVariations(title));
 		this.year = filmVersionEntryBean.year;
 		this.link = filmVersionEntryBean.filmLink;
 		this.additionalOfdbData = extractAdditionalOfdbData(
 				filmVersionEntryBean.imdbLink, filmVersionEntryBean.alternativeTitles, filmVersionEntryBean.directors)
 				.orElse(null);
+		if (this.additionalOfdbData != null) {
+			this.titles.addAll(this.additionalOfdbData.alternativeTitles);
+		}
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
 	}
 
@@ -88,7 +95,12 @@ public class FilmEntry implements ISortableEntry {
 	}
 
 	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
-		return libraryCatalogEntry.matchesTitle(title, strict);
+		if (strict) {
+			return libraryCatalogEntry.matchesTitle(title, strict);
+		}
+		return titles
+				.stream()
+				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, strict));
 	}
 
 	public boolean isLinkedToFilm() {
@@ -147,6 +159,7 @@ public class FilmEntry implements ISortableEntry {
 		if (ofdbResult.isPresent()) {
 			log.info("Updating {} with {}.", title, ofdbResult.get());
 			additionalOfdbData = ofdbResult.get();
+			titles.addAll(additionalOfdbData.alternativeTitles);
 		}
 
 		return ofdbResult;
@@ -178,6 +191,22 @@ public class FilmEntry implements ISortableEntry {
 		Set<String> dirs = Arrays.stream(directors.split(STRING_SET_SEPARATOR))
 				.collect(Collectors.toSet());
 		return Optional.of(new AdditionalOfdbData(dirs, altTitles, imdbLink));
+	}
+
+	static Set<String> generateTitleVariations(String title) {
+		Set<String> result = new HashSet<>();
+
+		String titleWithoutMedium = title.split("\\[")[0].strip();
+		result.add(titleWithoutMedium);
+
+		String shortTitle = titleWithoutMedium.split("[:\\-] ")[0].strip();
+		result.add(shortTitle);
+
+		if (shortTitle.endsWith(".")) {
+			result.add(shortTitle.substring(0, shortTitle.length() - 1));
+		}
+
+		return result;
 	}
 	
 	public void addVersion(FilmVersionEntry version) {

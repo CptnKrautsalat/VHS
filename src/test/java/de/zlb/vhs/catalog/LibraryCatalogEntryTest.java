@@ -25,6 +25,7 @@ public class LibraryCatalogEntryTest {
     public void testExtractMainTitle2() {
         Set<String> titles = subject.extractMainTitle("Flashdance : What a feeling ; [Video]");
         Set<String> expected = new HashSet<>();
+        expected.add("Flashdance");
         expected.add("Flashdance : What a feeling");
         Assertions.assertEquals(expected, titles);
     }
@@ -36,6 +37,15 @@ public class LibraryCatalogEntryTest {
         expected.add("unglaubliche Maschine Mensch");
         expected.add("unglaubliche Maschine Mensch, Die");
         expected.add("Die unglaubliche Maschine Mensch");
+        Assertions.assertEquals(expected, titles);
+    }
+
+    @Test
+    public void testExtractMainTitle4() {
+        Set<String> titles = subject.extractMainTitle("Dune - Der Wüstenplanet : [DVD-Video]");
+        Set<String> expected = new HashSet<>();
+        expected.add("Dune");
+        expected.add("Dune - Der Wüstenplanet");
         Assertions.assertEquals(expected, titles);
     }
 
