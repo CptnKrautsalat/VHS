@@ -14,8 +14,10 @@ public class LibraryCatalogEntryTest {
     public void testExtractMainTitle1() {
         Set<String> titles = subject.extractMainTitle("¬Der¬ mit dem Wolf tanzt : [Video]");
         Set<String> expected = new HashSet<>();
+        expected.add("mit dem Wolf tanzt");
         expected.add("mit dem Wolf tanzt, Der");
         expected.add("Der mit dem Wolf tanzt");
+
         Assertions.assertEquals(expected, titles);
     }
 
@@ -31,6 +33,7 @@ public class LibraryCatalogEntryTest {
     public void testExtractMainTitle3() {
         Set<String> titles =  subject.extractMainTitle("¬Die¬ unglaubliche Maschine Mensch");
         Set<String> expected = new HashSet<>();
+        expected.add("unglaubliche Maschine Mensch");
         expected.add("unglaubliche Maschine Mensch, Die");
         expected.add("Die unglaubliche Maschine Mensch");
         Assertions.assertEquals(expected, titles);
@@ -49,6 +52,7 @@ public class LibraryCatalogEntryTest {
     public void testExtractAlternativeTitles2() {
         Set<String> titles = subject.extractAlternativeTitles("The legend of Bagger Vance");
         Set<String> expected = new HashSet<>();
+        expected.add("legend of Bagger Vance");
         expected.add("The legend of Bagger Vance");
         expected.add("legend of Bagger Vance, The");
         Assertions.assertEquals(expected, titles);

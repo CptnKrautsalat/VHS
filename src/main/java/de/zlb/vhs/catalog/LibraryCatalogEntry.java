@@ -226,6 +226,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         if (tempTitle.contains("¬")) {
             sections = tempTitle.split("¬");
             if (sections.length == 3) {
+                result.add(sections[2].trim());
                 result.add(sections[2].trim() + ", " + sections[1].trim());
                 result.add(sections[1].trim() + " " + sections[2].trim());
             }
@@ -239,18 +240,24 @@ public class LibraryCatalogEntry implements ISortableEntry {
     Set<String> extractAlternativeTitles(String titles) {
         return titles.isEmpty() ? Collections.emptySet() : Arrays.stream(titles.split("\\|"))
                 .map(String::trim)
-                .flatMap(t -> Stream.of(t, moveLeadingArticles(t)))
+                .flatMap(t -> moveLeadingArticles(t).stream())
                 .collect(Collectors.toSet());
     }
 
-    private String moveLeadingArticles(String title) {
+    private Set<String> moveLeadingArticles(String title) {
+        Set<String> result = new HashSet<>();
+        result.add(title.trim());
         Optional<String> article = Arrays.stream(LEADING_ARTICLES)
                 .filter(title::startsWith)
                 .findFirst();
 
-        return article
-                .map(s -> title.replaceFirst(s, "") + ", " + s.trim())
-                .orElse(title);
+        if (article.isPresent()) {
+            String titleWithoutArticle = title.replaceFirst(article.get(), "").trim();
+            result.add(titleWithoutArticle);
+            result.add(titleWithoutArticle + ", " + article.get().trim());
+        }
+
+        return result;
 
     }
 
