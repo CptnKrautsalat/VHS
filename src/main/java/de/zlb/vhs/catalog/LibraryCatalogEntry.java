@@ -59,6 +59,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         this.signaturePrefix = extractSignaturePrefix(bean.signature);
         this.physicalFormat = bean.physicalForm;
         this.rentalsSince2010 = Integer.parseInt(bean.rentals2010to2020);
+        titles.removeIf(String::isBlank);
     }
 
     LibraryCatalogEntry() {}
@@ -118,7 +119,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
     }
 
     public boolean matchesDirector(String director) {
-        return directors
+        return directors.isEmpty()
+                || directors
                 .stream()
                 .anyMatch(director::equalsIgnoreCase);
     }
@@ -162,6 +164,11 @@ public class LibraryCatalogEntry implements ISortableEntry {
     }
 
     public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other, boolean strict) {
+        //skip all the slow stuff if it has been tested before
+        if (film != null && other.film != null && film == other.film) {
+            return true;
+        }
+
         boolean matchesTitles = other.titles
                 .stream()
                 .anyMatch(title -> matchesTitle(title, strict));
@@ -236,10 +243,12 @@ public class LibraryCatalogEntry implements ISortableEntry {
             result.add(tempTitle);
         }
 
-        //remove subtitles {
-        sections = tempTitle.split("[:\\-\\.] ");
+        //split weird long titles {
+        sections = tempTitle.split("[:\\-;] ");
         if (sections.length > 1) {
-            result.add(sections[0].trim());
+            Arrays.stream(sections)
+                    .map(String::trim)
+                    .forEach(result::add);
         }
 
         return result;

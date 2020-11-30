@@ -29,6 +29,7 @@ public class FilmEntry implements ISortableEntry {
 	public final String link;
 
 	private final Set<String> titles = new HashSet<>();
+	private String mainTitle;
 
 	private CombinedFilm film;
 	private AdditionalOfdbData additionalOfdbData;
@@ -66,6 +67,14 @@ public class FilmEntry implements ISortableEntry {
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
 	}
 
+	public String getMainTitle() {
+		if (mainTitle != null) {
+			return  mainTitle;
+		}
+		mainTitle = title.split("\\[")[0].trim();
+		return mainTitle;
+	}
+
 	public void mergeVersions (FilmEntry otherFilm) {
 		otherFilm.versions.forEach(this::addVersion);
 	}
@@ -96,7 +105,7 @@ public class FilmEntry implements ISortableEntry {
 
 	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
 		if (strict) {
-			return libraryCatalogEntry.matchesTitle(title, strict);
+			return libraryCatalogEntry.matchesTitle(getMainTitle(), strict);
 		}
 		return titles
 				.stream()
@@ -167,7 +176,7 @@ public class FilmEntry implements ISortableEntry {
 
 	public boolean matchesDirectors(LibraryCatalogEntry libraryCatalogEntry) {
 		Set<String> directors = getAdditionalOfdbData().directors;
-		return directors.isEmpty()
+		return (directors.isEmpty() || !libraryCatalogEntry.hasDirector())
 				|| directors.stream().anyMatch(libraryCatalogEntry::matchesDirector);
 	}
 

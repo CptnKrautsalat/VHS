@@ -60,19 +60,29 @@ public class ListGenerator {
 				.getEntriesWithYear(libraryCatalogEntry.year)
 				.filter(f -> f.matchesTitles(libraryCatalogEntry, false))
 				.collect(Collectors.toSet());
+		Set<FilmEntry> unfiltered = new HashSet<>(films);
+		int matchCount = films.size();
 		if (films.size() > 1) {
-			films.removeIf(f -> !f.matchesTitles(libraryCatalogEntry, true));
+			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
 		}
 		if (films.size() > 1) {
 			films.removeIf(f -> !libraryCatalogEntry.matchesYear(f.year, true));
 		}
 		if (films.size() > 1) {
+			films.removeIf(f -> !f.matchesTitles(libraryCatalogEntry, true));
+		}
+		if (films.size() > 1 && libraryCatalogEntry.hasDirector()) {
 			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
 		}
 		if (films.size() > 1) {
 			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),
 					films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
+		}
+
+		if (matchCount > 0 && films.isEmpty()) {
+			log.debug("Library catalog entry {} went from {} to 0 matching films: {}", libraryCatalogEntry,
+					matchCount, unfiltered.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
 		}
 		return films.stream().findFirst();
 	}
