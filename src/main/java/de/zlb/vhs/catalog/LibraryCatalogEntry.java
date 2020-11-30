@@ -114,8 +114,8 @@ public class LibraryCatalogEntry implements ISortableEntry {
     private boolean titlesMatch(String title1, String title2, boolean strict) {
         return title1.equalsIgnoreCase(title2)
                 || (!strict
-                    && (containsIgnoreCase(title1, title2)
-                        || containsIgnoreCase(title2, title1)));
+                    && (startsWithIgnoreCase(title1, title2)
+                        || startsWithIgnoreCase(title2, title1)));
     }
 
     public boolean matchesDirector(String director) {
@@ -192,6 +192,10 @@ public class LibraryCatalogEntry implements ISortableEntry {
                 .anyMatch(g -> g.contains("Berlinale"));
     }
 
+    public boolean isTvShow() {
+        return signaturePrefix.startsWith("Film 7 ");
+    }
+
     public void updateBean() {
         bean.update(this);
     }
@@ -244,7 +248,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         }
 
         //split weird long titles {
-        sections = tempTitle.split("[:\\-;] ");
+        sections = tempTitle.split(" [:\\-;] ");
         if (sections.length > 1) {
             Arrays.stream(sections)
                     .map(String::trim)
@@ -445,6 +449,10 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     private static boolean containsIgnoreCase(String a, String b) {
         return a.toLowerCase().contains(b.toLowerCase());
+    }
+
+    private static boolean startsWithIgnoreCase(String a, String b) {
+        return a.toLowerCase().startsWith(b.toLowerCase());
     }
 
     @Override

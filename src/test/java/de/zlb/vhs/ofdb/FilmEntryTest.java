@@ -33,4 +33,13 @@ public class FilmEntryTest {
         expected.add("Adaption");
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    public void testGenerateTitleVariations4() {
+        Set<String> actual = FilmEntry.generateTitleVariations("[●REC]² - Die nächste Dimension des Grauens");
+        Set<String> expected = new HashSet<>();
+        expected.add("[●REC]² - Die nächste Dimension des Grauens");
+        expected.add("[●REC]²");
+        Assertions.assertEquals(expected, actual);
+    }
 }

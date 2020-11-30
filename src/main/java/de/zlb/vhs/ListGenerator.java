@@ -24,7 +24,7 @@ public class ListGenerator {
 		log.info("Combining films from library catalog and OFDB ...");
 		libraryCatalog
 				.getAllEntries()
-				.filter(LibraryCatalogEntry::hasYear)
+				.filter(lce -> lce.hasYear() && !lce.hasWrongYear() && !lce.isTvShow())
 				.forEach(lce -> {
 					Optional<FilmEntry> film = findMatchingOfdbFilmEntry(lce);
 					Set<LibraryCatalogEntry> matches = findMatchingLibraryCatalogEntries(lce);
@@ -66,14 +66,14 @@ public class ListGenerator {
 			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
 		}
 		if (films.size() > 1) {
-			films.removeIf(f -> !libraryCatalogEntry.matchesYear(f.year, true));
-		}
-		if (films.size() > 1) {
 			films.removeIf(f -> !f.matchesTitles(libraryCatalogEntry, true));
 		}
 		if (films.size() > 1 && libraryCatalogEntry.hasDirector()) {
 			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
+		}
+		if (films.size() > 1) {
+			films.removeIf(f -> !libraryCatalogEntry.matchesYear(f.year, true));
 		}
 		if (films.size() > 1) {
 			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),

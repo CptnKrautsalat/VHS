@@ -205,7 +205,10 @@ public class FilmEntry implements ISortableEntry {
 	static Set<String> generateTitleVariations(String title) {
 		Set<String> result = new HashSet<>();
 
-		String titleWithoutMedium = title.split("\\[")[0].strip();
+		String titleWithoutMedium = title;
+		if (title.endsWith("[TV-Serie]") || title.endsWith("[Kurzfilm]")) {
+			titleWithoutMedium = title.substring(0, title.lastIndexOf('[')).trim();
+		}
 		result.add(titleWithoutMedium);
 
 		String shortTitle = titleWithoutMedium.split("[:\\-] ")[0].strip();
