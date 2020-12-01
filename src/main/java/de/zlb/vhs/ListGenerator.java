@@ -63,6 +63,10 @@ public class ListGenerator {
 				.filter(f -> f.matchesTitles(libraryCatalogEntry, false, false))
 				.collect(Collectors.toSet());
 
+		if (films.isEmpty()) {
+			return Optional.empty();
+		}
+
 		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, true));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
@@ -86,6 +90,9 @@ public class ListGenerator {
 	}
 
 	Set<FilmEntry> tryToFilterFilmEntries(Set<FilmEntry> entries, Predicate<FilmEntry> negatedFilter) {
+		if (entries.size() == 1) {
+			return entries;
+		}
 		Set<FilmEntry> backup = new HashSet<>(entries);
 		entries.removeIf(negatedFilter);
 		return entries.isEmpty() ? backup : entries;
