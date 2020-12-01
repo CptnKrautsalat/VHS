@@ -27,6 +27,8 @@ public class LibraryCatalogEntryTest {
         Set<String> expected = new HashSet<>();
         expected.add("Flashdance");
         expected.add("Flashdance : What a feeling");
+        expected.add("Flashdance What a feeling");
+        expected.add("What a feeling");
         Assertions.assertEquals(expected, titles);
     }
 
@@ -46,6 +48,8 @@ public class LibraryCatalogEntryTest {
         Set<String> expected = new HashSet<>();
         expected.add("Dune");
         expected.add("Dune - Der Wüstenplanet");
+        expected.add("Dune Der Wüstenplanet");
+        expected.add("Der Wüstenplanet");
         Assertions.assertEquals(expected, titles);
     }
 

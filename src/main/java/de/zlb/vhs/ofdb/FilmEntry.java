@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 public class FilmEntry implements ISortableEntry {
 
 	private static final Logger log = LogManager.getLogger(FilmEntry.class);
+	private static final AtomicInteger ofdbUpdateCount = new AtomicInteger();
 
 	private static final AdditionalOfdbData EMPTY_ADDITIONAL_OFDB_DATA = new AdditionalOfdbData(
 			Collections.emptySet(), Collections.emptySet(), "");
@@ -29,7 +31,6 @@ public class FilmEntry implements ISortableEntry {
 	public final String link;
 
 	private final Set<String> titles = new HashSet<>();
-	private String mainTitle;
 
 	private CombinedFilm film;
 	private AdditionalOfdbData additionalOfdbData;
@@ -67,14 +68,6 @@ public class FilmEntry implements ISortableEntry {
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
 	}
 
-	public String getMainTitle() {
-		if (mainTitle != null) {
-			return  mainTitle;
-		}
-		mainTitle = title.split("\\[")[0].trim();
-		return mainTitle;
-	}
-
 	public void mergeVersions (FilmEntry otherFilm) {
 		otherFilm.versions.forEach(this::addVersion);
 	}
@@ -88,25 +81,26 @@ public class FilmEntry implements ISortableEntry {
 	}
 
 	public boolean isTVShow() {
-		return title.contains("[TV-Serie]");
+		return title.endsWith("[TV-Serie]");
 	}
 
 	public boolean isShortFilm() {
-		return title.contains("[Kurzfilm]");
+		return title.endsWith("[Kurzfilm]");
 	}
 
 	public boolean isFeatureFilm() {
-		return !(isTVShow() || isShortFilm());
+		return !title.endsWith("]");
 	}
 
 	public boolean hasDigitalRelease() {
 		return getVersions().anyMatch(FilmVersionEntry::isDigital);
 	}
 
-	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
-		if (strict) {
-			return libraryCatalogEntry.matchesTitle(getMainTitle(), strict);
+	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean strict, boolean ignoreAltTitles) {
+		if (ignoreAltTitles) {
+			return libraryCatalogEntry.matchesTitle(title, strict);
 		}
+
 		return titles
 				.stream()
 				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, strict));
@@ -167,6 +161,12 @@ public class FilmEntry implements ISortableEntry {
 		Optional<AdditionalOfdbData> ofdbResult = WebUtil.getAdditionalOfdbData(link);
 		if (ofdbResult.isPresent()) {
 			log.info("Updating {} with {}.", title, ofdbResult.get());
+			ofdbUpdateCount.incrementAndGet();
+			try {
+				Thread.sleep(250);
+			} catch (InterruptedException e) {
+				log.error("Something went terribly wrong!", e);
+			}
 			additionalOfdbData = ofdbResult.get();
 			titles.addAll(additionalOfdbData.alternativeTitles);
 		}
@@ -191,6 +191,10 @@ public class FilmEntry implements ISortableEntry {
 		return (index1 == -1 || index2 == -1) ? "" : title.substring(index1 + 1, index2);
 	}
 
+	public static int getTotalOfdbUpdates() {
+		return ofdbUpdateCount.get();
+	}
+
 	static Optional<AdditionalOfdbData> extractAdditionalOfdbData(String imdbLink, String alternativeTitles, String directors) {
 		if (Strings.isBlank(imdbLink) && Strings.isBlank(alternativeTitles) && Strings.isBlank(directors)) {
 			return Optional.empty();
@@ -206,10 +210,12 @@ public class FilmEntry implements ISortableEntry {
 		Set<String> result = new HashSet<>();
 
 		String titleWithoutMedium = title;
-		if (title.endsWith("[TV-Serie]") || title.endsWith("[Kurzfilm]")) {
+		if (title.endsWith("[TV-Serie]") || title.endsWith("[Kurzfilm]") || title.endsWith("[TV-Mini-Serie]")
+		|| title.endsWith("[Webminiserie]")) {
 			titleWithoutMedium = title.substring(0, title.lastIndexOf('[')).trim();
 		}
 		result.add(titleWithoutMedium);
+		result.add(titleWithoutMedium.replaceAll(" [:\\-] ", " "));
 
 		String shortTitle = titleWithoutMedium.split("[:\\-] ")[0].strip();
 		result.add(shortTitle);

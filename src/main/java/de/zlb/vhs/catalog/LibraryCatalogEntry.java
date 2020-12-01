@@ -247,6 +247,9 @@ public class LibraryCatalogEntry implements ISortableEntry {
             result.add(tempTitle);
         }
 
+        //unify separators
+        result.add(tempTitle.replaceAll(" [:\\-] ", " "));
+
         //split weird long titles {
         sections = tempTitle.split(" [:\\-;] ");
         if (sections.length > 1) {

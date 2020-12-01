@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ListGenerator {
@@ -58,33 +59,31 @@ public class ListGenerator {
 	Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
 		Set<FilmEntry> films = ofdbManager
 				.getEntriesWithYear(libraryCatalogEntry.year)
-				.filter(f -> f.matchesTitles(libraryCatalogEntry, false))
+				.filter(FilmEntry::isFeatureFilm)
+				.filter(f -> f.matchesTitles(libraryCatalogEntry, false, false))
 				.collect(Collectors.toSet());
-		Set<FilmEntry> unfiltered = new HashSet<>(films);
-		int matchCount = films.size();
-		if (films.size() > 1) {
-			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
-		}
-		if (films.size() > 1) {
-			films.removeIf(f -> !f.matchesTitles(libraryCatalogEntry, true));
-		}
-		if (films.size() > 1 && libraryCatalogEntry.hasDirector()) {
+
+		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry));
+		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, true));
+		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
+		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, true));
+
+		if (films.size() > 100 && libraryCatalogEntry.hasDirector()) {
 			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
-		}
-		if (films.size() > 1) {
-			films.removeIf(f -> !libraryCatalogEntry.matchesYear(f.year, true));
 		}
 		if (films.size() > 1) {
 			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),
 					films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
 		}
 
-		if (matchCount > 0 && films.isEmpty()) {
-			log.debug("Library catalog entry {} went from {} to 0 matching films: {}", libraryCatalogEntry,
-					matchCount, unfiltered.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
-		}
 		return films.stream().findFirst();
+	}
+
+	Set<FilmEntry> tryToFilterFilmEntries(Set<FilmEntry> entries, Predicate<FilmEntry> negatedFilter) {
+		Set<FilmEntry> backup = new HashSet<>(entries);
+		entries.removeIf(negatedFilter);
+		return entries.isEmpty() ? backup : entries;
 	}
 
 	public void generateListAndWriteToCSV() {
@@ -99,6 +98,7 @@ public class ListGenerator {
 		combineFilms();
 		writeDataToFiles();
 
+		log.info("{} film entries haven been updated!", FilmEntry.getTotalOfdbUpdates());
 		log.info("Done!");
 
 	}
