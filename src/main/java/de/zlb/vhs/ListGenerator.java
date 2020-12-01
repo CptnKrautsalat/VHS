@@ -68,7 +68,7 @@ public class ListGenerator {
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
 		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, true));
 
-		if (films.size() > 100 && libraryCatalogEntry.hasDirector()) {
+		if (films.size() > 1 && libraryCatalogEntry.hasDirector()) {
 			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
 		}

@@ -248,7 +248,9 @@ public class LibraryCatalogEntry implements ISortableEntry {
         }
 
         //unify separators
-        result.add(tempTitle.replaceAll(" [:\\-] ", " "));
+        result.add(tempTitle.replaceAll(" ?[:\\-] ", " "));
+        //unify spelling
+        result.add(tempTitle.replaceAll("ß", "ss"));
 
         //split weird long titles {
         sections = tempTitle.split(" [:\\-;] ");
@@ -455,7 +457,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
     }
 
     private static boolean startsWithIgnoreCase(String a, String b) {
-        return a.toLowerCase().startsWith(b.toLowerCase());
+        return b.length() > 1 && a.toLowerCase().startsWith(b.toLowerCase());
     }
 
     @Override
