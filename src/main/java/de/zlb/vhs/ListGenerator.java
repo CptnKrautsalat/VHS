@@ -63,10 +63,11 @@ public class ListGenerator {
 				.filter(f -> f.matchesTitles(libraryCatalogEntry, false, false))
 				.collect(Collectors.toSet());
 
-		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry));
+		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, true));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
 		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, true));
+		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, true));
 
 		if (films.size() > 1 && !libraryCatalogEntry.hasDirector()) {
 			return Optional.empty();
@@ -74,7 +75,7 @@ public class ListGenerator {
 
 		if (films.size() > 1) {
 			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
-			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry));
+			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry, true));
 		}
 		if (films.size() > 1) {
 			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),
@@ -92,6 +93,8 @@ public class ListGenerator {
 
 	public void generateListAndWriteToCSV() {
 
+		long start = System.currentTimeMillis();
+
 		readDataFromFiles();
 
 		if (ofdbManager.isEmpty()) {
@@ -103,7 +106,7 @@ public class ListGenerator {
 		writeDataToFiles();
 
 		log.info("{} film entries haven been updated!", FilmEntry.getTotalOfdbUpdates());
-		log.info("Done!");
+		log.info("Done in {} minutes!", (System.currentTimeMillis() - start) / 60000.0);
 
 	}
 

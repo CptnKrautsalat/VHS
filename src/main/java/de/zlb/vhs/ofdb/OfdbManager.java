@@ -92,7 +92,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
 
     public void readDataFromFiles() {
         ofdbCsvListHandler.readListFromDirectory("input/ofdb", this::convertBeansToFilmList, FilmVersionEntryBean.class);
-        log.info(ofdbFilms.size() + " films loaded.");
+        log.info("{} films loaded, {} with additional OFDB data.", ofdbFilms.size(), getFilms().filter(FilmEntry::hasAdditionalOfdbData).count());
 
         log.info("Done reading files.");
     }

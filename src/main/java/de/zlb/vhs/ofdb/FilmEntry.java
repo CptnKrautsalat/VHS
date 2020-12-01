@@ -68,6 +68,10 @@ public class FilmEntry implements ISortableEntry {
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
 	}
 
+	public boolean hasAdditionalOfdbData() {
+		return additionalOfdbData != null;
+	}
+
 	public void mergeVersions (FilmEntry otherFilm) {
 		otherFilm.versions.forEach(this::addVersion);
 	}
@@ -174,9 +178,9 @@ public class FilmEntry implements ISortableEntry {
 		return ofdbResult;
 	}
 
-	public boolean matchesDirectors(LibraryCatalogEntry libraryCatalogEntry) {
+	public boolean matchesDirectors(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
 		Set<String> directors = getAdditionalOfdbData().directors;
-		return (directors.isEmpty() || !libraryCatalogEntry.hasDirector())
+		return (!strict && (directors.isEmpty() || !libraryCatalogEntry.hasDirector()))
 				|| directors.stream().anyMatch(libraryCatalogEntry::matchesDirector);
 	}
 
