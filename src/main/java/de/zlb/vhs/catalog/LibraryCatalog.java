@@ -76,8 +76,8 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
 
     private List<LibraryCatalogEntry> createUnidentifiedButCompleteEntryList() {
         return getAllEntries()
-                .filter(f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.hasDirector() && !f.hasWrongYear()
-                    && !f.isTvShow())
+                .filter(f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.directors.size() == 1 && !f.hasWrongYear()
+                    && !f.isTvShow() && f.isVhs() && f.signaturePrefix.startsWith("Film 10 ") && f.getRentalsSince2010() > 0)
                 .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
                 .collect(Collectors.toList());
     }

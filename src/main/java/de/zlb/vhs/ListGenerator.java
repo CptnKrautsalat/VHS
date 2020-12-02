@@ -4,9 +4,11 @@ import de.zlb.vhs.catalog.LibraryCatalog;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.ofdb.FilmEntry;
 import de.zlb.vhs.ofdb.OfdbManager;
+import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -56,7 +58,7 @@ public class ListGenerator {
 		return matches;
 	}
 
-	Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
+	private Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
 		Set<FilmEntry> films = ofdbManager
 				.getEntriesWithYear(libraryCatalogEntry.year)
 				.filter(FilmEntry::isFeatureFilm)
@@ -89,13 +91,36 @@ public class ListGenerator {
 		return films.stream().findFirst();
 	}
 
-	Set<FilmEntry> tryToFilterFilmEntries(Set<FilmEntry> entries, Predicate<FilmEntry> negatedFilter) {
+	private Set<FilmEntry> tryToFilterFilmEntries(Set<FilmEntry> entries, Predicate<FilmEntry> negatedFilter) {
 		if (entries.size() == 1) {
 			return entries;
 		}
 		Set<FilmEntry> backup = new HashSet<>(entries);
 		entries.removeIf(negatedFilter);
 		return entries.isEmpty() ? backup : entries;
+	}
+
+	public void identifyMysteryFilm(LibraryCatalogEntry entry) {
+		String year = entry.year;
+		Optional<String> director = entry.directors.stream().findAny();
+		if (year.isEmpty() || director.isEmpty()) {
+			return;
+		}
+		String url = WebUtil.generateOfdbUrlForSpecificSearch(year, director.get());
+		try {
+			Set<FilmEntry> films = WebUtil.generateOFDBList(url);
+			Thread.sleep(250);
+			for (FilmEntry newFilm : films) {
+				FilmEntry oldFilm = ofdbManager.getFilm(newFilm.link);
+				if (oldFilm == null) {
+					log.warn("{} is not in the catalog!", newFilm);
+				} else {
+					oldFilm.getOrCreateAdditionalOfdbData();
+				}
+			}
+		} catch (IOException | InterruptedException e) {
+			log.error("Failed to identify {}!", entry, e);
+		}
 	}
 
 	public void generateListAndWriteToCSV() {

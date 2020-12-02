@@ -86,6 +86,10 @@ public class OfdbManager extends SortedManager<FilmEntry> {
         return ofdbFilms.values().stream();
     }
 
+    public FilmEntry getFilm(String link) {
+        return ofdbFilms.get(link);
+    }
+
     public boolean isEmpty() {
         return ofdbFilms.isEmpty();
     }
