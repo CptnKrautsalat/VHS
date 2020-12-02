@@ -131,7 +131,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
         boolean emptyPage = false;
         for (int position = 0; !emptyPage; position += OfdbManager.OFDB_PAGE_SIZE) {
             for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < OfdbManager.OFDB_ATTEMPTS); ++attempt) {
-                String url = WebUtil.generateOfdbUrl(medium, indexed, position);
+                String url = WebUtil.generateOfdbUrlForGeneralSearch(medium, indexed, position);
                 Set <FilmEntry> films = null;
                 try {
                     films = WebUtil.generateOFDBList(url);

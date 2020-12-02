@@ -37,13 +37,21 @@ public class WebUtil {
         return lastFilm;
     }
 
-    public static String generateOfdbUrl(String medium, String indexed, int position) {
+    public static String generateOfdbUrlForGeneralSearch(String medium, String indexed, int position) {
         return "https://ssl.ofdb.de/view.php?page=fsuche&AB=-&Genre=-&Note=&HLand=-&Jahr=&Wo="
                 + medium
                 + "&Wer=&Regie=&Darsteller=&Titel=&Land=-&Freigabe=-&Cut=A&Indiziert="
                 + indexed
                 + "&Info=&Typ=N&Pos="
                 + position;
+    }
+
+    public static String generateOfdbUrlForSpecificSearch(String year, String director) {
+        return "https://ssl.ofdb.de/view.php?page=fsuche&Typ=N&AB=-&Titel=&Genre=-&Note=&HLand=-&Jahr="
+                + year
+                + "&Regie="
+                + director.replaceAll(" ", "+")
+                + "&Darsteller=&Wo=-&Wer=&Land=-&Freigabe=-&Cut=A&Indiziert=A&Info=&Submit2=Suche+ausf%C3%BChren";
     }
 
     public static Set<FilmEntry> generateOFDBList(String url) throws IOException {
