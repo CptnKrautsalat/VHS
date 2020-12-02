@@ -10,7 +10,7 @@ public class FilmEntryTest {
 
     @Test
     public void testGenerateTitleVariations1() {
-        Set<String> actual = FilmEntry.generateTitleVariations("Book of Eli - Die Zukunft der Welt liegt in seinen Händen, The");
+        Set<String> actual = new FilmEntry("Book of Eli - Die Zukunft der Welt liegt in seinen Händen, The", "").titles;
         Set<String> expected = new HashSet<>();
         expected.add("Book of Eli - Die Zukunft der Welt liegt in seinen Händen, The");
         expected.add("Book of Eli Die Zukunft der Welt liegt in seinen Händen, The");
@@ -20,7 +20,7 @@ public class FilmEntryTest {
 
     @Test
     public void testGenerateTitleVariations2() {
-        Set<String> actual = FilmEntry.generateTitleVariations("Musik von \"The Book of Eli\", Die [Kurzfilm]");
+        Set<String> actual = new FilmEntry("Musik von \"The Book of Eli\", Die [Kurzfilm]", "").titles;
         Set<String> expected = new HashSet<>();
         expected.add("Musik von \"The Book of Eli\", Die");
         Assertions.assertEquals(expected, actual);
@@ -28,7 +28,7 @@ public class FilmEntryTest {
 
     @Test
     public void testGenerateTitleVariations3() {
-        Set<String> actual = FilmEntry.generateTitleVariations("Adaption.");
+        Set<String> actual = new FilmEntry("Adaption.", "").titles;
         Set<String> expected = new HashSet<>();
         expected.add("Adaption.");
         expected.add("Adaption");
@@ -37,7 +37,7 @@ public class FilmEntryTest {
 
     @Test
     public void testGenerateTitleVariations4() {
-        Set<String> actual = FilmEntry.generateTitleVariations("[●REC]² - Die nächste Dimension des Grauens");
+        Set<String> actual = new FilmEntry("[●REC]² - Die nächste Dimension des Grauens", "").titles;
         Set<String> expected = new HashSet<>();
         expected.add("[●REC]² - Die nächste Dimension des Grauens");
         expected.add("[●REC]² Die nächste Dimension des Grauens");

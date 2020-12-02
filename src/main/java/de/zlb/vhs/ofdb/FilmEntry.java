@@ -30,7 +30,8 @@ public class FilmEntry implements ISortableEntry {
 	public final String year;
 	public final String link;
 
-	private final Set<String> titles = new HashSet<>();
+	private String mainTitle;
+	final Set<String> titles = new HashSet<>();
 
 	private CombinedFilm film;
 	private AdditionalOfdbData additionalOfdbData;
@@ -100,14 +101,19 @@ public class FilmEntry implements ISortableEntry {
 		return getVersions().anyMatch(FilmVersionEntry::isDigital);
 	}
 
-	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean strict, boolean ignoreAltTitles) {
-		if (ignoreAltTitles) {
-			return libraryCatalogEntry.matchesTitle(title, strict);
+	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean includeAltTiles, boolean includeGeneratedTitles) {
+
+		if (libraryCatalogEntry.matchesTitle(mainTitle, includeAltTiles, includeGeneratedTitles)) {
+			return true;
 		}
 
-		return titles
-				.stream()
-				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, strict));
+		if (includeAltTiles && getAdditionalOfdbData().alternativeTitles.stream()
+				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, includeAltTiles, includeGeneratedTitles))) {
+			return true;
+		}
+
+		return includeGeneratedTitles && titles.stream()
+				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, includeAltTiles, includeGeneratedTitles));
 	}
 
 	public boolean isLinkedToFilm() {
@@ -210,7 +216,7 @@ public class FilmEntry implements ISortableEntry {
 		return Optional.of(new AdditionalOfdbData(dirs, altTitles, imdbLink));
 	}
 
-	static Set<String> generateTitleVariations(String title) {
+	Set<String> generateTitleVariations(String title) {
 		Set<String> result = new HashSet<>();
 
 		String titleWithoutMedium = title;
@@ -218,6 +224,9 @@ public class FilmEntry implements ISortableEntry {
 		|| title.endsWith("[Webminiserie]")) {
 			titleWithoutMedium = title.substring(0, title.lastIndexOf('[')).trim();
 		}
+
+		mainTitle = titleWithoutMedium;
+
 		result.add(titleWithoutMedium);
 		result.add(titleWithoutMedium.replaceAll(" ?[:\\-] ", " "));
 		result.add(titleWithoutMedium.replaceAll("ß", "ss"));
