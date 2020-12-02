@@ -1,6 +1,7 @@
 package de.zlb.vhs.catalog;
 
 import de.zlb.vhs.CombinedFilm;
+import de.zlb.vhs.ComparableFilmEntry;
 import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.csv.LibraryCatalogEntryBean;
 
@@ -9,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class LibraryCatalogEntry implements ISortableEntry {
+public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortableEntry {
 
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
     public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
@@ -105,18 +106,19 @@ public class LibraryCatalogEntry implements ISortableEntry {
         return Objects.hash(bean, titles, directors, year);
     }
 
-    public boolean matchesTitle(String title, boolean includeAltTitles, boolean includeGeneratedTitles) {
-        if (titlesMatch(mainTitle, title)) {
-            return true;
-        }
-        if (includeAltTitles && alternativeTitles.stream().anyMatch(t -> titlesMatch(t, title))) {
-            return true;
-        }
-        return includeGeneratedTitles && generatedTitles.stream().anyMatch(t -> titlesMatch(t, title));
+    @Override
+    public String getMainTitle() {
+        return mainTitle;
     }
 
-    private boolean titlesMatch(String title1, String title2) {
-        return title1.equalsIgnoreCase(title2);
+    @Override
+    public Set<String> getAlternativeTitles() {
+        return alternativeTitles;
+    }
+
+    @Override
+    public Set<String> getGeneratedTitles() {
+        return generatedTitles;
     }
 
     public boolean matchesDirector(String director) {
@@ -170,9 +172,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
             return true;
         }
 
-        boolean matchesTitles = other.titles
-                .stream()
-                .anyMatch(title -> matchesTitle(title, true, true));
+        boolean matchesTitles = matchesTitles(other, true, true);
         if (!matchesTitles) {
             return false;
         }

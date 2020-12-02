@@ -1,6 +1,7 @@
 package de.zlb.vhs.ofdb;
 
 import de.zlb.vhs.CombinedFilm;
+import de.zlb.vhs.ComparableFilmEntry;
 import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
@@ -17,7 +18,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FilmEntry implements ISortableEntry {
+public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 	private static final Logger log = LogManager.getLogger(FilmEntry.class);
 	private static final AtomicInteger ofdbUpdateCount = new AtomicInteger();
@@ -103,21 +104,6 @@ public class FilmEntry implements ISortableEntry {
 
 	public boolean hasDigitalReleaseWithGermanDub() {
 		return getVersions().anyMatch(v -> v.isDigital() && v.isGermanLanguage());
-	}
-
-	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean includeAltTiles, boolean includeGeneratedTitles) {
-
-		if (libraryCatalogEntry.matchesTitle(mainTitle, includeAltTiles, includeGeneratedTitles)) {
-			return true;
-		}
-
-		if (includeAltTiles && getAdditionalOfdbData().alternativeTitles.stream()
-				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, includeAltTiles, includeGeneratedTitles))) {
-			return true;
-		}
-
-		return includeGeneratedTitles && titles.stream()
-				.anyMatch(t -> libraryCatalogEntry.matchesTitle(t, includeAltTiles, includeGeneratedTitles));
 	}
 
 	public boolean isLinkedToFilm() {
@@ -284,5 +270,20 @@ public class FilmEntry implements ISortableEntry {
 	@Override
 	public String getYear() {
 		return year;
+	}
+
+	@Override
+	public String getMainTitle() {
+		return mainTitle;
+	}
+
+	@Override
+	public Set<String> getAlternativeTitles() {
+		return getAdditionalOfdbData().alternativeTitles;
+	}
+
+	@Override
+	public Set<String> getGeneratedTitles() {
+		return titles;
 	}
 }
