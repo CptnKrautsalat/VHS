@@ -3,8 +3,6 @@ package de.zlb.vhs.catalog;
 import de.zlb.vhs.CombinedFilm;
 import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.csv.LibraryCatalogEntryBean;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -12,8 +10,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class LibraryCatalogEntry implements ISortableEntry {
-
-    private static final Logger log = LogManager.getLogger(LibraryCatalogEntry.class);
 
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
     public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
@@ -189,12 +185,6 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     public boolean isVhs() {
         return physicalFormat.equals(VHS_FORMAT_NAME);
-    }
-
-    public boolean isBerlinaleFilm() {
-        return genres
-                .stream()
-                .anyMatch(g -> g.contains("Berlinale"));
     }
 
     public boolean isTvShow() {
@@ -462,10 +452,6 @@ public class LibraryCatalogEntry implements ISortableEntry {
 
     private static boolean containsIgnoreCase(String a, String b) {
         return a.toLowerCase().contains(b.toLowerCase());
-    }
-
-    private static boolean startsWithIgnoreCase(String a, String b) {
-        return b.length() > 1 && a.toLowerCase().startsWith(b.toLowerCase());
     }
 
     @Override

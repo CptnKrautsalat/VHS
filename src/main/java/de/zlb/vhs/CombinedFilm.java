@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -20,8 +19,10 @@ public class CombinedFilm {
     private FilmEntry ofdbEntry;
     private final Set<LibraryCatalogEntry> libraryCatalogEntries = new HashSet<>();
 
-    public CombinedFilm(Optional<FilmEntry> ofdbEntry) {
-        ofdbEntry.ifPresent(this::setOfdbEntry);
+    public CombinedFilm(FilmEntry ofdbEntry) {
+        if (ofdbEntry != null) {
+            setOfdbEntry(ofdbEntry);
+        }
     }
 
     public void setOfdbEntry(FilmEntry ofdbEntry) {
