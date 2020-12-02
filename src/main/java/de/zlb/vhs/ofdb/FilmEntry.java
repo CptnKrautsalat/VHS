@@ -228,7 +228,7 @@ public class FilmEntry implements ISortableEntry {
 		mainTitle = titleWithoutMedium;
 
 		result.add(titleWithoutMedium);
-		result.add(titleWithoutMedium.replaceAll(" ?[:\\-] ", " "));
+		result.add(titleWithoutMedium.replaceAll(" ?[:\\-] ?", " "));
 		result.add(titleWithoutMedium.replaceAll("ß", "ss"));
 
 		String shortTitle = titleWithoutMedium.split("[:\\-] ")[0].strip();

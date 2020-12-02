@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LibraryCatalogEntry implements ISortableEntry {
 
@@ -25,7 +24,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
             "Il ", "La ", "Lo ", "L'", "I ", "Le ", "Gli ", "Un ", "Una ", "Uno ", "El ", "Los ", "Las ", "Les ", "Une "};
 
     private static final String[] CAST_AND_CREW_POSITIONS = { "Schauspiel", "Komp", "Kamera", "Drehbuch", "Buch", "Prod",
-            "Inter", "Musik", "musik", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
+            "Inter", "Musi", "musi", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
             "Choreo", "Name", "Star", "Komment", "Gesang", "Hrsg", "Red", "Projekt", "Mit"};
 
     private static final String[] DIRECTOR_PHRASES = { "Film von ", "film by ", "film di ", "Regie führt ", "directed by ", "Directed by "};
@@ -117,10 +116,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         if (includeAltTitles && alternativeTitles.stream().anyMatch(t -> titlesMatch(t, title))) {
             return true;
         }
-        if (includeGeneratedTitles && generatedTitles.stream().anyMatch(t -> titlesMatch(t, title))) {
-            return true;
-        }
-        return false;
+        return includeGeneratedTitles && generatedTitles.stream().anyMatch(t -> titlesMatch(t, title));
     }
 
     private boolean titlesMatch(String title1, String title2) {
@@ -257,7 +253,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         result.add(tempTitle);
 
         //unify separators
-        result.add(tempTitle.replaceAll(" ?[:\\-] ", " "));
+        result.add(tempTitle.replaceAll(" ?[:\\-] ?", " "));
         //unify spelling
         result.add(tempTitle.replaceAll("ß", "ss"));
 
@@ -266,6 +262,7 @@ public class LibraryCatalogEntry implements ISortableEntry {
         if (sections.length > 1) {
             Arrays.stream(sections)
                     .map(String::trim)
+                    .flatMap(t -> moveLeadingArticles(t).stream())
                     .forEach(result::add);
         }
 
