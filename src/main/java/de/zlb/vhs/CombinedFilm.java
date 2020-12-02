@@ -87,19 +87,18 @@ public class CombinedFilm {
                 .allMatch(LibraryCatalogEntry::isVhs);
     }
 
-    public boolean hasUniqueLanguageOnVhs() {
+    public boolean germanDubOnlyOnVhsInLibraryCatalog() {
         Multimap<String, LibraryCatalogEntry> sortedByLanguage = HashMultimap.create();
         libraryCatalogEntries.forEach(lce -> lce.languages.forEach(l -> sortedByLanguage.put(l, lce)));
-        for (String language : sortedByLanguage.keySet()) {
-            if (sortedByLanguage.get(language).stream().allMatch(LibraryCatalogEntry::isVhs)) {
-                return true;
-            }
-        }
-        return false;
+        return sortedByLanguage.get("ger").stream().allMatch(LibraryCatalogEntry::isVhs);
     }
 
     public boolean existsDigitally() {
         return hasOfdbEntry() && ofdbEntry.hasDigitalRelease();
+    }
+
+    public boolean germanDubExistsDigitally() {
+        return hasOfdbEntry() && ofdbEntry.hasDigitalReleaseWithGermanDub();
     }
 
     @Override

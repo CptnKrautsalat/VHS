@@ -100,11 +100,11 @@ public class ListGenerator {
 		return entries.isEmpty() ? backup : entries;
 	}
 
-	public void identifyMysteryFilm(LibraryCatalogEntry entry) {
+	public Optional<FilmEntry> identifyMysteryFilm(LibraryCatalogEntry entry) {
 		String year = entry.year;
 		Optional<String> director = entry.directors.stream().findAny();
 		if (year.isEmpty() || director.isEmpty()) {
-			return;
+			return Optional.empty();
 		}
 		String url = WebUtil.generateOfdbUrlForSpecificSearch(year, director.get());
 		try {
@@ -116,11 +116,13 @@ public class ListGenerator {
 					log.warn("{} is not in the catalog!", newFilm);
 				} else {
 					oldFilm.getOrCreateAdditionalOfdbData();
+					return Optional.of(oldFilm);
 				}
 			}
 		} catch (IOException | InterruptedException e) {
 			log.error("Failed to identify {}!", entry, e);
 		}
+		return Optional.empty();
 	}
 
 	public void generateListAndWriteToCSV() {

@@ -101,6 +101,10 @@ public class FilmEntry implements ISortableEntry {
 		return getVersions().anyMatch(FilmVersionEntry::isDigital);
 	}
 
+	public boolean hasDigitalReleaseWithGermanDub() {
+		return getVersions().anyMatch(v -> v.isDigital() && v.isGermanLanguage());
+	}
+
 	public boolean matchesTitles(LibraryCatalogEntry libraryCatalogEntry, boolean includeAltTiles, boolean includeGeneratedTitles) {
 
 		if (libraryCatalogEntry.matchesTitle(mainTitle, includeAltTiles, includeGeneratedTitles)) {

@@ -4,9 +4,13 @@ import de.zlb.vhs.csv.FilmVersionEntryBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+
 public class FilmVersionEntry {
 
 	public static final Logger log = LogManager.getLogger(FilmVersionEntry.class);
+
+	private static final String[] GERMAN_LANGUAGE_COUNTRIES = {"Deutschland", "Österreich", "Schweiz"};
 
 	public final FilmEntry film;
 	public final String medium;
@@ -54,6 +58,10 @@ public class FilmVersionEntry {
 
 	public boolean isBluRay() {
 		return medium.equals("Blu-ray Disc");
+	}
+
+	public boolean isGermanLanguage() {
+		return Arrays.asList(GERMAN_LANGUAGE_COUNTRIES).contains(country);
 	}
 	
 	private String extractMedium (String title) {

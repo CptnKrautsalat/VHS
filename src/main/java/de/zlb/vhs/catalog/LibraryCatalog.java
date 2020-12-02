@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -68,43 +69,48 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         Set<LibraryCatalogEntry> indentifiedVhsTapes = collectIdentifiedVhsTapes();
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
 
-        writeFilmListToFile(collectEntriesWithALanguageOnlyOnVhs(), "output/zlb/language.csv");
         writeFilmListToFile(createReplacableEntryList(indentifiedVhsTapes), "output/zlb/replace.csv");
         writeFilmListToFile(createNonReplacableEntryList(indentifiedVhsTapes), "output/zlb/digitize.csv");
+
+        List<LibraryCatalogEntry> germanDubOnlyOnVhs = collectEntriesWithGermanDubOnlyOnVhs();
+        writeFilmListToFile(germanDubOnlyOnVhs, "output/zlb/language.csv");
+        writeFilmListToFile(createReplacableDubbedEntryList(germanDubOnlyOnVhs), "output/zlb/language_replace.csv");
+        writeFilmListToFile(createNonReplacableDubbedEntryList(germanDubOnlyOnVhs), "output/zlb/language_digitize.csv");
+
+
         log.info("...done writing!");
     }
 
+    private List<LibraryCatalogEntry> filterAndSort(Stream<LibraryCatalogEntry> entries, Predicate<LibraryCatalogEntry> filter) {
+        return entries
+                .filter(filter)
+                .collect(Collectors.toList());
+    }
+
     private List<LibraryCatalogEntry> createUnidentifiedButCompleteEntryList() {
-        return getAllEntries()
-                .filter(f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.directors.size() == 1 && !f.hasWrongYear()
-                    && !f.isTvShow() && f.isVhs() && f.signaturePrefix.startsWith("Film 10 ") && f.getRentalsSince2010() > 0)
-                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
-                .collect(Collectors.toList());
+        return filterAndSort(getAllEntries(), f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.directors.size() == 1
+                && !f.hasWrongYear() && !f.isTvShow() && f.isVhs() && f.signaturePrefix.startsWith("Film 10 ")
+                && f.getRentalsSince2010() > 0);
     }
 
-    private List<LibraryCatalogEntry> createNonReplacableEntryList(Set<LibraryCatalogEntry> indentifiedVhsTapes) {
-        return indentifiedVhsTapes
-                .stream()
-                .filter(f -> !f.getFilm().existsDigitally())
-                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
-                .collect(Collectors.toList());
+    private List<LibraryCatalogEntry> createNonReplacableEntryList(Collection<LibraryCatalogEntry> tapes) {
+        return filterAndSort(tapes.stream(), f -> !f.getFilm().existsDigitally());
     }
 
-    private List<LibraryCatalogEntry> createReplacableEntryList(Set<LibraryCatalogEntry> indentifiedVhsTapes) {
-        return indentifiedVhsTapes
-                .stream()
-                .filter(f -> f.getFilm().existsDigitally())
-                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
-                .collect(Collectors.toList());
+    private List<LibraryCatalogEntry> createReplacableEntryList(Collection<LibraryCatalogEntry> tapes) {
+        return filterAndSort(tapes.stream(), f -> f.getFilm().existsDigitally());
     }
 
-    private List<LibraryCatalogEntry> collectEntriesWithALanguageOnlyOnVhs() {
-        return getAllEntries()
-                .filter(LibraryCatalogEntry::isVhs)
-                .filter(LibraryCatalogEntry::isLinkedToOfdbFilm)
-                .filter(e -> e.getFilm().hasUniqueLanguageOnVhs())
-                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
-                .collect(Collectors.toList());
+    private List<LibraryCatalogEntry> createNonReplacableDubbedEntryList(Collection<LibraryCatalogEntry> tapes) {
+        return filterAndSort(tapes.stream(), f -> !f.getFilm().germanDubExistsDigitally());
+    }
+
+    private List<LibraryCatalogEntry> createReplacableDubbedEntryList(Collection<LibraryCatalogEntry> tapes) {
+        return filterAndSort(tapes.stream(), f -> f.getFilm().germanDubExistsDigitally());
+    }
+
+    private List<LibraryCatalogEntry> collectEntriesWithGermanDubOnlyOnVhs() {
+        return filterAndSort(getAllEntries(), f -> f.isVhs() && f.isLinkedToOfdbFilm() && f.getFilm().germanDubOnlyOnVhsInLibraryCatalog());
     }
 
     private Set<LibraryCatalogEntry> collectIdentifiedVhsTapes() {
