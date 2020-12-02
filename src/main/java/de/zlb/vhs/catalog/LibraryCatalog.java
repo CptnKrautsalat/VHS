@@ -111,7 +111,8 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     }
 
     private List<LibraryCatalogEntry> collectEntriesWithGermanDubOnlyOnVhs() {
-        return filterAndSort(getAllEntries(), f -> f.isVhs() && f.isLinkedToOfdbFilm() && f.getFilm().germanDubOnlyOnVhsInLibraryCatalog());
+        return filterAndSort(getAllEntries(), f -> f.isVhs() && f.isLinkedToOfdbFilm()
+                && f.languages.contains("ger") && f.getFilm().germanDubOnlyOnVhsInLibraryCatalog());
     }
 
     private Set<LibraryCatalogEntry> collectIdentifiedVhsTapes() {
