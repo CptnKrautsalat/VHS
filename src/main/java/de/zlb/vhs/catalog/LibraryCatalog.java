@@ -84,6 +84,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     private List<LibraryCatalogEntry> filterAndSort(Stream<LibraryCatalogEntry> entries, Predicate<LibraryCatalogEntry> filter) {
         return entries
                 .filter(filter)
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
                 .collect(Collectors.toList());
     }
 
