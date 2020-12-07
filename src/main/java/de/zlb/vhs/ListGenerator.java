@@ -137,14 +137,6 @@ public class ListGenerator {
 
 		ofdbManager.processFilmData();
 		combineFilms();
-
-		Set<LibraryCatalogEntry> mandatoryVhsTapes = libraryCatalog
-				.getAllEntries()
-				.filter(e -> e.isVhs() && e.isMandatory() && !e.isLinkedToOfdbFilm())
-				.collect(Collectors.toSet());
-
-		mandatoryVhsTapes.forEach(this::identifyMysteryFilm);
-
 		writeDataToFiles();
 
 		log.info("{} film entries haven been updated!", FilmEntry.getTotalOfdbUpdates());

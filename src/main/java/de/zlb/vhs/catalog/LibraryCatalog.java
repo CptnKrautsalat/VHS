@@ -65,6 +65,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         writeFilmListToFile(getAllEntries().filter(LibraryCatalogEntry::hasWrongYear).collect(Collectors.toSet()), "output/zlb/wrong_year.csv");
         writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
         writeFilmListToFile(createUnidentifiedButCompleteEntryList(), "output/zlb/mystery.csv");
+        writeFilmListToFile(createMandatoryMysteryEntryList(), "output/zlb/mystery_mandatory.csv");
 
         Set<LibraryCatalogEntry> indentifiedVhsTapes = collectIdentifiedVhsTapes();
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
@@ -115,6 +116,10 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         return filterAndSort(getAllEntries(), f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.directors.size() == 1
                 && !f.hasWrongYear() && !f.isTvShow() && f.isVhs() && f.signaturePrefix.startsWith("Film 10 ")
                 && f.getRentalsSince2010() > 0);
+    }
+
+    private List<LibraryCatalogEntry> createMandatoryMysteryEntryList() {
+        return filterAndSort(getAllEntries(), e -> e.isVhs() && e.isMandatory() && !e.isLinkedToOfdbFilm());
     }
 
     private List<LibraryCatalogEntry> createNonReplacableEntryList(Collection<LibraryCatalogEntry> tapes) {
