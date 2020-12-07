@@ -137,6 +137,11 @@ public class ListGenerator {
 
 		ofdbManager.processFilmData();
 		combineFilms();
+
+		ofdbManager.getFilms()
+				.filter(f -> f.isVHSOnly() && !f.isLinkedToFilm() && f.isFeatureFilm())
+				.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
+
 		writeDataToFiles();
 
 		log.info("{} film entries haven been updated!", FilmEntry.getTotalOfdbUpdates());
