@@ -73,6 +73,8 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         writeFilmListToFile(createNonReplacableEntryList(indentifiedVhsTapes), "output/zlb/digitize.csv");
 
         List<LibraryCatalogEntry> germanDubOnlyOnVhs = collectEntriesWithGermanDubOnlyOnVhs();
+        indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
+
         writeFilmListToFile(germanDubOnlyOnVhs, "output/zlb/language.csv");
         writeFilmListToFile(createReplacableDubbedEntryList(germanDubOnlyOnVhs), "output/zlb/language_replace.csv");
         writeFilmListToFile(createNonReplacableDubbedEntryList(germanDubOnlyOnVhs), "output/zlb/language_digitize.csv");
