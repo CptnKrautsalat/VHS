@@ -69,18 +69,39 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         Set<LibraryCatalogEntry> indentifiedVhsTapes = collectIdentifiedVhsTapes();
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
 
-        writeFilmListToFile(createReplacableEntryList(indentifiedVhsTapes), "output/zlb/replace.csv");
-        writeFilmListToFile(createNonReplacableEntryList(indentifiedVhsTapes), "output/zlb/digitize.csv");
+        List<LibraryCatalogEntry> replacableEntryList = createReplacableEntryList(indentifiedVhsTapes);
+        writeFilmListToFile(replacableEntryList, "output/zlb/replace.csv");
+        List<LibraryCatalogEntry> nonReplacableEntryList = createNonReplacableEntryList(indentifiedVhsTapes);
+        writeFilmListToFile(nonReplacableEntryList, "output/zlb/digitize.csv");
 
         List<LibraryCatalogEntry> germanDubOnlyOnVhs = collectEntriesWithGermanDubOnlyOnVhs();
         indentifiedVhsTapes.forEach(LibraryCatalogEntry::updateBean);
 
         writeFilmListToFile(germanDubOnlyOnVhs, "output/zlb/language.csv");
-        writeFilmListToFile(createReplacableDubbedEntryList(germanDubOnlyOnVhs), "output/zlb/language_replace.csv");
-        writeFilmListToFile(createNonReplacableDubbedEntryList(germanDubOnlyOnVhs), "output/zlb/language_digitize.csv");
+        List<LibraryCatalogEntry> replacableDubbedEntryList = createReplacableDubbedEntryList(germanDubOnlyOnVhs);
+        replacableDubbedEntryList.removeIf(replacableEntryList::contains);
+        writeFilmListToFile(replacableDubbedEntryList, "output/zlb/language_replace.csv");
+        List<LibraryCatalogEntry> nonReplacableDubbedEntryList = createNonReplacableDubbedEntryList(germanDubOnlyOnVhs);
+        nonReplacableDubbedEntryList.removeIf(nonReplacableEntryList::contains);
+        writeFilmListToFile(nonReplacableDubbedEntryList, "output/zlb/language_digitize.csv");
 
+        List<LibraryCatalogEntry> mandatoryReplacableEntryList = createMandatoryList(replacableEntryList, replacableDubbedEntryList);
+        writeFilmListToFile(mandatoryReplacableEntryList, "output/zlb/replace_mandatory.csv");
+        List<LibraryCatalogEntry> mandatoryNonReplacableEntryList = createMandatoryList(nonReplacableEntryList, nonReplacableDubbedEntryList);
+        writeFilmListToFile(mandatoryNonReplacableEntryList, "output/zlb/digitize_mandatory.csv");
 
         log.info("...done writing!");
+    }
+
+    @SafeVarargs
+    private List<LibraryCatalogEntry> createMandatoryList(Collection<LibraryCatalogEntry>... entries) {
+
+        return Arrays.stream(entries)
+                .flatMap(Collection::stream)
+                .filter(LibraryCatalogEntry::isMandatory)
+                .sorted(Comparator.comparingInt(LibraryCatalogEntry::getRentalsSince2010).reversed())
+                .collect(Collectors.toList());
+
     }
 
     private List<LibraryCatalogEntry> filterAndSort(Stream<LibraryCatalogEntry> entries, Predicate<LibraryCatalogEntry> filter) {

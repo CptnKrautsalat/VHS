@@ -48,6 +48,8 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
 
     public int rentalsSince2010 = 0;
 
+    private AcquisitionMethod acquisitionMethod;
+
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.bean = bean;
         this.generatedTitles.addAll(extractMainTitle(bean.title));
@@ -61,6 +63,7 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         this.signaturePrefix = extractSignaturePrefix(bean.signature);
         this.physicalFormat = bean.physicalForm;
         this.rentalsSince2010 = Integer.parseInt(bean.rentals2010to2020);
+        this.acquisitionMethod = AcquisitionMethod.fromString(bean.acquisition);
     }
 
     LibraryCatalogEntry() {}
@@ -164,6 +167,10 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
 
     public boolean isLinkedToOfdbFilm() {
         return film != null && film.hasOfdbEntry();
+    }
+
+    public boolean isMandatory() {
+        return acquisitionMethod == AcquisitionMethod.MANDATORY;
     }
 
     public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other) {
