@@ -277,6 +277,11 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	}
 
 	@Override
+	public Set<String> getDirectors() {
+		return getAdditionalOfdbData().directors;
+	}
+
+	@Override
 	public String getMainTitle() {
 		return mainTitle;
 	}

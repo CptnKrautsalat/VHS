@@ -23,7 +23,6 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     private final Set<LibraryCatalogEntryBean> beans = new HashSet<>();
     private final Multimap<String, LibraryCatalogEntry> entriesByMediaNumber = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesByTitle = HashMultimap.create();
-    private final Multimap<String, LibraryCatalogEntry> entriesByDirector = HashMultimap.create();
     private final Multimap<String, LibraryCatalogEntry> entriesBySignaturePrefix = HashMultimap.create();
 
     private final CSVListHandler<LibraryCatalogEntryBean> libraryCsvListHandler = new CSVListHandler<>(';');
@@ -44,7 +43,6 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         addEntry(entry);
         entriesByMediaNumber.put(entry.getMediaNumber(), entry);
         entriesBySignaturePrefix.put(entry.signaturePrefix, entry);
-        entry.directors.forEach(d -> entriesByDirector.put(d, entry));
         entry.titles.forEach(t -> entriesByTitle.put(t, entry));
     }
 

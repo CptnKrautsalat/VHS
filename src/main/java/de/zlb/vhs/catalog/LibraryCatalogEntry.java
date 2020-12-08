@@ -465,4 +465,9 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
     public String getYear() {
         return year;
     }
+
+    @Override
+    public Set<String> getDirectors() {
+        return directors;
+    }
 }

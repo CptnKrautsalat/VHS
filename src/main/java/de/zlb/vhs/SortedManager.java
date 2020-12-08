@@ -2,7 +2,6 @@ package de.zlb.vhs;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -15,9 +14,11 @@ public abstract class SortedManager<E extends ISortableEntry> {
     private static final Logger log = LogManager.getLogger(SortedManager.class);
 
     private final Multimap<String, E> entriesByYear = HashMultimap.create();
+    private final Multimap<String, E> entriesByDirector = HashMultimap.create();
 
     public void addEntry(E entry) {
         entriesByYear.put(entry.getYear(), entry);
+        entry.getDirectors().forEach(d -> entriesByDirector.put(d, entry));
     }
 
     public Stream<E> getEntriesWithYear(String year) {
@@ -36,5 +37,9 @@ public abstract class SortedManager<E extends ISortableEntry> {
 
     public Stream<E> getAllEntries() {
         return entriesByYear.values().stream();
+    }
+
+    public Stream<E> getEntriesWithDirector(String director) {
+        return entriesByDirector.get(director).stream();
     }
 }

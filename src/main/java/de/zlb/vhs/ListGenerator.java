@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ListGenerator {
 
@@ -59,8 +60,10 @@ public class ListGenerator {
 	}
 
 	private Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
-		Set<FilmEntry> films = ofdbManager
-				.getEntriesWithYear(libraryCatalogEntry.year)
+		Set<FilmEntry> films = Stream.concat(
+					ofdbManager.getEntriesWithYear(libraryCatalogEntry.year),
+					libraryCatalogEntry.directors.stream()
+							.flatMap(ofdbManager::getEntriesWithDirector))
 				.filter(FilmEntry::isFeatureFilm)
 				.filter(f -> f.matchesTitles(libraryCatalogEntry, true, true))
 				.collect(Collectors.toSet());
