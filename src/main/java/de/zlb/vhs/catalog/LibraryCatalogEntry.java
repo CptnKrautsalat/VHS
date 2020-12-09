@@ -246,11 +246,12 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
             }
         }
 
-        mainTitle = tempTitle;
         result.add(tempTitle);
 
         //unify separators
-        result.add(tempTitle.replaceAll(" ?[:\\-] ?", " "));
+        mainTitle = tempTitle.replaceAll(" ?[:\\-] ?", " ");
+        result.add(mainTitle);
+
         //unify spelling
         result.add(tempTitle.replaceAll("ß", "ss"));
 

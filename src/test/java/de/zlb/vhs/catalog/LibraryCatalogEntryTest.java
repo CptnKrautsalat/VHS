@@ -50,12 +50,14 @@ public class LibraryCatalogEntryTest {
         expected.add("Dune - Der Wüstenplanet");
         expected.add("Dune Der Wüstenplanet");
         expected.add("Der Wüstenplanet");
+        expected.add("Wüstenplanet, Der");
+        expected.add("Wüstenplanet");
         Assertions.assertEquals(expected, titles);
     }
 
     @Test
     public void testExtractAlternativeTitles() {
-        Set<String> titles = subject.extractAlternativeTitles("Not tonight, Josephine! | Some like it hot");
+        Set<String> titles = LibraryCatalogEntry.extractAlternativeTitles("Not tonight, Josephine! | Some like it hot");
         Set<String> expected = new HashSet<>();
         expected.add("Not tonight, Josephine!");
         expected.add("Some like it hot");
@@ -64,7 +66,7 @@ public class LibraryCatalogEntryTest {
 
     @Test
     public void testExtractAlternativeTitles2() {
-        Set<String> titles = subject.extractAlternativeTitles("The legend of Bagger Vance");
+        Set<String> titles = LibraryCatalogEntry.extractAlternativeTitles("The legend of Bagger Vance");
         Set<String> expected = new HashSet<>();
         expected.add("legend of Bagger Vance");
         expected.add("The legend of Bagger Vance");
