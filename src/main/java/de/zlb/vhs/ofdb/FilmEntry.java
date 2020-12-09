@@ -3,6 +3,7 @@ package de.zlb.vhs.ofdb;
 import de.zlb.vhs.CombinedFilm;
 import de.zlb.vhs.ComparableFilmEntry;
 import de.zlb.vhs.ISortableEntry;
+import de.zlb.vhs.TitleUtil;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
@@ -219,18 +220,33 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 			titleWithoutMedium = title.substring(0, title.lastIndexOf('[')).trim();
 		}
 
-		mainTitle = titleWithoutMedium;
-
+		Optional<String> leadingArticle = TitleUtil.getTrailingArticle(titleWithoutMedium);
 		result.add(titleWithoutMedium);
-		result.add(titleWithoutMedium.replaceAll(" ?[:\\-] ?", " "));
+		mainTitle = titleWithoutMedium.replaceAll(" ?[:\\-] ?", " ");
+		result.add(mainTitle);
+
 		result.add(titleWithoutMedium.replaceAll("ß", "ss"));
 
-		String shortTitle = titleWithoutMedium.split("[:\\-] ")[0].strip();
+		String[] sections = titleWithoutMedium.split("[:\\-] ");
+
+		String shortTitle = sections[0].strip();
+		if (shortTitle.endsWith(".") || shortTitle.endsWith("!")) {
+			shortTitle = shortTitle.substring(0, shortTitle.length() - 1);
+		}
 		result.add(shortTitle);
 
-		if (shortTitle.endsWith(".")) {
-			result.add(shortTitle.substring(0, shortTitle.length() - 1));
+		if (leadingArticle.isPresent() && sections.length > 1) {
+			String shortTitleWithArticle = shortTitle + ", " + leadingArticle.get();
+			result.add(shortTitleWithArticle);
+			String lastSection = sections[sections.length - 1];
+			lastSection = lastSection.substring(0, lastSection.lastIndexOf(','));
+			sections[sections.length - 1] = lastSection;
 		}
+
+		Arrays.stream(sections)
+				.map(String::trim)
+				.flatMap(t -> TitleUtil.moveLeadingArticles(t).stream())
+				.forEach(result::add);
 
 		return result;
 	}

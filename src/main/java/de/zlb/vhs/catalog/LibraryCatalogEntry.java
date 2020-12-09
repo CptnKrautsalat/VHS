@@ -3,6 +3,7 @@ package de.zlb.vhs.catalog;
 import de.zlb.vhs.CombinedFilm;
 import de.zlb.vhs.ComparableFilmEntry;
 import de.zlb.vhs.ISortableEntry;
+import de.zlb.vhs.TitleUtil;
 import de.zlb.vhs.csv.LibraryCatalogEntryBean;
 
 import java.util.*;
@@ -15,10 +16,6 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
     public static final String EMPTY_DIRECTOR_PLACEHOLDER = "NN (OHNE_DNDNR)";
     public static final Pattern YEAR_PATTERN = Pattern.compile("\\d{4}");
     public static final Pattern PERIOD_WITHOUT_INITIALS_PATTERS = Pattern.compile("\\w{2,}\\.");
-
-    //this should cover English, German, Italian, Spanish and French
-    private static final String[] LEADING_ARTICLES = { "The ", "A ", "An ", "Der ", "Die" , "Das", "Ein ", "Eine ",
-            "Il ", "La ", "Lo ", "L'", "I ", "Le ", "Gli ", "Un ", "Una ", "Uno ", "El ", "Los ", "Las ", "Les ", "Une "};
 
     private static final String[] CAST_AND_CREW_POSITIONS = { "Schauspiel", "Komp", "Kamera", "Drehbuch", "Buch", "Prod",
             "Inter", "Musi", "musi", "Darst", "Vorl", "Sonst", "precher", "Mitarb", "Text", "Moderat", "Sänger", "Tänzer",
@@ -260,7 +257,7 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         if (sections.length > 1) {
             Arrays.stream(sections)
                     .map(String::trim)
-                    .flatMap(t -> moveLeadingArticles(t).stream())
+                    .flatMap(t -> TitleUtil.moveLeadingArticles(t).stream())
                     .forEach(result::add);
         }
 
@@ -271,27 +268,10 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
     static Set<String> extractAlternativeTitles(String titles) {
         return titles.isEmpty() ? Collections.emptySet() : Arrays.stream(titles.split("\\|"))
                 .map(String::trim)
-                .flatMap(t -> moveLeadingArticles(t).stream())
+                .flatMap(t -> TitleUtil.moveLeadingArticles(t).stream())
                 .filter(t -> !t.isBlank())
                 .map(t -> t.replaceAll(" ?[:\\-] ?", " "))
                 .collect(Collectors.toSet());
-    }
-
-    public static Set<String> moveLeadingArticles(String title) {
-        Set<String> result = new HashSet<>();
-        result.add(title.trim());
-        Optional<String> article = Arrays.stream(LEADING_ARTICLES)
-                .filter(title::startsWith)
-                .findFirst();
-
-        if (article.isPresent()) {
-            String titleWithoutArticle = title.replaceFirst(article.get(), "").trim();
-            result.add(titleWithoutArticle);
-            result.add(titleWithoutArticle + ", " + article.get().trim());
-        }
-
-        return result;
-
     }
 
     String extractYear(String miscData) {

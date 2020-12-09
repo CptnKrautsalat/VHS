@@ -14,7 +14,11 @@ public class FilmEntryTest {
         Set<String> expected = new HashSet<>();
         expected.add("Book of Eli - Die Zukunft der Welt liegt in seinen Händen, The");
         expected.add("Book of Eli Die Zukunft der Welt liegt in seinen Händen, The");
+        expected.add("Book of Eli, The");
         expected.add("Book of Eli");
+        expected.add("Zukunft der Welt liegt in seinen Händen, Die");
+        expected.add("Die Zukunft der Welt liegt in seinen Händen");
+        expected.add("Zukunft der Welt liegt in seinen Händen");
         Assertions.assertEquals(expected, actual);
     }
 
@@ -42,6 +46,9 @@ public class FilmEntryTest {
         expected.add("[●REC]² - Die nächste Dimension des Grauens");
         expected.add("[●REC]² Die nächste Dimension des Grauens");
         expected.add("[●REC]²");
+        expected.add("nächste Dimension des Grauens, Die");
+        expected.add("nächste Dimension des Grauens");
+        expected.add("Die nächste Dimension des Grauens");
         Assertions.assertEquals(expected, actual);
     }
 }
