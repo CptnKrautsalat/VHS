@@ -28,7 +28,7 @@ public class ListGenerator {
 		log.info("Combining films from library catalog and OFDB ...");
 		libraryCatalog
 				.getAllEntries()
-				.filter(lce -> lce.hasYear() && !lce.hasWrongYear() && !lce.isTvShow())
+				.filter(lce -> !lce.hasWrongYear() && !lce.isTvShow())
 				.forEach(lce -> {
 					Optional<FilmEntry> film = findMatchingOfdbFilmEntry(lce);
 					Set<LibraryCatalogEntry> matches = findMatchingLibraryCatalogEntries(lce);
@@ -72,6 +72,7 @@ public class ListGenerator {
 			return Optional.empty();
 		}
 
+		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, false, false));

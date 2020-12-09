@@ -22,6 +22,10 @@ public abstract class SortedManager<E extends ISortableEntry> {
     }
 
     public Stream<E> getEntriesWithYear(String year) {
+        if (year.isBlank()) {
+            return Stream.empty();
+        }
+
         Set<E> result = new HashSet<>(entriesByYear.get(year));
 
         try {

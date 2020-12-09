@@ -59,9 +59,9 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
 
     public void writeToFiles() {
         log.info("Writing library catalog data to CSV files...");
-        writeFilmListToFile(getAllEntries().filter(e -> !e.hasDirector()).collect(Collectors.toSet()), "output/zlb/no_director.csv");
-        writeFilmListToFile(getAllEntries().filter(LibraryCatalogEntry::hasWrongYear).collect(Collectors.toSet()), "output/zlb/wrong_year.csv");
-        writeFilmListToFile(getEntriesWithYear("").collect(Collectors.toSet()), "output/zlb/no_year.csv");
+        writeFilmListToFile(filterAndSort(getAllEntries(), f -> f.directors.isEmpty()), "output/zlb/no_director.csv");
+        writeFilmListToFile(filterAndSort(getAllEntries(), LibraryCatalogEntry::hasWrongYear), "output/zlb/wrong_year.csv");
+        writeFilmListToFile(filterAndSort(getAllEntries(), f -> f.year.isBlank()), "output/zlb/no_year.csv");
         writeFilmListToFile(createUnidentifiedButCompleteEntryList(), "output/zlb/mystery.csv");
         writeFilmListToFile(createMandatoryMysteryEntryList(), "output/zlb/mystery_mandatory.csv");
 
@@ -111,9 +111,8 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     }
 
     private List<LibraryCatalogEntry> createUnidentifiedButCompleteEntryList() {
-        return filterAndSort(getAllEntries(), f -> !f.isLinkedToOfdbFilm() && f.hasYear() && f.directors.size() == 1
-                && !f.hasWrongYear() && !f.isTvShow() && f.isVhs() && f.signaturePrefix.startsWith("Film 10 ")
-                && f.getRentalsSince2010() > 0);
+        return filterAndSort(getAllEntries(), f -> !f.isLinkedToOfdbFilm() && f.hasYear() && !f.directors.isEmpty()
+                && !f.isTvShow() && f.isVhs());
     }
 
     private List<LibraryCatalogEntry> createMandatoryMysteryEntryList() {

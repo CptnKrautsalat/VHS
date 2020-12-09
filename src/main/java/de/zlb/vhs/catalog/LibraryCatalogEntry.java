@@ -267,15 +267,16 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         return result;
     }
 
-    Set<String> extractAlternativeTitles(String titles) {
+    static Set<String> extractAlternativeTitles(String titles) {
         return titles.isEmpty() ? Collections.emptySet() : Arrays.stream(titles.split("\\|"))
                 .map(String::trim)
                 .flatMap(t -> moveLeadingArticles(t).stream())
                 .filter(t -> !t.isBlank())
+                .map(t -> t.replaceAll(" ?[:\\-] ?", " "))
                 .collect(Collectors.toSet());
     }
 
-    private Set<String> moveLeadingArticles(String title) {
+    public static Set<String> moveLeadingArticles(String title) {
         Set<String> result = new HashSet<>();
         result.add(title.trim());
         Optional<String> article = Arrays.stream(LEADING_ARTICLES)
@@ -347,6 +348,8 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         }
 
         result.addAll(extractDirectorsFromCastAndCrew(castAndCrew));
+
+        result.removeIf(String::isBlank);
 
         return result;
     }
