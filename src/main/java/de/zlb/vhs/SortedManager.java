@@ -6,7 +6,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public abstract class SortedManager<E extends ISortableEntry> {
@@ -15,10 +18,12 @@ public abstract class SortedManager<E extends ISortableEntry> {
 
     private final Multimap<String, E> entriesByYear = HashMultimap.create();
     private final Multimap<String, E> entriesByDirector = HashMultimap.create();
+    private final Multimap<String, E> entriesByTitle = HashMultimap.create();
 
     public void addEntry(E entry) {
         entriesByYear.put(entry.getYear(), entry);
         entry.getDirectors().forEach(d -> entriesByDirector.put(d, entry));
+        entry.getTitles().forEach(t -> entriesByTitle.put(t, entry));
     }
 
     public Stream<E> getEntriesWithYear(String year) {
@@ -45,5 +50,17 @@ public abstract class SortedManager<E extends ISortableEntry> {
 
     public Stream<E> getEntriesWithDirector(String director) {
         return entriesByDirector.get(director).stream();
+    }
+
+    public Stream<E> getEntriesWithTitle(String title) {
+        return entriesByTitle.get(title).stream();
+    }
+
+    public Stream<E> getAllPossibleMatches(ISortableEntry entry) {
+        List<Stream<E>> matches = new LinkedList<>();
+        matches.add(getEntriesWithYear(entry.getYear()));
+        entry.getDirectors().forEach(d -> matches.add(getEntriesWithDirector(d)));
+        entry.getTitles().forEach(t -> matches.add(getEntriesWithTitle(t)));
+        return matches.stream().flatMap(Function.identity());
     }
 }

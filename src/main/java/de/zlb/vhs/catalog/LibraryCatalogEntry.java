@@ -121,31 +121,6 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         return generatedTitles;
     }
 
-    public boolean matchesDirector(String director) {
-        return directors.isEmpty()
-                || directors
-                .stream()
-                .anyMatch(director::equalsIgnoreCase);
-    }
-
-    public boolean matchesYear(String year, boolean strict) {
-        if (year.equals(this.year)) {
-            return true;
-        }
-
-        if (strict) {
-            return false;
-        }
-
-        try {
-            int year1 = Integer.parseInt(year);
-            int year2 = Integer.parseInt(this.year);
-            return Math.abs(year1 - year2) <= 1;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
-
     public boolean hasYear() {
         return !year.isEmpty();
     }
@@ -168,23 +143,6 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
 
     public boolean isMandatory() {
         return acquisitionMethod == AcquisitionMethod.MANDATORY;
-    }
-
-    public boolean matchesTitlesAndDirectors (LibraryCatalogEntry other) {
-        //skip all the slow stuff if it has been tested before
-        if (film != null && other.film != null && film == other.film) {
-            return true;
-        }
-
-        boolean matchesTitles = matchesTitles(other, true, true);
-        if (!matchesTitles) {
-            return false;
-        }
-
-        return directors.isEmpty() || other.directors.isEmpty()
-                || other.directors
-                .stream()
-                .anyMatch(this::matchesDirector);
     }
 
     public boolean isVhs() {

@@ -60,18 +60,16 @@ public class ListGenerator {
 	}
 
 	private Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
-		Set<FilmEntry> films = Stream.concat(
-					ofdbManager.getEntriesWithYear(libraryCatalogEntry.year),
-					libraryCatalogEntry.directors.stream()
-							.flatMap(ofdbManager::getEntriesWithDirector))
+		Set<FilmEntry> films = ofdbManager
+				.getAllPossibleMatches(libraryCatalogEntry)
 				.filter(FilmEntry::isFeatureFilm)
-				.filter(f -> f.matchesTitles(libraryCatalogEntry, true, true))
 				.collect(Collectors.toSet());
 
 		if (films.isEmpty()) {
 			return Optional.empty();
 		}
 
+		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesTitlesAndDirectors(f));
 		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, false));
 		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
