@@ -87,25 +87,35 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
         }
     }
 
-    public int matchScore(ComparableFilmEntry other) {
-        int score = 0;
-        score += matchesYear(other.getYear(), false) ? 2 : -4;
-        score += matchesYear(other.getYear(), true) ? 3 : 0;
+    public double matchScore(ComparableFilmEntry other) {
+        double score = 0d;
 
-        for (String director : other.getDirectors()) {
-            score += matchesDirector(director) ? 3 : -3;
+        if (!getYear().isEmpty() && !other.getYear().isEmpty()) {
+            score += matchesYear(other.getYear(), false) ? 1 : 0;
+            score += matchesYear(other.getYear(), true) ? 1 : 0;
+        }
+
+        if (!getDirectors().isEmpty() && !other.getDirectors().isEmpty()) {
+            double directorScore = 0d;
+            for (String director : other.getDirectors()) {
+                directorScore += matchesDirector(director) ? 1 : 0;
+            }
+            score += directorScore / (getDirectors().size() * other.getDirectors().size());
         }
 
         score += titlesMatch(getMainTitle(), getMainTitle()) ? 1 : 0;
+
+        double titleScore = 0d;
         for (String title1 : other.getTitles()) {
-            score += titlesMatch(title1, getMainTitle()) ? 3 : 0;
+            titleScore += titlesMatch(title1, getMainTitle()) ? 1 : 0;
             for (String title2 : getAlternativeTitles()) {
-                score += titlesMatch(title1, title2) ? 2 : 0;
+                titleScore += titlesMatch(title1, title2) ? 1 : 0;
             }
             for (String title2 : getGeneratedTitles()) {
-                score += titlesMatch(title1, title2) ? 1 : 0;
+                titleScore += titlesMatch(title1, title2) ? 1 : 0;
             }
         }
+        score += titleScore / (getTitles().size() * other.getTitles().size());
 
         return score;
     }
@@ -114,12 +124,12 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
         if (matches.size() <= 1) {
             return matches;
         }
-        List<AbstractMap.SimpleImmutableEntry<Integer, FilmEntry>> sorted = matches
+        List<AbstractMap.SimpleImmutableEntry<Double, FilmEntry>> sorted = matches
                 .stream()
                 .map(m -> new AbstractMap.SimpleImmutableEntry<>(matchScore(m) * -1, m))
-                .sorted(Comparator.comparingInt(AbstractMap.SimpleImmutableEntry::getKey))
+                .sorted(Comparator.comparingDouble(AbstractMap.SimpleImmutableEntry::getKey))
                 .collect(Collectors.toList());
-        int topScore = sorted.get(0).getKey();
+        double topScore = sorted.get(0).getKey();
 
         return sorted
                 .stream()
