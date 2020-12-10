@@ -53,7 +53,7 @@ public class ListGenerator {
 				.collect(Collectors.toSet());
 		libraryCatalog
 				.getEntriesWithYear(lce.year)
-				.filter(lce::matchesTitlesAndDirectors)
+				.filter(lce::matches)
 				.forEach(matches::add);
 		return matches;
 	}
@@ -62,7 +62,7 @@ public class ListGenerator {
 		Set<FilmEntry> films = ofdbManager
 				.getAllPossibleMatches(libraryCatalogEntry)
 				.filter(FilmEntry::isFeatureFilm)
-				.filter(libraryCatalogEntry::matchesTitlesAndDirectors)
+				.filter(libraryCatalogEntry::matches)
 				.collect(Collectors.toSet());
 
 		if (films.isEmpty()) {

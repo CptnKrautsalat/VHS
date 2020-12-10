@@ -44,10 +44,14 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
                 .anyMatch(director::equalsIgnoreCase);
     }
 
-    public boolean matchesTitlesAndDirectors (ComparableFilmEntry other) {
+    public boolean matches(ComparableFilmEntry other) {
         //skip all the slow stuff if it has been tested before
         if (getFilm() != null && other.getFilm() != null && getFilm() == other.getFilm()) {
             return true;
+        }
+
+        if (!matchesYear(other.getYear(), false)) {
+            return false;
         }
 
         boolean matchesTitles = matchesTitles(other, true, true);
@@ -70,6 +74,10 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
             return false;
         }
 
+        if (year.isEmpty() || getYear().isEmpty()) {
+            return true;
+        }
+
         try {
             int year1 = Integer.parseInt(year);
             int year2 = Integer.parseInt(getYear());
@@ -81,11 +89,11 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
 
     public int matchScore(ComparableFilmEntry other) {
         int score = 0;
-        score += matchesYear(other.getYear(), false) ? 1 : -3;
-        score += matchesYear(other.getYear(), true) ? 2 : 0;
+        score += matchesYear(other.getYear(), false) ? 2 : -4;
+        score += matchesYear(other.getYear(), true) ? 3 : 0;
 
         for (String director : other.getDirectors()) {
-            score += matchesDirector(director) ? 2 : -2;
+            score += matchesDirector(director) ? 3 : -3;
         }
 
         score += titlesMatch(getMainTitle(), getMainTitle()) ? 1 : 0;
