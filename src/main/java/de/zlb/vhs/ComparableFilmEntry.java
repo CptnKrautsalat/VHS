@@ -1,9 +1,9 @@
 package de.zlb.vhs;
 
-import de.zlb.vhs.catalog.LibraryCatalogEntry;
+import de.zlb.vhs.ofdb.FilmEntry;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class ComparableFilmEntry implements ISortableEntry {
 
@@ -77,6 +77,47 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
         } catch (NumberFormatException e) {
             return false;
         }
+    }
+
+    public int matchScore(ComparableFilmEntry other) {
+        int score = 0;
+        score += matchesYear(other.getYear(), false) ? 1 : -3;
+        score += matchesYear(other.getYear(), true) ? 2 : 0;
+
+        for (String director : other.getDirectors()) {
+            score += matchesDirector(director) ? 2 : -2;
+        }
+
+        score += titlesMatch(getMainTitle(), getMainTitle()) ? 1 : 0;
+        for (String title1 : other.getTitles()) {
+            score += titlesMatch(title1, getMainTitle()) ? 3 : 0;
+            for (String title2 : getAlternativeTitles()) {
+                score += titlesMatch(title1, title2) ? 2 : 0;
+            }
+            for (String title2 : getGeneratedTitles()) {
+                score += titlesMatch(title1, title2) ? 1 : 0;
+            }
+        }
+
+        return score;
+    }
+
+    public Set<FilmEntry> findBestMatches(Set<FilmEntry> matches) {
+        if (matches.size() <= 1) {
+            return matches;
+        }
+        List<AbstractMap.SimpleImmutableEntry<Integer, FilmEntry>> sorted = matches
+                .stream()
+                .map(m -> new AbstractMap.SimpleImmutableEntry<>(matchScore(m) * -1, m))
+                .sorted(Comparator.comparingInt(AbstractMap.SimpleImmutableEntry::getKey))
+                .collect(Collectors.toList());
+        int topScore = sorted.get(0).getKey();
+
+        return sorted
+                .stream()
+                .filter(e -> e.getKey().equals(topScore))
+                .map(AbstractMap.SimpleImmutableEntry::getValue)
+                .collect(Collectors.toSet());
     }
 
     @Override

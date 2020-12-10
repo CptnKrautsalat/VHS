@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ListGenerator {
 
@@ -63,28 +62,26 @@ public class ListGenerator {
 		Set<FilmEntry> films = ofdbManager
 				.getAllPossibleMatches(libraryCatalogEntry)
 				.filter(FilmEntry::isFeatureFilm)
+				.filter(libraryCatalogEntry::matchesTitlesAndDirectors)
 				.collect(Collectors.toSet());
 
 		if (films.isEmpty()) {
 			return Optional.empty();
 		}
 
-		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesTitlesAndDirectors(f));
-		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, false));
-		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, false));
-		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, true, false));
-		films = tryToFilterFilmEntries(films, f -> !f.matchesTitles(libraryCatalogEntry, false, false));
-		films = tryToFilterFilmEntries(films, f -> !libraryCatalogEntry.matchesYear(f.year, true));
-		films = tryToFilterFilmEntries(films, f -> !f.matchesDirectors(libraryCatalogEntry, true));
+		if (films.size() > 1) {
+			films = libraryCatalogEntry.findBestMatches(films);
+		}
 
-		if (films.size() > 1 && !libraryCatalogEntry.hasDirector()) {
+		if (films.size() > 1 && !libraryCatalogEntry.hasDirector() && !libraryCatalogEntry.hasYear()) {
 			return Optional.empty();
 		}
 
 		if (films.size() > 1) {
 			films.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
-			films.removeIf(f -> !f.matchesDirectors(libraryCatalogEntry, true));
+			films = libraryCatalogEntry.findBestMatches(films);
 		}
+
 		if (films.size() > 1) {
 			log.debug("Library catalog entry {} matches {} films: {}", libraryCatalogEntry, films.size(),
 					films.stream().map(f -> f.link).collect(Collectors.joining(" ; ")));
@@ -97,9 +94,9 @@ public class ListGenerator {
 		if (entries.size() == 1) {
 			return entries;
 		}
-		Set<FilmEntry> backup = new HashSet<>(entries);
-		entries.removeIf(negatedFilter);
-		return entries.isEmpty() ? backup : entries;
+		Set<FilmEntry> copy = new HashSet<>(entries);
+		copy.removeIf(negatedFilter);
+		return copy.isEmpty() ? entries : copy;
 	}
 
 	public Optional<FilmEntry> identifyMysteryFilm(LibraryCatalogEntry entry) {
