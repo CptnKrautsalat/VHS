@@ -207,6 +207,9 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         mainTitle = tempTitle.replaceAll(" ?[:\\-] ?", " ");
         result.add(mainTitle);
 
+        Optional<String> sequelTitle = TitleUtil.getNumberedSequelTitle(mainTitle);
+        sequelTitle.ifPresent(result::add);
+
         //unify spelling
         result.add(tempTitle.replaceAll("ß", "ss"));
 

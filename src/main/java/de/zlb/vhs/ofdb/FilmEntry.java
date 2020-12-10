@@ -227,6 +227,9 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 		result.add(titleWithoutMedium.replaceAll("ß", "ss"));
 
+		Optional<String> sequelTitle = TitleUtil.getNumberedSequelTitle(mainTitle);
+		sequelTitle.ifPresent(result::add);
+
 		String[] sections = titleWithoutMedium.split("[:\\-] ");
 
 		String shortTitle = sections[0].strip();

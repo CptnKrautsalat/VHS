@@ -42,4 +42,12 @@ public class TitleUtil {
                 .filter(lastSection::equals)
                 .findFirst();
     }
+
+    public static Optional<String> getNumberedSequelTitle(String title) {
+        String[] sections = title.split("\\d+");
+        if (sections[0].equals(title)) {
+            return Optional.empty();
+        }
+        return Optional.of(sections[0].trim());
+    }
 }

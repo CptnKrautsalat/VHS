@@ -51,4 +51,13 @@ public class FilmEntryTest {
         expected.add("Die nächste Dimension des Grauens");
         Assertions.assertEquals(expected, actual);
     }
+
+    @Test
+    public void testGenerateTitleVariations5() {
+        Set<String> actual = new FilmEntry("American Pie 2", "").titles;
+        Set<String> expected = new HashSet<>();
+        expected.add("American Pie 2");
+        expected.add("American Pie");
+        Assertions.assertEquals(expected, actual);
+    }
 }
