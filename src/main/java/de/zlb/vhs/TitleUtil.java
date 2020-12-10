@@ -45,7 +45,7 @@ public class TitleUtil {
 
     public static Optional<String> getNumberedSequelTitle(String title) {
         String[] sections = title.split("\\d+");
-        if (sections[0].equals(title)) {
+        if (sections.length < 1 || sections[0].equals(title)) {
             return Optional.empty();
         }
         return Optional.of(sections[0].trim());
