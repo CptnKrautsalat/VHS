@@ -110,9 +110,9 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
                 .collect(Collectors.toList());
     }
 
-    private List<LibraryCatalogEntry> createUnidentifiedButCompleteEntryList() {
+    public List<LibraryCatalogEntry> createUnidentifiedButCompleteEntryList() {
         return filterAndSort(getAllEntries(), f -> !f.isLinkedToOfdbFilm() && f.hasYear() && !f.directors.isEmpty()
-                && !f.isTvShow() && f.isVhs());
+                && f.isFeatureFilm() && f.isVhs());
     }
 
     private List<LibraryCatalogEntry> createMandatoryMysteryEntryList() {

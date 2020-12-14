@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -113,6 +114,7 @@ public class ListGenerator {
 				FilmEntry oldFilm = ofdbManager.getFilm(newFilm.link);
 				if (oldFilm == null) {
 					log.warn("{} is not in the catalog!", newFilm);
+					ofdbManager.addEntry(newFilm);
 				} else {
 					oldFilm.getOrCreateAdditionalOfdbData();
 					return Optional.of(oldFilm);

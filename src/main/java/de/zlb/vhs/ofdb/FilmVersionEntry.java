@@ -49,7 +49,7 @@ public class FilmVersionEntry {
 	}
 
 	public boolean isDigital() {
-		return !isVHS();
+		return isDVD() || isBluRay();
 	}
 
 	public boolean isDVD() {

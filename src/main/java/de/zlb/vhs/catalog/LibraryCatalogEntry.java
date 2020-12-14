@@ -153,6 +153,10 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         return signaturePrefix.startsWith("Film 7 ");
     }
 
+    public boolean isFeatureFilm() {
+        return signaturePrefix.startsWith("Film 10 ");
+    }
+
     public void updateBean() {
         bean.update(this);
     }

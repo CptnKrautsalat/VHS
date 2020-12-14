@@ -85,7 +85,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	}
 
 	public boolean isVHSOnly() {
-		return getVersions().allMatch(FilmVersionEntry::isVHS);
+		return getVersions().noneMatch(FilmVersionEntry::isDigital);
 	}
 
 	public boolean isTVShow() {
