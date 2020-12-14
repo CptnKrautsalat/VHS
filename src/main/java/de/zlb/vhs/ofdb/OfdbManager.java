@@ -1,5 +1,6 @@
 package de.zlb.vhs.ofdb;
 
+import com.google.common.collect.Lists;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.zlb.vhs.SortedManager;
@@ -13,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,18 +86,23 @@ public class OfdbManager extends SortedManager<FilmEntry> {
         }
     }
 
-    private void writeLetterboxdListToFile(Collection<FilmEntry> films, String fileName) {
+    private void writeLetterboxdListToFiles(Collection<FilmEntry> films) {
         List<LetterboxdEntryBean> beans = films.stream()
+                .filter(f -> !f.isTVShow())
                 .map(FilmEntry::generateLetterboxdBean)
                 .collect(Collectors.toList());
-        try {
-            log.info("Writing {} beans from {} films to file {}...",
-                    beans.size(), films.size(), fileName);
-            letterboxdCsvListHandler.writeListToCSVFile(beans, fileName);
-            log.trace("... done writing to file {}!", fileName);
-        } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-            log.error("Failed to write to file {}!", fileName, e);
-        }
+        List<List<LetterboxdEntryBean>> partitions = Lists.partition(beans, 1000);
+        AtomicInteger count = new AtomicInteger(0);
+        partitions.forEach(l -> {
+            String fileName = "output/letterboxd/vhs_only_" + count.getAndIncrement() + ".csv";
+            try {
+                log.info("Writing {} films to file {}...", l.size(), fileName);
+                letterboxdCsvListHandler.writeListToCSVFile(l, fileName);
+                log.trace("... done writing to file {}!", fileName);
+            } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+                log.error("Failed to write to file {}!", fileName, e);
+            }
+        });
     }
 
     public Stream<FilmEntry> getFilms() {
@@ -133,7 +140,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
         log.trace("Writing OFDB data to CSV files...");
         writeFilmListToFile(ofdbFilms.values(), "output/ofdb/ofdb.csv");
         writeFilmListToFile(vhsOnly, "output/ofdb/vhs_only.csv");
-        writeLetterboxdListToFile(vhsOnly, "output/letterboxd/vhs_only.csv");
+        writeLetterboxdListToFiles(vhsOnly);
         log.trace("...done writing!");
     }
 

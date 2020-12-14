@@ -138,7 +138,7 @@ public class ListGenerator {
 		combineFilms();
 
 		ofdbManager.getFilms()
-				.filter(f -> f.isVHSOnly() && !f.isLinkedToFilm() && f.isFeatureFilm())
+				.filter(f -> f.isVHSOnly() && !f.isTVShow())
 				.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 
 		writeDataToFiles();
