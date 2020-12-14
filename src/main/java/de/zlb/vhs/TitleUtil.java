@@ -25,6 +25,14 @@ public class TitleUtil {
 
     }
 
+    public static String removeTrailingArticle(String title) {
+        Optional<String> trailingArticle = getTrailingArticle(title);
+        if (trailingArticle.isEmpty()) {
+            return title;
+        }
+        return title.substring(0, title.lastIndexOf(','));
+    }
+
     public static Optional<String> getLeadingArticle(String title) {
         return Arrays.stream(LEADING_ARTICLES)
                 .filter(title::startsWith)

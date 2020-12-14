@@ -1,5 +1,7 @@
 package de.zlb.vhs.ofdb;
 
+import de.zlb.vhs.csv.FilmVersionEntryBean;
+import de.zlb.vhs.csv.LetterboxdEntryBean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -59,5 +61,18 @@ public class FilmEntryTest {
         expected.add("American Pie 2");
         expected.add("American Pie");
         Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGenerateLetterboxdBean() {
+        FilmVersionEntryBean inputBean = new FilmVersionEntryBean();
+        inputBean.title = "Wunder von Manhattan, Das";
+        inputBean.year = "1994";
+        inputBean.directors = "Les Mayfield";
+        inputBean.imdbLink = "http://www.imdb.com/Title?0110527";
+        inputBean.alternativeTitles = "";
+        FilmEntry film = new FilmEntry(inputBean);
+        LetterboxdEntryBean expected = new LetterboxdEntryBean("tt0110527", "Wunder von Manhattan", "1994", "Les Mayfield");
+        Assertions.assertEquals(expected, film.generateLetterboxdBean());
     }
 }

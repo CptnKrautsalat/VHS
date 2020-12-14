@@ -6,6 +6,7 @@ import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.TitleUtil;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
+import de.zlb.vhs.csv.LetterboxdEntryBean;
 import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
 import de.zlb.vhs.ofdb.web.AdditionalOfdbData;
 import de.zlb.vhs.ofdb.web.WebUtil;
@@ -313,5 +314,18 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	@Override
 	public Set<String> getGeneratedTitles() {
 		return titles;
+	}
+
+	public LetterboxdEntryBean generateLetterboxdBean() {
+		String imdbId = "";
+		if (hasAdditionalOfdbData()) {
+			String imdbLink = additionalOfdbData.imdbLink;
+			if (!imdbLink.isEmpty()) {
+				imdbId = "tt" + imdbLink.substring(imdbLink.indexOf('?') + 1);
+			}
+		}
+		String title = TitleUtil.removeTrailingArticle(mainTitle);
+		String directors = String.join(", ", getDirectors());
+		return new LetterboxdEntryBean(imdbId, title, year, directors);
 	}
 }
