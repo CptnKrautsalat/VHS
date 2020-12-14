@@ -75,7 +75,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
     private void writeFilmListToFile(Collection<FilmEntry> films, String fileName) {
         List<FilmVersionEntryBean> beans = convertFilmListToBeans(films);
         try {
-            log.trace("Writing {} beans from {} films to file {}...",
+            log.info("Writing {} beans from {} films to file {}...",
                     beans.size(), films.size(), fileName);
             ofdbCsvListHandler.writeListToCSVFile(beans, fileName);
             log.trace("... done writing to file {}!", fileName);
@@ -89,7 +89,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
                 .map(FilmEntry::generateLetterboxdBean)
                 .collect(Collectors.toList());
         try {
-            log.trace("Writing {} beans from {} films to file {}...",
+            log.info("Writing {} beans from {} films to file {}...",
                     beans.size(), films.size(), fileName);
             letterboxdCsvListHandler.writeListToCSVFile(beans, fileName);
             log.trace("... done writing to file {}!", fileName);
@@ -130,11 +130,11 @@ public class OfdbManager extends SortedManager<FilmEntry> {
     }
 
     public void writeToFiles() {
-        log.info("Writing OFDB data to CSV files...");
+        log.trace("Writing OFDB data to CSV files...");
         writeFilmListToFile(ofdbFilms.values(), "output/ofdb/ofdb.csv");
         writeFilmListToFile(vhsOnly, "output/ofdb/vhs_only.csv");
         writeLetterboxdListToFile(vhsOnly, "output/letterboxd/vhs_only.csv");
-        log.info("...done writing!");
+        log.trace("...done writing!");
     }
 
     public void collectOFDBData() {
