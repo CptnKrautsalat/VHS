@@ -102,7 +102,7 @@ public class ListGenerator {
 	}
 
 	public Optional<FilmEntry> identifyMysteryFilm(LibraryCatalogEntry entry) {
-		if (mysteryFilms.get() >= 500) {
+		if (mysteryFilms.get() >= 100) {
 			return Optional.empty();
 		}
 		String year = entry.year;
