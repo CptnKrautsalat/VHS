@@ -10,15 +10,16 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ListGenerator {
 
 	private static final Logger log = LogManager.getLogger(ListGenerator.class);
+	private static final AtomicInteger mysteryFilms = new AtomicInteger(0);
 
 	private final Set<CombinedFilm> combinedFilms = new HashSet<>();
 	private final OfdbManager ofdbManager = new OfdbManager();
@@ -101,6 +102,9 @@ public class ListGenerator {
 	}
 
 	public Optional<FilmEntry> identifyMysteryFilm(LibraryCatalogEntry entry) {
+		if (mysteryFilms.get() >= 500) {
+			return Optional.empty();
+		}
 		String year = entry.year;
 		Optional<String> director = entry.directors.stream().findAny();
 		if (year.isEmpty() || director.isEmpty()) {
@@ -115,6 +119,7 @@ public class ListGenerator {
 				if (oldFilm == null) {
 					log.warn("{} is not in the catalog!", newFilm);
 					ofdbManager.addEntry(newFilm);
+					mysteryFilms.incrementAndGet();
 				} else {
 					oldFilm.getOrCreateAdditionalOfdbData();
 					return Optional.of(oldFilm);
@@ -145,6 +150,7 @@ public class ListGenerator {
 
 		writeDataToFiles();
 
+		log.info("{} film entries haven been added!", mysteryFilms.get());
 		log.info("{} film entries haven been updated!", FilmEntry.getTotalOfdbUpdates());
 		log.info("Done in {} minutes!", (System.currentTimeMillis() - start) / 60000.0);
 
