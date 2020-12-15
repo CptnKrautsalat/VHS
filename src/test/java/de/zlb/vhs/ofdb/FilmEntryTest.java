@@ -66,11 +66,11 @@ public class FilmEntryTest {
     @Test
     public void testGenerateLetterboxdBean() {
         FilmVersionEntryBean inputBean = new FilmVersionEntryBean();
-        inputBean.title = "Wunder von Manhattan, Das";
-        inputBean.year = "1994";
-        inputBean.directors = "Les Mayfield";
-        inputBean.imdbLink = "http://www.imdb.com/Title?0110527";
-        inputBean.alternativeTitles = "";
+        inputBean.setTitle("Wunder von Manhattan, Das");
+        inputBean.setYear("1994");
+        inputBean.setDirectors("Les Mayfield");
+        inputBean.setImdbLink("http://www.imdb.com/Title?0110527");
+        inputBean.setAlternativeTitles("");
         FilmEntry film = new FilmEntry(inputBean);
         LetterboxdEntryBean expected = new LetterboxdEntryBean("tt0110527", "Wunder von Manhattan", "1994", "Les Mayfield");
         Assertions.assertEquals(expected, film.generateLetterboxdBean());

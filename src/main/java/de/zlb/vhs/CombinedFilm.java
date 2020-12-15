@@ -4,18 +4,25 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.ofdb.FilmEntry;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
 public class CombinedFilm {
 
     private static final Logger log = LogManager.getLogger(CombinedFilm.class);
 
+    @Getter
     private FilmEntry ofdbEntry;
     private final Set<LibraryCatalogEntry> libraryCatalogEntries = new HashSet<>();
 
@@ -29,8 +36,6 @@ public class CombinedFilm {
         this.ofdbEntry = ofdbEntry;
         ofdbEntry.setFilm(this);
     }
-
-    public CombinedFilm() {}
 
     public CombinedFilm addLibraryCatalogEntry(LibraryCatalogEntry entry) {
         libraryCatalogEntries.add(entry);
@@ -70,10 +75,6 @@ public class CombinedFilm {
         return libraryCatalogEntries.isEmpty();
     }
 
-    public FilmEntry getOfdbEntry() {
-        return ofdbEntry;
-    }
-
     public Stream<LibraryCatalogEntry> getLibraryCatalogEntries() {
         return libraryCatalogEntries.stream();
     }
@@ -100,27 +101,5 @@ public class CombinedFilm {
 
     public boolean germanDubExistsDigitally() {
         return hasOfdbEntry() && ofdbEntry.hasDigitalReleaseWithGermanDub();
-    }
-
-    @Override
-    public String toString() {
-        return "CombinedFilm{" +
-                "ofdbEntry=" + ofdbEntry +
-                ", libraryCatalogEntries=" + libraryCatalogEntries +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CombinedFilm)) return false;
-        CombinedFilm that = (CombinedFilm) o;
-        return Objects.equals(ofdbEntry, that.ofdbEntry) &&
-                libraryCatalogEntries.equals(that.libraryCatalogEntries);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(ofdbEntry, libraryCatalogEntries);
     }
 }

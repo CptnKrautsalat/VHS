@@ -27,7 +27,7 @@ public abstract class SortedManager<E extends ISortableEntry> {
     }
 
     public Stream<E> getEntriesWithYear(String year) {
-        if (year.isBlank()) {
+        if (year.isEmpty()) {
             return Stream.empty();
         }
 

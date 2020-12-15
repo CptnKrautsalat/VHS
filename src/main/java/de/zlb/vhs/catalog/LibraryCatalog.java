@@ -61,7 +61,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
         log.info("Writing library catalog data to CSV files...");
         writeFilmListToFile(filterAndSort(getAllEntries(), f -> f.directors.isEmpty()), "output/zlb/no_director.csv");
         writeFilmListToFile(filterAndSort(getAllEntries(), LibraryCatalogEntry::hasWrongYear), "output/zlb/wrong_year.csv");
-        writeFilmListToFile(filterAndSort(getAllEntries(), f -> f.year.isBlank()), "output/zlb/no_year.csv");
+        writeFilmListToFile(filterAndSort(getAllEntries(), f -> f.year.isEmpty()), "output/zlb/no_year.csv");
         writeFilmListToFile(createUnidentifiedButCompleteEntryList(), "output/zlb/mystery.csv");
         writeFilmListToFile(createMandatoryMysteryEntryList(), "output/zlb/mystery_mandatory.csv");
 

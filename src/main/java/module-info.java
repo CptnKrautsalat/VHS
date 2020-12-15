@@ -11,4 +11,5 @@ module de.zlb.vhs {
     requires opencsv;
     requires java.sql;
     requires com.google.common;
+    requires lombok;
 }

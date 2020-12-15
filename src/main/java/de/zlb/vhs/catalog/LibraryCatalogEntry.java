@@ -49,24 +49,24 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
 
     public LibraryCatalogEntry(LibraryCatalogEntryBean bean) {
         this.bean = bean;
-        this.generatedTitles.addAll(extractMainTitle(bean.title));
-        this.alternativeTitles.addAll(extractAlternativeTitles(bean.alternativeTitles));
+        this.generatedTitles.addAll(extractMainTitle(bean.getTitle()));
+        this.alternativeTitles.addAll(extractAlternativeTitles(bean.getAlternativeTitles()));
         this.titles.addAll(this.generatedTitles);
         this.titles.addAll(this.alternativeTitles);
-        this.directors.addAll(extractDirectors(bean.director, bean.castAndCrew));
-        this.genres.addAll(extractGenres(bean.genres));
-        this.languages.addAll(extractLanguages(bean.languages));
-        this.year = extractYear(bean.comments);
-        this.signaturePrefix = extractSignaturePrefix(bean.signature);
-        this.physicalFormat = bean.physicalForm;
-        this.rentalsSince2010 = Integer.parseInt(bean.rentals2010to2020);
-        this.acquisitionMethod = AcquisitionMethod.fromString(bean.acquisition);
+        this.directors.addAll(extractDirectors(bean.getDirector(), bean.getCastAndCrew()));
+        this.genres.addAll(extractGenres(bean.getGenres()));
+        this.languages.addAll(extractLanguages(bean.getLanguages()));
+        this.year = extractYear(bean.getComments());
+        this.signaturePrefix = extractSignaturePrefix(bean.getSignature());
+        this.physicalFormat = bean.getPhysicalForm();
+        this.rentalsSince2010 = Integer.parseInt(bean.getRentals2010to2020());
+        this.acquisitionMethod = AcquisitionMethod.fromString(bean.getAcquisition());
     }
 
     LibraryCatalogEntry() {}
 
     public String getMediaNumber() {
-        return bean.mediaNumber;
+        return bean.getMediaNumber();
     }
 
     public CombinedFilm getFilm() {

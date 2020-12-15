@@ -2,88 +2,56 @@ package de.zlb.vhs.csv;
 
 import com.opencsv.bean.CsvBindByName;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
+import lombok.*;
 
-import java.util.Objects;
-
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@EqualsAndHashCode
 public class LibraryCatalogEntryBean {
     @CsvBindByName(column = "phyform")
-    public String physicalForm;
+    private String physicalForm;
     @CsvBindByName(column = "akds")
-    public String akds;
+    private String akds;
     @CsvBindByName(column = "mediennr")
-    public String mediaNumber;
+    private String mediaNumber;
     @CsvBindByName(column = "signatur")
-    public String signature;
+    private String signature;
     @CsvBindByName(column = "sigel")
-    public String sigel;
+    private String sigel;
     @CsvBindByName(column = "fachst")
-    public String department;
+    private String department;
     @CsvBindByName(column = "regie_gndnr")
-    public String director;
+    private String director;
     @CsvBindByName(column = "verantwortlichkeitsangabe")
-    public String castAndCrew;
+    private String castAndCrew;
     @CsvBindByName(column = "titel")
-    public String title;
+    private String title;
     @CsvBindByName(column = "weitere_titel")
-    public String alternativeTitles;
+    private String alternativeTitles;
     @CsvBindByName(column = "anmerkungen")
-    public String comments;
+    private String comments;
     @CsvBindByName(column = "veröffentlichung")
-    public String release;
+    private String release;
     @CsvBindByName(column = "sprachen")
-    public String languages;
+    private String languages;
     @CsvBindByName(column = "umfang_dauer")
-    public String length;
+    private String length;
     @CsvBindByName(column = "erwart")
-    public String acquisition;
+    private String acquisition;
     @CsvBindByName(column = "genres")
-    public String genres;
+    private String genres;
     @CsvBindByName(column = "ausl2010bis20")
-    public String rentals2010to2020;
+    private String rentals2010to2020;
     @CsvBindByName(column = "ausl2020")
-    public String rentals2020;
+    private String rentals2020;
     @CsvBindByName(column = "exstat")
-    public String exstat;
+    private String exstat;
     @CsvBindByName(column = "austat")
-    public String austat;
+    private String austat;
     @CsvBindByName(column = "ofdb")
-    public String ofdbLink;
-
-    public LibraryCatalogEntryBean() {}
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof LibraryCatalogEntryBean)) return false;
-        LibraryCatalogEntryBean that = (LibraryCatalogEntryBean) o;
-        return physicalForm.equals(that.physicalForm) &&
-                akds.equals(that.akds) &&
-                mediaNumber.equals(that.mediaNumber) &&
-                signature.equals(that.signature) &&
-                sigel.equals(that.sigel) &&
-                department.equals(that.department) &&
-                director.equals(that.director) &&
-                castAndCrew.equals(that.castAndCrew) &&
-                title.equals(that.title) &&
-                alternativeTitles.equals(that.alternativeTitles) &&
-                comments.equals(that.comments) &&
-                release.equals(that.release) &&
-                languages.equals(that.languages) &&
-                length.equals(that.length) &&
-                acquisition.equals(that.acquisition) &&
-                genres.equals(that.genres) &&
-                rentals2010to2020.equals(that.rentals2010to2020) &&
-                rentals2020.equals(that.rentals2020) &&
-                exstat.equals(that.exstat) &&
-                austat.equals(that.austat);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(physicalForm, akds, mediaNumber, signature, sigel, department, director, castAndCrew, title,
-                alternativeTitles, comments, release, languages, length, acquisition, genres, rentals2010to2020, rentals2020,
-                exstat, austat);
-    }
+    private String ofdbLink;
 
     public void update(LibraryCatalogEntry entry) {
         if (entry.isLinkedToOfdbFilm()) {

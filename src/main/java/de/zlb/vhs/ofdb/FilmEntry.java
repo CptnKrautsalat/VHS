@@ -37,15 +37,8 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	final Set<String> titles = new HashSet<>();
 
 	private CombinedFilm film;
+
 	private AdditionalOfdbData additionalOfdbData;
-
-	public CombinedFilm getFilm() {
-		return film;
-	}
-
-	public void setFilm(CombinedFilm film) {
-		this.film = film;
-	}
 
 	private final List<FilmVersionEntry> versions = new LinkedList<>();
 
@@ -59,17 +52,25 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 	public FilmEntry(FilmVersionEntryBean filmVersionEntryBean) {
 		super();
-		this.title = filmVersionEntryBean.title;
+		this.title = filmVersionEntryBean.getTitle();
 		this.titles.addAll(generateTitleVariations(title));
-		this.year = filmVersionEntryBean.year;
-		this.link = filmVersionEntryBean.filmLink;
+		this.year = filmVersionEntryBean.getYear();
+		this.link = filmVersionEntryBean.getFilmLink();
 		this.additionalOfdbData = extractAdditionalOfdbData(
-				filmVersionEntryBean.imdbLink, filmVersionEntryBean.alternativeTitles, filmVersionEntryBean.directors)
+				filmVersionEntryBean.getImdbLink(), filmVersionEntryBean.getAlternativeTitles(), filmVersionEntryBean.getDirectors())
 				.orElse(null);
 		if (this.additionalOfdbData != null) {
-			this.titles.addAll(this.additionalOfdbData.alternativeTitles);
+			this.titles.addAll(this.additionalOfdbData.getAlternativeTitles());
 		}
 		this.addVersion(new FilmVersionEntry(this, filmVersionEntryBean));
+	}
+
+	public CombinedFilm getFilm() {
+		return film;
+	}
+
+	public void setFilm(CombinedFilm film) {
+		this.film = film;
 	}
 
 	public boolean hasAdditionalOfdbData() {
@@ -134,17 +135,15 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	}
 
 	public String getImdbLink() {
-		return getAdditionalOfdbData().imdbLink;
+		return getAdditionalOfdbData().getImdbLink();
 	}
 
 	public String getAlternativeTitlesAsString() {
-		return String.join(STRING_SET_SEPARATOR, getAdditionalOfdbData()
-				.alternativeTitles);
+		return String.join(STRING_SET_SEPARATOR, getAdditionalOfdbData().getAlternativeTitles());
 	}
 
 	public String getDirectorsAsString() {
-		return String.join(STRING_SET_SEPARATOR, getAdditionalOfdbData()
-				.directors);
+		return String.join(STRING_SET_SEPARATOR, getAdditionalOfdbData().getDirectors());
 	}
 
 	public String getTitle() {
@@ -174,14 +173,14 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 				log.error("Something went terribly wrong!", e);
 			}
 			additionalOfdbData = ofdbResult.get();
-			titles.addAll(additionalOfdbData.alternativeTitles);
+			titles.addAll(additionalOfdbData.getAlternativeTitles());
 		}
 
 		return ofdbResult;
 	}
 
 	public boolean matchesDirectors(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
-		Set<String> directors = getAdditionalOfdbData().directors;
+		Set<String> directors = getAdditionalOfdbData().getDirectors();
 		return (!strict && (directors.isEmpty() || !libraryCatalogEntry.hasDirector()))
 				|| directors.stream().anyMatch(libraryCatalogEntry::matchesDirector);
 	}
@@ -233,7 +232,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 		String[] sections = titleWithoutMedium.split("[:\\-] ");
 
-		String shortTitle = sections[0].strip();
+		String shortTitle = sections[0].trim();
 		if (shortTitle.endsWith(".") || shortTitle.endsWith("!")) {
 			shortTitle = shortTitle.substring(0, shortTitle.length() - 1);
 		}
@@ -298,7 +297,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 	@Override
 	public Set<String> getDirectors() {
-		return getAdditionalOfdbData().directors;
+		return getAdditionalOfdbData().getDirectors();
 	}
 
 	@Override
@@ -308,7 +307,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 	@Override
 	public Set<String> getAlternativeTitles() {
-		return getAdditionalOfdbData().alternativeTitles;
+		return getAdditionalOfdbData().getAlternativeTitles();
 	}
 
 	@Override
@@ -319,7 +318,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	public LetterboxdEntryBean generateLetterboxdBean() {
 		String imdbId = "";
 		if (hasAdditionalOfdbData()) {
-			String imdbLink = additionalOfdbData.imdbLink;
+			String imdbLink = additionalOfdbData.getImdbLink();
 			if (!imdbLink.isEmpty()) {
 				imdbId = "tt" + imdbLink.substring(imdbLink.indexOf('?') + 1);
 			}

@@ -6,6 +6,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import lombok.AllArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,13 +22,11 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@AllArgsConstructor
 public class CSVListHandler<B> {
     public static final Logger log = LogManager.getLogger(CSVListHandler.class);
-    private final char separator;
 
-    public CSVListHandler(char separator) {
-        this.separator = separator;
-    }
+    private final char separator;
 
     public List<B> readListFromCSVFile(File csvFile, Class<? extends B> type) throws IOException {
 

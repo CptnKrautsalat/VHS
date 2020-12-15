@@ -148,6 +148,8 @@ public class ListGenerator {
 				.filter(f -> f.isVHSOnly() && !f.isTVShow())
 				.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 
+		libraryCatalog.createUnidentifiedButCompleteEntryList().forEach(this::identifyMysteryFilm);
+
 		writeDataToFiles();
 
 		log.info("{} film entries haven been added!", mysteryFilms.get());

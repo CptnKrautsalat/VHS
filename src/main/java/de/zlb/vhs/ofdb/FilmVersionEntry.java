@@ -32,11 +32,11 @@ public class FilmVersionEntry {
 	public FilmVersionEntry(FilmEntry film, FilmVersionEntryBean bean) {
 		super();
 		this.film = film;
-		this.medium = bean.medium;
-		this.publisher = bean.publisher;
-		this.country = bean.country;
-		this.rating = bean.rating;
-		this.link = bean.versionLink;
+		this.medium = bean.getMedium();
+		this.publisher = bean.getPublisher();
+		this.country = bean.getCountry();
+		this.rating = bean.getRating();
+		this.link = bean.getVersionLink();
 	}
 	
 	public FilmVersionEntryBean toBean() {
