@@ -47,7 +47,7 @@ public class LibraryCatalog extends SortedManager<LibraryCatalogEntry> {
     }
 
     private void analyzeCatalog() {
-        long withoutYear = getEntriesWithYear("").count();
+        long withoutYear = getAllEntries().filter(e -> !e.hasYear()).count();
         long withoutDirector = getAllEntries().filter(e -> !e.hasDirector()).count();
         log.info("Library catalog has {} entries, {} without year, {} without director.",
                 getAllEntries().count(), withoutYear, withoutDirector);

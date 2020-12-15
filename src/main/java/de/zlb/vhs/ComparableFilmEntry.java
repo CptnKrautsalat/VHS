@@ -66,6 +66,10 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
     }
 
     public boolean matchesYear(String year, boolean strict) {
+        return matchesYear(year, strict, 1);
+    }
+
+    public boolean matchesYear(String year, boolean strict, int maxDifference) {
         if (year.equals(getYear())) {
             return true;
         }
@@ -81,7 +85,7 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
         try {
             int year1 = Integer.parseInt(year);
             int year2 = Integer.parseInt(getYear());
-            return Math.abs(year1 - year2) <= 1;
+            return Math.abs(year1 - year2) <= maxDifference;
         } catch (NumberFormatException e) {
             return false;
         }
@@ -91,8 +95,9 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
         double score = 0d;
 
         if (!getYear().isEmpty() && !other.getYear().isEmpty()) {
-            score += matchesYear(other.getYear(), false) ? 1 : 0;
             score += matchesYear(other.getYear(), true) ? 1 : 0;
+            score += matchesYear(other.getYear(), false) ? .75 : 0;
+            score += matchesYear(other.getYear(), false, 2) ? .25 : 0;
         }
 
         if (!getDirectors().isEmpty() && !other.getDirectors().isEmpty()) {
