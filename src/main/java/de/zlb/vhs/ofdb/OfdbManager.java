@@ -38,7 +38,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
     private final CSVListHandler<LetterboxdEntryBean> letterboxdCsvListHandler = new CSVListHandler<>(',');
     private Set<FilmEntry> vhsOnly;
 
-    private void addFilm(FilmEntry film) {
+    public void addFilm(FilmEntry film) {
         FilmEntry existingFilm = ofdbFilms.get(film.link);
         if (existingFilm == null) {
             ofdbFilms.put(film.link, film);

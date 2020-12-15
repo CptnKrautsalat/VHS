@@ -119,6 +119,7 @@ public class ListGenerator {
 				if (oldFilm == null) {
 					log.warn("{} is not in the catalog!", newFilm);
 					ofdbManager.addEntry(newFilm);
+					ofdbManager.addFilm(newFilm);
 					mysteryFilms.incrementAndGet();
 				} else {
 					oldFilm.getOrCreateAdditionalOfdbData();
