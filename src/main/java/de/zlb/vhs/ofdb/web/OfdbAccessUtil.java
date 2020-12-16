@@ -37,21 +37,23 @@ public class OfdbAccessUtil {
         return lastFilm;
     }
 
-    public static String generateOfdbUrlForGeneralSearch(Medium medium, String indexed, int position) {
-        return "https://ssl.ofdb.de/view.php?page=fsuche&AB=-&Genre=-&Note=&HLand=-&Jahr=&Wo="
-                + medium.getSearch()
-                + "&Wer=&Regie=&Darsteller=&Titel=&Land=-&Freigabe=-&Cut=A&Indiziert="
-                + indexed
-                + "&Info=&Typ=N&Pos="
-                + position;
+    public static SearchParameters generateParametersForGeneralSearch(Medium medium, IndexStatus indexed, int position) {
+        return SearchParameters.builder()
+                .medium(medium)
+                .indexStatus(indexed)
+                .position(position)
+                .build();
     }
 
-    public static String generateOfdbUrlForSpecificSearch(String year, String director) {
-        return "https://ssl.ofdb.de/view.php?page=fsuche&Typ=N&AB=-&Titel=&Genre=-&Note=&HLand=-&Jahr="
-                + year
-                + "&Regie="
-                + director.replaceAll(" ", "+")
-                + "&Darsteller=&Wo=-&Wer=&Land=-&Freigabe=-&Cut=A&Indiziert=A&Info=&Submit2=Suche+ausf%C3%BChren";
+    public static SearchParameters generateParametersForSpecificSearch(String year, String director) {
+        return SearchParameters.builder()
+                .year(year)
+                .director(director.replaceAll(" ", "+"))
+                .build();
+    }
+
+    public static Set<FilmEntry> generateOFDBList(SearchParameters searchParameters) throws IOException {
+        return generateOFDBList(searchParameters.toUrl());
     }
 
     public static Set<FilmEntry> generateOFDBList(String url) throws IOException {

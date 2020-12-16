@@ -7,8 +7,10 @@ import de.zlb.vhs.SortedManager;
 import de.zlb.vhs.csv.CSVListHandler;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
+import de.zlb.vhs.ofdb.web.IndexStatus;
 import de.zlb.vhs.ofdb.web.Medium;
 import de.zlb.vhs.ofdb.web.OfdbAccessUtil;
+import de.zlb.vhs.ofdb.web.SearchParameters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +26,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
 
     public static final String OFDB_LINK_PREFIX = "https://ssl.ofdb.de/";
     public static final Medium[] MEDIA = {Medium.VHS, Medium.DVD, Medium.BLU_RAY};
-    public static final String[] INDEXED = {"N", "J"};
+    public static final IndexStatus[] INDEXED = {IndexStatus.INDEXED, IndexStatus.NOT_INDEXED};
 
     public static final int OFDB_PAGE_SIZE = 50;
     public static final int OFDB_RETRY_INTERVAL_MILLIS = 60000;
@@ -139,21 +141,21 @@ public class OfdbManager extends SortedManager<FilmEntry> {
         log.info("Generating OFDB list from web...");
 
         for (Medium medium : OfdbManager.MEDIA) {
-            for (String indexed : OfdbManager.INDEXED) {
+            for (IndexStatus indexed : OfdbManager.INDEXED) {
                 collectOFDBDataForMedium(medium, indexed);
             }
         }
 
     }
 
-    private void collectOFDBDataForMedium(Medium medium, String indexed) {
+    private void collectOFDBDataForMedium(Medium medium, IndexStatus indexed) {
         boolean emptyPage = false;
         for (int position = 0; !emptyPage; position += OfdbManager.OFDB_PAGE_SIZE) {
             for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < OfdbManager.OFDB_ATTEMPTS); ++attempt) {
-                String url = OfdbAccessUtil.generateOfdbUrlForGeneralSearch(medium, indexed, position);
+                SearchParameters searchParameters = OfdbAccessUtil.generateParametersForGeneralSearch(medium, indexed, position);
                 Set <FilmEntry> films = null;
                 try {
-                    films = OfdbAccessUtil.generateOFDBList(url);
+                    films = OfdbAccessUtil.generateOFDBList(searchParameters);
                 } catch (IOException e) {
                     log.error("Failed to collect data from ofdb.", e);
                 }

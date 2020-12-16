@@ -28,9 +28,9 @@ public class OfdbAccessUtilTest {
 
     @Test
     public void testGetFilmForDirectorAndYear() {
-        String url = OfdbAccessUtil.generateOfdbUrlForSpecificSearch("1972", "Ronald Neame");
+        SearchParameters searchParameters = OfdbAccessUtil.generateParametersForSpecificSearch("1972", "Ronald Neame");
         try {
-            Set<FilmEntry> films = OfdbAccessUtil.generateOFDBList(url);
+            Set<FilmEntry> films = OfdbAccessUtil.generateOFDBList(searchParameters);
             Assertions.assertEquals(films.size(), 1);
             Assertions.assertTrue(films.stream().anyMatch(f -> f.link.equals("https://ssl.ofdb.de/film/6268,Die-Höllenfahrt-der-Poseidon")));
 
