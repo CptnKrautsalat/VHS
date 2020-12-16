@@ -7,6 +7,7 @@ import de.zlb.vhs.SortedManager;
 import de.zlb.vhs.csv.CSVListHandler;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
+import de.zlb.vhs.ofdb.web.Medium;
 import de.zlb.vhs.ofdb.web.OfdbAccessUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,15 +23,13 @@ public class OfdbManager extends SortedManager<FilmEntry> {
     private static final Logger log = LogManager.getLogger(OfdbManager.class);
 
     public static final String OFDB_LINK_PREFIX = "https://ssl.ofdb.de/";
-    public static final String[] MEDIUMS = {"V", "D", "B"};
+    public static final Medium[] MEDIA = {Medium.VHS, Medium.DVD, Medium.BLU_RAY};
     public static final String[] INDEXED = {"N", "J"};
 
     public static final int OFDB_PAGE_SIZE = 50;
     public static final int OFDB_RETRY_INTERVAL_MILLIS = 60000;
     public static final int OFDB_ATTEMPTS = 5;
     public static final int OFDB_INTERVAL_MILLIS = 100;
-
-    public static final int MAX_FILMS_PER_SMALL_FILE = 10000;
 
     private final Map<String, FilmEntry> ofdbFilms = new HashMap<>();
     private final CSVListHandler<FilmVersionEntryBean> ofdbCsvListHandler = new CSVListHandler<>(',');
@@ -125,6 +124,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
 
     public void processFilmData() {
         sortFilms();
+        vhsOnly = getVHSOnlyFilms();
     }
 
     public void writeToFiles() {
@@ -138,7 +138,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
     public void collectOFDBData() {
         log.info("Generating OFDB list from web...");
 
-        for (String medium : OfdbManager.MEDIUMS) {
+        for (Medium medium : OfdbManager.MEDIA) {
             for (String indexed : OfdbManager.INDEXED) {
                 collectOFDBDataForMedium(medium, indexed);
             }
@@ -146,7 +146,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
 
     }
 
-    private void collectOFDBDataForMedium(String medium, String indexed) {
+    private void collectOFDBDataForMedium(Medium medium, String indexed) {
         boolean emptyPage = false;
         for (int position = 0; !emptyPage; position += OfdbManager.OFDB_PAGE_SIZE) {
             for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < OfdbManager.OFDB_ATTEMPTS); ++attempt) {

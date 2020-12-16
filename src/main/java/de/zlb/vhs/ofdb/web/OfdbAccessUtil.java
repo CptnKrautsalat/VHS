@@ -37,9 +37,9 @@ public class OfdbAccessUtil {
         return lastFilm;
     }
 
-    public static String generateOfdbUrlForGeneralSearch(String medium, String indexed, int position) {
+    public static String generateOfdbUrlForGeneralSearch(Medium medium, String indexed, int position) {
         return "https://ssl.ofdb.de/view.php?page=fsuche&AB=-&Genre=-&Note=&HLand=-&Jahr=&Wo="
-                + medium
+                + medium.getSearch()
                 + "&Wer=&Regie=&Darsteller=&Titel=&Land=-&Freigabe=-&Cut=A&Indiziert="
                 + indexed
                 + "&Info=&Typ=N&Pos="

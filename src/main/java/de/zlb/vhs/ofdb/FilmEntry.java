@@ -4,7 +4,6 @@ import de.zlb.vhs.CombinedFilm;
 import de.zlb.vhs.ComparableFilmEntry;
 import de.zlb.vhs.ISortableEntry;
 import de.zlb.vhs.TitleUtil;
-import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
 import de.zlb.vhs.ofdb.web.AdditionalOfdbData;
@@ -15,7 +14,6 @@ import org.apache.logging.log4j.util.Strings;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -112,12 +110,6 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 		return film != null;
 	}
 
-	public long getVersionCount (Predicate<FilmVersionEntry> predicate) {
-		return getVersions()
-				.filter(predicate)
-				.count();
-	}
-
 	public String getImdbLink() {
 		return getAdditionalOfdbData().getImdbLink();
 	}
@@ -163,12 +155,6 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 		return ofdbResult;
 	}
 
-	public boolean matchesDirectors(LibraryCatalogEntry libraryCatalogEntry, boolean strict) {
-		Set<String> directors = getAdditionalOfdbData().getDirectors();
-		return (!strict && (directors.isEmpty() || !libraryCatalogEntry.hasDirector()))
-				|| directors.stream().anyMatch(libraryCatalogEntry::matchesDirector);
-	}
-
 	private String extractTitle(String title) {
 		int index = title.lastIndexOf('(');
 		return index == -1 ? title : title.substring(0, index-1);
@@ -200,7 +186,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 		String titleWithoutMedium = title;
 		if (title.endsWith("[TV-Serie]") || title.endsWith("[Kurzfilm]") || title.endsWith("[TV-Mini-Serie]")
-		|| title.endsWith("[Webminiserie]")) {
+		|| title.endsWith("[Webminiserie]") || title.endsWith("[Serial]")) {
 			titleWithoutMedium = title.substring(0, title.lastIndexOf('[')).trim();
 		}
 
