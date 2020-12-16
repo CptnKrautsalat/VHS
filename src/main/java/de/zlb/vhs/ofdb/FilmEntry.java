@@ -7,7 +7,6 @@ import de.zlb.vhs.TitleUtil;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
-import de.zlb.vhs.ofdb.stats.OFDBFilmStats;
 import de.zlb.vhs.ofdb.web.AdditionalOfdbData;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
@@ -111,21 +110,6 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 
 	public boolean isLinkedToFilm() {
 		return film != null;
-	}
-
-	public void addToStats(OFDBFilmStats stats) {
-		stats.films++;
-		stats.features += isFeatureFilm() ? 1 : 0;
-		stats.shorts += isShortFilm() ? 1 : 0;
-		stats.tvShows += isTVShow() ? 1 : 0;
-		stats.releases += versions.size();
-		stats.vhsReleases += getVersionCount(FilmVersionEntry::isVHS);
-		stats.dvdReleases += getVersionCount(FilmVersionEntry::isDVD);
-		stats.blurayReleases += getVersionCount(FilmVersionEntry::isBluRay);
-
-		getVersions()
-				.map(v -> v.country)
-				.forEach(stats::incrementCountry);
 	}
 
 	public long getVersionCount (Predicate<FilmVersionEntry> predicate) {

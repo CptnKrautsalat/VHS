@@ -7,7 +7,6 @@ import de.zlb.vhs.SortedManager;
 import de.zlb.vhs.csv.CSVListHandler;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
-import de.zlb.vhs.ofdb.stats.StatsCollector;
 import de.zlb.vhs.ofdb.web.WebUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -125,15 +124,7 @@ public class OfdbManager extends SortedManager<FilmEntry> {
     }
 
     public void processFilmData() {
-
         sortFilms();
-
-        log.info("Evaluating all OFDB data:");
-        new StatsCollector().collectStats(ofdbFilms.values());
-
-        log.info("Evaluating VHS-only OFDB data:");
-        vhsOnly = getVHSOnlyFilms();
-        new StatsCollector().collectStats(vhsOnly);
     }
 
     public void writeToFiles() {
