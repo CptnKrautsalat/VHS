@@ -14,8 +14,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
-public class WebUtil {
-    public static final Logger log = LogManager.getLogger(WebUtil.class);
+public class OfdbAccessUtil {
+    public static final Logger log = LogManager.getLogger(OfdbAccessUtil.class);
 
     private static FilmEntry parseFilmEntry (Element element) {
         return new FilmEntry(element.text(), element.attr("href"));

@@ -4,7 +4,7 @@ import de.zlb.vhs.catalog.LibraryCatalog;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.ofdb.FilmEntry;
 import de.zlb.vhs.ofdb.OfdbManager;
-import de.zlb.vhs.ofdb.web.WebUtil;
+import de.zlb.vhs.ofdb.web.OfdbAccessUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -110,9 +110,9 @@ public class ListGenerator {
 		if (year.isEmpty() || director.isEmpty()) {
 			return Optional.empty();
 		}
-		String url = WebUtil.generateOfdbUrlForSpecificSearch(year, director.get());
+		String url = OfdbAccessUtil.generateOfdbUrlForSpecificSearch(year, director.get());
 		try {
-			Set<FilmEntry> films = WebUtil.generateOFDBList(url);
+			Set<FilmEntry> films = OfdbAccessUtil.generateOFDBList(url);
 			Thread.sleep(250);
 			for (FilmEntry newFilm : films) {
 				FilmEntry oldFilm = ofdbManager.getFilm(newFilm.link);

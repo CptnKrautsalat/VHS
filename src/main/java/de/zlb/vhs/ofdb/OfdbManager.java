@@ -7,7 +7,7 @@ import de.zlb.vhs.SortedManager;
 import de.zlb.vhs.csv.CSVListHandler;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
-import de.zlb.vhs.ofdb.web.WebUtil;
+import de.zlb.vhs.ofdb.web.OfdbAccessUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -150,10 +150,10 @@ public class OfdbManager extends SortedManager<FilmEntry> {
         boolean emptyPage = false;
         for (int position = 0; !emptyPage; position += OfdbManager.OFDB_PAGE_SIZE) {
             for (int attempt = 0; (attempt == 0) || (emptyPage && attempt < OfdbManager.OFDB_ATTEMPTS); ++attempt) {
-                String url = WebUtil.generateOfdbUrlForGeneralSearch(medium, indexed, position);
+                String url = OfdbAccessUtil.generateOfdbUrlForGeneralSearch(medium, indexed, position);
                 Set <FilmEntry> films = null;
                 try {
-                    films = WebUtil.generateOFDBList(url);
+                    films = OfdbAccessUtil.generateOFDBList(url);
                 } catch (IOException e) {
                     log.error("Failed to collect data from ofdb.", e);
                 }

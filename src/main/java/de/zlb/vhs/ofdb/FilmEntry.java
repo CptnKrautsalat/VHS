@@ -8,7 +8,7 @@ import de.zlb.vhs.catalog.LibraryCatalogEntry;
 import de.zlb.vhs.csv.FilmVersionEntryBean;
 import de.zlb.vhs.csv.LetterboxdEntryBean;
 import de.zlb.vhs.ofdb.web.AdditionalOfdbData;
-import de.zlb.vhs.ofdb.web.WebUtil;
+import de.zlb.vhs.ofdb.web.OfdbAccessUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -147,7 +147,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 			return Optional.of(additionalOfdbData);
 		}
 
-		Optional<AdditionalOfdbData> ofdbResult = WebUtil.getAdditionalOfdbData(link);
+		Optional<AdditionalOfdbData> ofdbResult = OfdbAccessUtil.getAdditionalOfdbData(link);
 		if (ofdbResult.isPresent()) {
 			log.info("Updating {} with {}.", title, ofdbResult.get());
 			ofdbUpdateCount.incrementAndGet();
