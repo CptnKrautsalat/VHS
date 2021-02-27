@@ -10,7 +10,7 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
     public abstract String getMainTitle();
     public abstract Set<String> getAlternativeTitles();
     public abstract Set<String> getGeneratedTitles();
-    public abstract CombinedFilm getFilm();
+    public abstract ICombinedFilm<? extends ComparableFilmEntry> getFilm();
 
     public boolean matchesTitles(ComparableFilmEntry libraryCatalogEntry, boolean includeAltTiles, boolean includeGeneratedTitles) {
 
@@ -154,5 +154,13 @@ public abstract class ComparableFilmEntry implements ISortableEntry {
 
     private boolean titlesMatch(String title1, String title2) {
         return title1.equalsIgnoreCase(title2);
+    }
+
+    public boolean hasDirector() {
+        return !getDirectors().isEmpty();
+    }
+
+    public boolean hasYear() {
+        return !getYear().isEmpty();
     }
 }

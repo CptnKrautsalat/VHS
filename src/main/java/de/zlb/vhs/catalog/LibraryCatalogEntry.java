@@ -121,20 +121,12 @@ public class LibraryCatalogEntry extends ComparableFilmEntry implements ISortabl
         return generatedTitles;
     }
 
-    public boolean hasYear() {
-        return !year.isEmpty();
-    }
-
     public boolean hasWrongYear() {
         if (!hasYear()) {
             return false;
         }
         int yearNumber = Integer.parseInt(year);
         return yearNumber < 1870 || yearNumber > 2020;
-    }
-
-    public boolean hasDirector() {
-        return !directors.isEmpty();
     }
 
     public boolean isLinkedToOfdbFilm() {

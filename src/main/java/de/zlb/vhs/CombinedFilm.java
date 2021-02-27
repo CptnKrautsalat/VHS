@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-public class CombinedFilm {
+public class CombinedFilm implements ICombinedFilm<LibraryCatalogEntry> {
 
     private static final Logger log = LogManager.getLogger(CombinedFilm.class);
 
@@ -71,14 +71,17 @@ public class CombinedFilm {
         return other;
     }
 
+    @Override
     public boolean isEmpty() {
         return libraryCatalogEntries.isEmpty();
     }
 
-    public Stream<LibraryCatalogEntry> getLibraryCatalogEntries() {
+    @Override
+    public Stream<LibraryCatalogEntry> getCatalogEntries() {
         return libraryCatalogEntries.stream();
     }
 
+    @Override
     public boolean hasOfdbEntry () {
         return ofdbEntry != null;
     }
@@ -102,4 +105,5 @@ public class CombinedFilm {
     public boolean germanDubExistsDigitally() {
         return hasOfdbEntry() && ofdbEntry.hasDigitalReleaseWithGermanDub();
     }
+
 }

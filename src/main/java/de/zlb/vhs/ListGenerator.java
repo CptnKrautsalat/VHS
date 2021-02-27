@@ -2,6 +2,8 @@ package de.zlb.vhs;
 
 import de.zlb.vhs.catalog.LibraryCatalog;
 import de.zlb.vhs.catalog.LibraryCatalogEntry;
+import de.zlb.vhs.cdh.CdhCatalog;
+import de.zlb.vhs.cdh.CdhCombinedFilm;
 import de.zlb.vhs.ofdb.FilmEntry;
 import de.zlb.vhs.ofdb.OfdbManager;
 import de.zlb.vhs.ofdb.web.OfdbAccessUtil;
@@ -22,32 +24,27 @@ public class ListGenerator {
 	private static final Logger log = LogManager.getLogger(ListGenerator.class);
 	private static final AtomicInteger mysteryFilms = new AtomicInteger(0);
 
-	private final Set<CombinedFilm> combinedFilms = new HashSet<>();
+	private final Set<CdhCombinedFilm> combinedFilms = new HashSet<>();
 	private final OfdbManager ofdbManager = new OfdbManager();
 	private final LibraryCatalog libraryCatalog = new LibraryCatalog();
+	private final CdhCatalog cdhCatalog = new CdhCatalog();
 
 	private void combineFilms() {
-		log.info("Combining films from library catalog and OFDB ...");
-		libraryCatalog
+		log.info("Combining films from cdh catalog and OFDB ...");
+		cdhCatalog
 				.getAllEntries()
-				.filter(lce -> !lce.hasWrongYear() && !lce.isTvShow())
 				.forEach(lce -> {
 					Optional<FilmEntry> film = findMatchingOfdbFilmEntry(lce);
-					Set<LibraryCatalogEntry> matches = findMatchingLibraryCatalogEntries(lce);
-					if (!(film.isEmpty() && matches.size() < 2)) {
-						CombinedFilm combinedFilm = film.isPresent() && film.get().isLinkedToFilm()
-								? film.get().getFilm()
-								: new CombinedFilm(film.orElse(null));
-						combinedFilm = combinedFilm.addLibraryCatalogEntry(lce);
-						matches.forEach(combinedFilm::addLibraryCatalogEntry);
+					if (film.isPresent()) {
+						CdhCombinedFilm combinedFilm = new CdhCombinedFilm(film.get(), lce);
 						combinedFilms.add(combinedFilm);
 					}
 				});
-		combinedFilms.removeIf(CombinedFilm::isEmpty);
+		combinedFilms.removeIf(ICombinedFilm::isEmpty);
 		log.info("... created {} combined films, linked to {} catalog entries and {} OFDB films!",
 				combinedFilms.size(),
-				combinedFilms.stream().flatMap(CombinedFilm::getLibraryCatalogEntries).count(),
-				combinedFilms.stream().filter(CombinedFilm::hasOfdbEntry).count());
+				combinedFilms.stream().flatMap(ICombinedFilm::getCatalogEntries).count(),
+				combinedFilms.stream().filter(ICombinedFilm::hasOfdbEntry).count());
 	}
 
 	private Set<LibraryCatalogEntry> findMatchingLibraryCatalogEntries(LibraryCatalogEntry lce) {
@@ -61,7 +58,7 @@ public class ListGenerator {
 		return matches;
 	}
 
-	private Optional<FilmEntry> findMatchingOfdbFilmEntry(LibraryCatalogEntry libraryCatalogEntry) {
+	private Optional<FilmEntry> findMatchingOfdbFilmEntry(ComparableFilmEntry libraryCatalogEntry) {
 		Set<FilmEntry> films = ofdbManager
 				.getAllPossibleMatches(libraryCatalogEntry)
 				.filter(FilmEntry::isFeatureFilm)
@@ -102,12 +99,12 @@ public class ListGenerator {
 		return copy.isEmpty() ? entries : copy;
 	}
 
-	public Optional<FilmEntry> identifyMysteryFilm(LibraryCatalogEntry entry) {
-		if (mysteryFilms.get() >= 100) {
+	public Optional<FilmEntry> identifyMysteryFilm(ComparableFilmEntry entry) {
+		if (mysteryFilms.get() >= 10) {
 			return Optional.empty();
 		}
-		String year = entry.year;
-		Optional<String> director = entry.directors.stream().findAny();
+		String year = entry.getYear();
+		Optional<String> director = entry.getDirectors().stream().findAny();
 		if (year.isEmpty() || director.isEmpty()) {
 			return Optional.empty();
 		}
@@ -150,7 +147,7 @@ public class ListGenerator {
 				.filter(f -> f.isVHSOnly() && !f.isTVShow())
 				.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
 
-		libraryCatalog.createUnidentifiedButCompleteEntryList().forEach(this::identifyMysteryFilm);
+		cdhCatalog.createUnidentifiedButCompleteEntryList().forEach(this::identifyMysteryFilm);
 
 		writeDataToFiles();
 
@@ -161,12 +158,14 @@ public class ListGenerator {
 	}
 
 	private void readDataFromFiles() {
+		cdhCatalog.readDataFromFiles();
 		libraryCatalog.readDataFromFiles();
 		ofdbManager.readDataFromFiles();
 		log.info("Done reading files.");
 	}
 
 	private void writeDataToFiles() {
+		cdhCatalog.writeDataToFiles();
 		ofdbManager.writeToFiles();
 		libraryCatalog.writeToFiles();
 	}
