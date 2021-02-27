@@ -131,7 +131,7 @@ public class FilmEntry extends ComparableFilmEntry implements ISortableEntry {
 	}
 
 	public Optional<AdditionalOfdbData> getOrCreateAdditionalOfdbData() {
-		if (ofdbUpdateCount.get() >= 50) {
+		if (ofdbUpdateCount.get() >= 100) {
 			return Optional.empty();
 		}
 

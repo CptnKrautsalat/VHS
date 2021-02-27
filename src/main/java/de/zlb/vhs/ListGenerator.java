@@ -38,6 +38,7 @@ public class ListGenerator {
 					if (film.isPresent()) {
 						CdhCombinedFilm combinedFilm = new CdhCombinedFilm(film.get(), lce);
 						combinedFilms.add(combinedFilm);
+						lce.setCombinedFilm(combinedFilm);
 					}
 				});
 		combinedFilms.removeIf(ICombinedFilm::isEmpty);
@@ -100,7 +101,7 @@ public class ListGenerator {
 	}
 
 	public Optional<FilmEntry> identifyMysteryFilm(ComparableFilmEntry entry) {
-		if (mysteryFilms.get() >= 10) {
+		if (mysteryFilms.get() >= 0) {
 			return Optional.empty();
 		}
 		String year = entry.getYear();
@@ -143,6 +144,10 @@ public class ListGenerator {
 		ofdbManager.processFilmData();
 		combineFilms();
 
+		combinedFilms.stream()
+				.map(CdhCombinedFilm::getOfdbEntry)
+				.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
+
 		ofdbManager.getFilms()
 				.filter(f -> f.isVHSOnly() && !f.isTVShow())
 				.forEach(FilmEntry::getOrCreateAdditionalOfdbData);
@@ -159,7 +164,6 @@ public class ListGenerator {
 
 	private void readDataFromFiles() {
 		cdhCatalog.readDataFromFiles();
-		libraryCatalog.readDataFromFiles();
 		ofdbManager.readDataFromFiles();
 		log.info("Done reading files.");
 	}
@@ -167,7 +171,6 @@ public class ListGenerator {
 	private void writeDataToFiles() {
 		cdhCatalog.writeDataToFiles();
 		ofdbManager.writeToFiles();
-		libraryCatalog.writeToFiles();
 	}
 
 	public static void main(String [] args) {

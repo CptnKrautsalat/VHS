@@ -1,14 +1,16 @@
 package de.zlb.vhs.cdh;
 
-import de.zlb.vhs.CombinedFilm;
 import de.zlb.vhs.ComparableFilmEntry;
 import de.zlb.vhs.TitleUtil;
 import de.zlb.vhs.csv.CdhEntryBean;
 import lombok.Setter;
+import lombok.ToString;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+@ToString
 public class CdhEntry extends ComparableFilmEntry {
 
     private final CdhEntryBean bean;
@@ -28,12 +30,28 @@ public class CdhEntry extends ComparableFilmEntry {
         this.bean = bean;
 
         this.mainTitle = bean.getNormalizedTitle();
-        this.year = bean.getYear().split("/")[0];
+        this.year = extractYear(bean);
 
         this.directors = new HashSet<>();
         extractDirectors(bean);
         this.alternativeTitles = new HashSet<>();
-        this.generatedTitles = TitleUtil.moveLeadingArticles(this.mainTitle);
+        this.generatedTitles = new HashSet<>();
+        generateTitles();
+    }
+
+    private String extractYear(CdhEntryBean bean) {
+        String year = bean.getYear().split("[/-]")[0];
+        return year.contains("?") ? "" : year;
+    }
+
+    private void generateTitles() {
+        generatedTitles.addAll(TitleUtil.moveLeadingArticles(this.mainTitle));
+        Arrays.stream(mainTitle.split("[.-:]"))
+                .map(String::trim)
+                .map(TitleUtil::moveLeadingArticles)
+                .flatMap(Set::stream)
+                .filter(t -> !t.isBlank())
+                .forEach(generatedTitles::add);
     }
 
     private void extractDirectors(CdhEntryBean bean) {
